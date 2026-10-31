@@ -1,0 +1,32 @@
+import { defineDemo, shown } from "@live-ish/engine/config";
+
+export default defineDemo({
+  id: "{{id}}",
+  kind: "server",
+  title: "{{title}}",
+  scenario: "One sentence for the speaker window.",
+  beats: "single",
+
+  single: {
+    frame: { app: "{{id}}", path: "/" },
+    notes: "A real server answers this frame. `live-ish dev` and `live-ish present` start it.",
+    files: [shown("server.mjs"), shown("page.html")],
+    hooks: ["ask"],
+    minutes: 1,
+    steps: [
+      { id: "s0", label: "The first page", actions: [], code: { file: "page.html", lines: [] }, notes: [] },
+      {
+        id: "s1",
+        label: "Ask the server",
+        key: true,
+        actions: [
+          { type: "hook", name: "ask" },
+          { type: "assert", target: "#answer", expect: "text~=Hello" },
+        ],
+        code: { file: "server.mjs", lines: [[14, 17]] },
+        spotlight: ["#answer"],
+        notes: ["The page changed because a real route ran on a real server."],
+      },
+    ],
+  },
+});

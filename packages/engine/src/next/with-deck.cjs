@@ -84,6 +84,8 @@ function withDeck(options = {}) {
     reactStrictMode: true,
     // No dev badge on stage or in captures.
     devIndicators: false,
+    // A deck's AGENTS.md is its own (`live-ish add agents`), so `next dev` must not edit it.
+    agentRules: false,
     // A second build directory lets a production build run beside `next dev`.
     distDir: process.env.NEXT_DIST_DIR ?? ".next",
     images: { unoptimized: true },

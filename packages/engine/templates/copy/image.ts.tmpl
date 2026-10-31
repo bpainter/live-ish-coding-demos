@@ -1,0 +1,15 @@
+import { defineSlide } from "@live-ish/engine/config";
+
+export default defineSlide({
+  id: "{{id}}",
+  layout: "image",
+  title: "{{title}}",
+  body: ["One line over the image."],
+  image: {
+    src: "/images/placeholder.svg",
+    alt: "A placeholder shape. Describe your own image here.",
+    placement: "full-bleed",
+  },
+  notes: "What you say on this slide.",
+  minutes: 1,
+});

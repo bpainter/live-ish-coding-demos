@@ -14,7 +14,7 @@
   "scripts": {
     "scan:private": "node scripts/scan/private.mjs",
     "export:talk": "node scripts/export/run.mjs",
-    "build": "pnpm --filter starter build",
+    "build": "pnpm --filter starter exec next build",
     "test": "pnpm --filter @live-ish/engine test",
     "typecheck": "pnpm --filter @live-ish/engine typecheck && pnpm --filter starter typecheck",
     "lint": "pnpm --filter @live-ish/engine lint",

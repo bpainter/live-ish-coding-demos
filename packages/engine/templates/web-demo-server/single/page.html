@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="presenter-origin"
+      content="DECK_ORIGIN">
+    <title>A real server</title>
+    <script src="/runtime.js"></script>
+  </head>
+  <body>
+    <h1>A real server</h1>
+    <p id="answer">No answer yet</p>
+    <script>
+      async function ask() {
+        const res = await fetch("/hello");
+        const data = await res.json();
+        const answer =
+          document.getElementById("answer");
+        answer.textContent = data.message;
+      }
+      window.demoHooks = { ask };
+    </script>
+  </body>
+</html>

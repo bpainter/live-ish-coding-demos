@@ -1,0 +1,14 @@
+import { defineSlide } from "@live-ish/engine/config";
+
+export default defineSlide({
+  id: "{{id}}",
+  layout: "grid",
+  title: "{{title}}",
+  cards: [
+    { icon: "presentation", title: "First card", body: "One line about it." },
+    { icon: "play", title: "Second card", body: "One line about it." },
+    { icon: "square-terminal", title: "Third card", body: "One line about it." },
+  ],
+  notes: "What you say on this slide.",
+  minutes: 1,
+});

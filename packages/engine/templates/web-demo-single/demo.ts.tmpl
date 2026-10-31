@@ -1,0 +1,40 @@
+import { defineDemo, shown } from "@live-ish/engine/config";
+
+export default defineDemo({
+  id: "{{id}}",
+  kind: "{{kind}}",
+  title: "{{title}}",
+  scenario: "One sentence for the speaker window.",
+  beats: "single",
+
+  single: {
+    notes: "One page, played one step at a time.",
+    files: [shown("index.html"), shown("panel.css")],
+    hooks: ["reset"],
+    minutes: 1,
+    steps: [
+      { id: "s0", label: "The closed panel", actions: [], code: { file: "index.html", lines: [] }, notes: [] },
+      {
+        id: "s1",
+        label: "Open the panel",
+        key: true,
+        actions: [
+          { type: "pointer", to: "#toggle summary" },
+          { type: "click", target: "#toggle summary" },
+          { type: "assert", target: "#toggle", expect: "attr:open" },
+        ],
+        code: { file: "index.html", lines: [[4, 7]] },
+        spotlight: ["#toggle"],
+        notes: ["Say what just happened."],
+      },
+      {
+        id: "s2",
+        label: "Show the note",
+        actions: [{ type: "reveal", target: "#note" }],
+        code: { file: "panel.css", lines: [[7, 9]] },
+        spotlight: ["#note"],
+        notes: ["Press s for the speaker window."],
+      },
+    ],
+  },
+});

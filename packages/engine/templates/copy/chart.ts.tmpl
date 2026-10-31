@@ -1,0 +1,19 @@
+import { defineSlide } from "@live-ish/engine/config";
+
+export default defineSlide({
+  id: "{{id}}",
+  layout: "chart",
+  title: "{{title}}",
+  chart: {
+    kind: "dot",
+    xLabel: "What the x axis counts",
+    yLabel: "What the y axis counts",
+    points: [
+      { label: "First", x: 20, y: 40 },
+      { label: "Second", x: 45, y: 70 },
+      { label: "Third", x: 60, y: 55 },
+    ],
+  },
+  notes: "What you say on this slide.",
+  minutes: 1,
+});

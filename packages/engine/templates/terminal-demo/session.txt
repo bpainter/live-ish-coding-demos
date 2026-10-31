@@ -1,0 +1,2 @@
+cat items.txt
+node count.mjs items.txt

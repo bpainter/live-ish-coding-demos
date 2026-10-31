@@ -30,11 +30,13 @@
     "bin",
     "dist",
     "shell",
-    "src"
+    "skills",
+    "src",
+    "templates"
   ],
   "scripts": {
-    "build": "node scripts/build-css.mjs",
-    "prepare": "node scripts/build-css.mjs",
+    "build": "node scripts/build-css.mjs && node scripts/build-schema.mjs",
+    "prepare": "node scripts/build-css.mjs && node scripts/build-schema.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "node --conditions=react-server --import tsx --test test/*.test.ts"
@@ -49,7 +51,7 @@
     "web-features": "3.44.0"
   },
   "peerDependencies": {
-    "next": "16.4.3",
+    "next": "~16.4.3",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
