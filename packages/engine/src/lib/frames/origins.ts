@@ -55,10 +55,14 @@ export function frameLive(route: string): boolean {
   return !server || Boolean(EXTERNAL[server[1]]);
 }
 
-/** The query of a frame document: `?flags=`. Server frames get theirs through the bridge. */
-export function frameQuery(route: string, flags: Record<string, boolean> | undefined): string {
+/**
+ * The query of a frame document: `?flags=`, and `chrome=<id>` for a terminal frame, the one element
+ * inside a frame that takes a theme. Server frames get their flags through the bridge.
+ */
+export function frameQuery(route: string, flags: Record<string, boolean> | undefined, terminalChrome?: string): string {
   const q = flagsQuery(flags);
-  return q ? `?flags=${q}` : "";
+  const parts = [q ? `flags=${q}` : "", terminalChrome ? `chrome=${encodeURIComponent(terminalChrome)}` : ""].filter(Boolean);
+  return parts.length ? `?${parts.join("&")}` : "";
 }
 
 /** Flags as the `?flags=` query the frame routes read (`enhance-css:0,enhance-js:1`). */

@@ -1,0 +1,248 @@
+/* Navigation drawer: a modal dialog styled as dark glass, a right-side sheet over the slide. Markup:
+   components/chrome/NavDrawer.tsx. A low tint over a dimmed, blurred backdrop keeps the slide's shapes
+   visible in the frost while the text holds its contrast. Where the filter is missing, the sheet falls
+   back to the solid token below, so the low tint never stands alone. */
+.nav-drawer {
+  --nav-drawer-tint: var(--speaker-clear-tint);
+  --nav-drawer-filter: blur(16px) saturate(170%) brightness(0.58);
+  @apply fixed flex flex-col overflow-hidden;
+  inset: 16px 16px 16px auto;
+  /* 520, not 420: the longest feature name fits on one line, so the list never wraps. */
+  inline-size: min(520px, 100vw - 32px);
+  max-inline-size: none;
+  block-size: auto;
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--speaker-edge);
+  border-radius: 24px;
+  background: var(--nav-drawer-tint);
+  -webkit-backdrop-filter: var(--nav-drawer-filter);
+  backdrop-filter: var(--nav-drawer-filter);
+  box-shadow: var(--speaker-highlight), var(--speaker-shadow);
+  color: var(--speaker-ink);
+  font-family: var(--speaker-font-sans);
+  font-size: 20px;
+  line-height: 28px;
+  /* Closing: fade out over 140 ms. display and overlay stay discrete, so the sheet stays in the
+     top layer until the fade ends. */
+  opacity: 0;
+  transform: none;
+  transition:
+    opacity 140ms var(--speaker-ease),
+    transform 140ms var(--speaker-ease),
+    display 140ms allow-discrete,
+    overlay 140ms allow-discrete;
+}
+.nav-drawer:not([open]) {
+  display: none;
+}
+.nav-drawer[open] {
+  opacity: 1;
+  transform: none;
+  transition-duration: 200ms;
+}
+@starting-style {
+  .nav-drawer[open] {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+.nav-drawer::backdrop {
+  background: var(--speaker-scrim);
+  opacity: 0;
+  transition:
+    opacity 140ms var(--speaker-ease),
+    display 140ms allow-discrete,
+    overlay 140ms allow-discrete;
+}
+.nav-drawer[open]::backdrop {
+  opacity: 1;
+  transition-duration: 200ms;
+}
+@starting-style {
+  .nav-drawer[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.nav-drawer__header {
+  @apply flex items-center justify-between;
+  flex: none;
+  gap: 16px;
+  /* 36 on the left lines the title up with the link text (20 + 16). */
+  padding: 20px 20px 8px 36px;
+}
+.nav-drawer__title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: var(--weight-bold);
+}
+.nav-drawer__close {
+  @apply inline-flex items-center justify-center;
+  gap: 8px;
+  min-inline-size: 44px;
+  block-size: 44px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--speaker-edge);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--speaker-ink) 8%, transparent);
+  color: inherit;
+  font: inherit;
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+.nav-drawer__close:has(> svg:only-child) {
+  padding: 0;
+}
+.nav-drawer__close:hover {
+  background: color-mix(in srgb, var(--speaker-ink) 16%, transparent);
+}
+.nav-drawer__close svg {
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+/* At 1080 tall the whole list shows (16 rows of 48, four headings); shorter windows scroll it inside
+   the sheet. The 4 px top and 20 px inline padding keep the focus ring clear of the scroller's clip. */
+.nav-drawer__nav {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 20px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--speaker-ink) 24%, transparent) transparent;
+}
+.nav-drawer__list {
+  @apply flex flex-col;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nav-drawer__group {
+  padding-top: 16px;
+}
+.nav-drawer__heading {
+  margin: 0 0 4px;
+  padding: 0 16px;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: var(--weight-bold);
+  color: var(--speaker-ink-body);
+}
+
+.nav-drawer__link {
+  @apply relative flex items-center justify-between;
+  gap: 16px;
+  min-block-size: 48px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  color: var(--speaker-ink);
+  font-size: 22px;
+  line-height: 28px;
+  text-decoration: none;
+}
+.nav-drawer__link:hover {
+  background: color-mix(in srgb, var(--speaker-ink) 8%, transparent);
+}
+.nav-drawer__link:focus-visible {
+  outline: 3px solid var(--speaker-focus);
+  outline-offset: 2px;
+}
+.nav-drawer__link[aria-current="true"],
+.nav-drawer__link[aria-current="page"] {
+  background: var(--speaker-tint-here);
+  font-weight: var(--weight-bold);
+}
+.nav-drawer__link[aria-current="true"]::before,
+.nav-drawer__link[aria-current="page"]::before {
+  content: "";
+  @apply absolute;
+  inset: 10px auto 10px 0;
+  inline-size: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--speaker-here);
+}
+.nav-drawer__label {
+  min-inline-size: 0;
+}
+.nav-drawer__num {
+  flex: none;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: var(--weight-regular);
+  color: var(--speaker-ink-body);
+}
+
+/* The menu button in every window: a Lucide Menu icon, and a label in the speaker
+   window. The reader pill already gives it the 44 px target. */
+.nav-drawer-trigger {
+  gap: 8px;
+}
+.nav-drawer-trigger svg {
+  flex: none;
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+/* Reduced motion: opacity only. */
+@media (prefers-reduced-motion: reduce) {
+  @starting-style {
+    .nav-drawer[open] {
+      transform: none;
+    }
+  }
+}
+
+/* Solid fallbacks. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav-drawer {
+    background: var(--speaker-solid);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .nav-drawer {
+    background: var(--speaker-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+:root[data-flags*="glass:0"] .nav-drawer,
+:root[data-glass="off"] .nav-drawer {
+  background: var(--speaker-solid);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (forced-colors: active) {
+  .nav-drawer {
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .nav-drawer__heading,
+  .nav-drawer__num {
+    color: CanvasText;
+  }
+  .nav-drawer__link {
+    color: LinkText;
+  }
+  .nav-drawer__link[aria-current="true"],
+  .nav-drawer__link[aria-current="page"] {
+    background: Canvas;
+    color: CanvasText;
+  }
+  .nav-drawer__link[aria-current="true"]::before,
+  .nav-drawer__link[aria-current="page"]::before {
+    background: Mark;
+  }
+  .nav-drawer__link:focus-visible {
+    outline-color: Highlight;
+  }
+}

@@ -1,15 +1,19 @@
-/* The terminal-window shell: a dark glass window filling the frame. A near-opaque surface hides
-   the background, so there is no blur. Nothing blinks or reads as live. */
+/* The terminal-window shell: a window filling the frame, on the theme's --term-* tokens, which the
+   composer links as /live-ish/chrome/<id>.frame.css. This is the one element inside a frame that a
+   theme reaches, because the engine owns it. Nothing blinks or reads as live. */
 @layer wrapper {
+  :root[data-wrapper="terminal-window"] body {
+    background: var(--term-chrome);
+  }
+  .wrap--terminal {
+    padding: 0;
+  }
   .wrap-window {
     display: grid;
     grid-template-rows: 40px 32px minmax(0, 1fr) 36px;
     min-block-size: 0;
-    border: 1px solid var(--wrap-dark-edge);
-    border-radius: 12px;
-    background: var(--wrap-surface-dark);
-    box-shadow: var(--glass-dark-highlight), var(--glass-shadow-float);
-    color: var(--wrap-dark-ink-body);
+    background: var(--term-bg);
+    color: var(--term-ink);
     overflow: hidden;
   }
   .wrap-window__bar {
@@ -18,6 +22,7 @@
     align-items: center;
     gap: 12px;
     padding: 0 12px;
+    background: var(--term-chrome);
   }
   .wrap-window__dots {
     display: inline-flex;
@@ -27,11 +32,11 @@
     inline-size: 12px;
     block-size: 12px;
     border-radius: 50%;
-    background: var(--wrap-dark-dot);
+    background: color-mix(in srgb, var(--term-ink) 30%, transparent);
   }
   .wrap-window__title {
     margin: 0;
-    color: var(--wrap-dark-ink);
+    color: var(--term-ink);
     font-weight: 700;
     text-align: center;
     white-space: nowrap;
@@ -44,8 +49,8 @@
     block-size: 22px;
     padding: 0 10px;
     border-radius: 999px;
-    background: var(--wrap-dark-chip);
-    color: var(--wrap-dark-ink-body);
+    border: 1px solid color-mix(in srgb, var(--term-ink) 40%, transparent);
+    color: var(--term-ink);
     font-weight: 700;
     white-space: nowrap;
   }
@@ -53,15 +58,16 @@
     display: flex;
     align-items: stretch;
     padding: 0 12px;
-    border-block-end: 1px solid var(--wrap-dark-edge);
+    background: var(--term-chrome);
+    border-block-end: 1px solid color-mix(in srgb, var(--term-ink) 18%, transparent);
   }
   .wrap-window__tab {
     display: flex;
     align-items: center;
     padding: 0 8px;
-    color: var(--wrap-dark-ink);
-    font: 14px/18px var(--glass-font-mono);
-    box-shadow: inset 0 -2px 0 var(--cyan);
+    color: var(--term-ink);
+    font: 14px/18px var(--frame-font-mono);
+    box-shadow: inset 0 -2px 0 var(--term-prompt);
   }
   .wrap-window__body {
     min-block-size: 0;
@@ -72,15 +78,16 @@
     align-items: center;
     gap: 24px;
     padding: 0 16px;
-    border-block-start: 1px solid var(--wrap-dark-edge);
-    font: 14px/18px var(--glass-font-mono);
+    background: var(--term-chrome);
+    border-block-start: 1px solid color-mix(in srgb, var(--term-ink) 18%, transparent);
+    font: 14px/18px var(--frame-font-mono);
     white-space: nowrap;
     overflow: hidden;
   }
   .wrap-window__key {
-    color: var(--wrap-dark-ink-soft);
+    color: var(--term-comment);
   }
   .wrap-window__value {
-    color: var(--wrap-dark-ink);
+    color: var(--term-ink);
   }
 }

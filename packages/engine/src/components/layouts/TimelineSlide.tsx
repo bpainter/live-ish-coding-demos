@@ -8,7 +8,7 @@ interface Props {
   mode: Mode;
 }
 
-/** Dated markers in a row. Markers whose detail states no live window render hollow. */
+/** Dated markers in a row. `label` is "date · name", and `hollow` opens a marker. */
 export function TimelineSlide({ slide, total, mode }: Props) {
   const items = slide.items ?? [];
   const stat = slide.stats?.[0];
@@ -17,9 +17,8 @@ export function TimelineSlide({ slide, total, mode }: Props) {
       <ol className="timeline" data-count={items.length}>
         {items.map((it) => {
           const [date, name] = it.label.split(" · ");
-          const hollow = !/^About \d/.test(it.detail ?? "");
           return (
-            <li className="timeline__item" key={it.label} data-hollow={hollow}>
+            <li className="timeline__item" key={it.label} data-hollow={Boolean(it.hollow)}>
               <span className="timeline__marker" aria-hidden="true" />
               <strong className="timeline__date">{date}</strong>
               {name ? <span className="timeline__name">{name}</span> : null}

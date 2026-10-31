@@ -1,0 +1,71 @@
+{
+  "$schema": "./chrome-theme.schema.json",
+  "schemaVersion": 1,
+  "id": "early-web",
+  "name": "Early web",
+  "traits": [
+    "Tiled teal backdrop from CSS",
+    "Beveled edges",
+    "Gray code panel",
+    "Serif type",
+    "Dashed rings",
+    "Counter-style meter"
+  ],
+  "tokens": {
+    "--chrome-backdrop": "conic-gradient(#007070 25%, #005e5e 0 50%, #007070 0 75%, #005e5e 0) 0 0 / 48px 48px",
+    "--chrome-backdrop-light": "#007070",
+    "--chrome-backdrop-dark": "#005e5e",
+    "--chrome-grain": "0",
+    "--chrome-ink": "#ffffff",
+    "--chrome-ink-soft": "#ffff99",
+    "--chrome-accent": "#ffff00",
+    "--chrome-title-weight": "700",
+    "--chrome-card-surface": "#c8c8c8",
+    "--chrome-card-border": "1px solid #000000",
+    "--chrome-card-radius": "0",
+    "--chrome-card-shadow": "inset 2px 2px 0 #ffffff, inset -2px -2px 0 #6e6e6e, 4px 4px 0 #003c3c",
+    "--chrome-blur": "none",
+    "--chrome-code-surface": "#c8c8c8",
+    "--chrome-code-highlight-bg": "rgb(255 255 0 / 0.45)",
+    "--chrome-code-highlight-bar": "#000080",
+    "--chrome-code-dim-opacity": "0.86",
+    "--chrome-step-done": "#ffffff",
+    "--chrome-step-current": "#ffff00",
+    "--chrome-step-future": "#c8c8c8",
+    "--chrome-spot-ring": "#ff00ff",
+    "--chrome-spot-halo": "#000000",
+    "--chrome-spot-width": "3px",
+    "--chrome-spot-style": "dashed",
+    "--chrome-callout-bg": "#000080",
+    "--chrome-callout-ink": "#ffffff",
+    "--chrome-callout-leader": "#ffff00",
+    "--chrome-keycap-bg": "#ffff00",
+    "--chrome-keycap-ink": "#000000",
+    "--chrome-keycap-edge": "#000000",
+    "--chrome-cursor": "#ffffff",
+    "--term-bg": "#000000",
+    "--term-ink": "#c8c8c8",
+    "--term-prompt": "#00ff00",
+    "--term-comment": "#9a9a9a",
+    "--term-chrome": "#000080"
+  },
+  "code": {
+    "ink": "#000000",
+    "keyword": "#000080",
+    "string": "#600000",
+    "comment": "#2b2b2b",
+    "number": "#500050",
+    "property": "#003c00"
+  },
+  "fonts": {
+    "sans": "\"Times New Roman\", Times, serif",
+    "mono": "\"Courier New\", Courier, monospace"
+  },
+  "motion": {
+    "fade": 0,
+    "effect": "blink marquee"
+  },
+  "details": {
+    "meter": "counter"
+  }
+}

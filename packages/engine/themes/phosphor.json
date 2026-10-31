@@ -1,0 +1,69 @@
+{
+  "$schema": "./chrome-theme.schema.json",
+  "schemaVersion": 1,
+  "id": "phosphor",
+  "name": "Phosphor",
+  "traits": [
+    "Dark CRT look",
+    "Green text on black",
+    "Thin glow",
+    "Static scanlines on the backdrop"
+  ],
+  "tokens": {
+    "--chrome-backdrop": "linear-gradient(180deg, #050a05, #0b160c)",
+    "--chrome-backdrop-light": "#0b160c",
+    "--chrome-backdrop-dark": "#050a05",
+    "--chrome-grain": "0",
+    "--chrome-ink": "#b7f7c4",
+    "--chrome-ink-soft": "#86d19a",
+    "--chrome-accent": "#39ff88",
+    "--chrome-title-weight": "700",
+    "--chrome-card-surface": "#07110a",
+    "--chrome-card-border": "1px solid #39ff88",
+    "--chrome-card-radius": "4px",
+    "--chrome-card-shadow": "0 0 0 1px rgb(57 255 136 / 0.2), 0 0 18px rgb(57 255 136 / 0.16)",
+    "--chrome-blur": "none",
+    "--chrome-code-surface": "#07110a",
+    "--chrome-code-highlight-bg": "rgb(57 255 136 / 0.14)",
+    "--chrome-code-highlight-bar": "#39ff88",
+    "--chrome-code-dim-opacity": "0.8",
+    "--chrome-step-done": "#86d19a",
+    "--chrome-step-current": "#39ff88",
+    "--chrome-step-future": "#4f8a5f",
+    "--chrome-spot-ring": "#39ff88",
+    "--chrome-spot-halo": "#000000",
+    "--chrome-spot-width": "3px",
+    "--chrome-spot-style": "solid",
+    "--chrome-callout-bg": "#39ff88",
+    "--chrome-callout-ink": "#04100a",
+    "--chrome-callout-leader": "#39ff88",
+    "--chrome-keycap-bg": "#0b160c",
+    "--chrome-keycap-ink": "#b7f7c4",
+    "--chrome-keycap-edge": "#39ff88",
+    "--chrome-cursor": "#39ff88",
+    "--term-bg": "#050a05",
+    "--term-ink": "#b7f7c4",
+    "--term-prompt": "#39ff88",
+    "--term-comment": "#86d19a",
+    "--term-chrome": "#0b160c"
+  },
+  "code": {
+    "ink": "#b7f7c4",
+    "keyword": "#7df9ff",
+    "string": "#ffd479",
+    "comment": "#93c9a3",
+    "number": "#ffb3c7",
+    "property": "#9dffb0"
+  },
+  "fonts": {
+    "sans": "JetBrains Mono",
+    "mono": "JetBrains Mono"
+  },
+  "motion": {
+    "fade": 80,
+    "effect": "scanlines"
+  },
+  "details": {
+    "title": "glow"
+  }
+}

@@ -7,6 +7,7 @@ import { manifestFor } from "../../lib/frames/registry";
 import { meterValue } from "../../lib/meters";
 import { elisionLines } from "../../lib/excerpt";
 import { firstPoster } from "../../lib/assets";
+import { posterUrl } from "../../lib/posters";
 import { fromDeck } from "../../lib/paths";
 import { PageBody } from "./PageBody";
 import { IntroSlide } from "./IntroSlide";
@@ -42,7 +43,7 @@ export async function DemoPageSlide({ slide, mode }: Props) {
     return (
       <>
         <IntroSlide demo={demo} page={page} />
-        {warm ? <FrameWarm route={warm.route} flags={warm.flags} sandbox={manifestFor(warm.route)?.sandbox ?? "allow-scripts allow-same-origin"} /> : null}
+        {warm ? <FrameWarm route={warm.route} flags={warm.flags} chrome={warm.kind === "terminal" ? nextPage.chrome : undefined} sandbox={manifestFor(warm.route)?.sandbox ?? "allow-scripts allow-same-origin"} /> : null}
       </>
     );
   }
@@ -62,7 +63,7 @@ export async function DemoPageSlide({ slide, mode }: Props) {
   const meters = Object.fromEntries(page.steps.filter((s) => s.meter).map((s) => [s.id, meterValue(demo.id, s.meter!.source)]));
   // One captured poster per step keeps the speaker's previews from going blank; an authored poster
   // still wins. Posters are optional: only the ones that exist, served as their AVIF (lib/assets.ts).
-  const posters = Object.fromEntries(page.steps.map((s) => [s.id, firstPoster(s.poster, `/posters/${page.id}/${s.id}.jpg`, page.frame.poster)]));
+  const posters = Object.fromEntries(page.steps.map((s) => [s.id, firstPoster(s.poster, posterUrl(page, s.id, page.chrome), page.frame.poster)]));
   const eyebrow = page.beat === "single" ? null : page.eyebrow;
   return (
     <article className="page" data-beat={page.beat} data-split={split} data-ratio={ratio ?? undefined} aria-label={eyebrow ? `${eyebrow}: ${page.title}` : page.title}>

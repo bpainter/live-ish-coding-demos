@@ -31,6 +31,10 @@ export interface BuildManifest {
   csp?: string;
   /** The demo has a `background`: `data-section-bg` picks it up from backgrounds.css. */
   background?: boolean;
+  /** The page's audience theme. A terminal frame links its `--term-*` file. */
+  chrome?: string;
+  /** False leaves frame-base.css out of the document. */
+  base?: boolean;
 }
 
 export interface BuildDef {

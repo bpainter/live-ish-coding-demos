@@ -7,7 +7,7 @@ export type Background = string;
 
 /**
  * Where text sits directly on an image (stage px), and what lies between it and the image: the bare
- * field, the walk-page chrome wash, a light glass card or a dark glass panel. The contrast checks
+ * field, the walk-page wash, a light card or a dark panel. The contrast checks
  * composite text over the extremes of each zone.
  */
 export interface TextZone {

@@ -85,7 +85,7 @@ export function PageCodePanel({ files, code, mode }: Props) {
   };
 
   return (
-    <div className="code code--page chrome-card" data-has-highlight={highlighted.size > 0} data-off={off}>
+    <div className="code" data-has-highlight={highlighted.size > 0} data-off={off}>
       <div className="code__tabs" role="tablist" aria-label="Files" ref={tabsRef} onKeyDown={interactive ? onTabKey : undefined}>
         {files.map((f, i) => {
           const selected = f.file === file?.file;
@@ -117,7 +117,7 @@ export function PageCodePanel({ files, code, mode }: Props) {
         })}
       </div>
       <pre
-        className="code__pre code__pre--plain"
+        className="code__pre"
         ref={preRef}
         tabIndex={interactive ? 0 : -1}
         id={interactive ? panelId : undefined}

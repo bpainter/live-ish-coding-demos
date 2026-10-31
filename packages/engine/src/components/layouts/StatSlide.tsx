@@ -9,6 +9,7 @@ interface Props {
   mode: Mode;
 }
 
+/** One or two big numerals. The label comes first in the markup, and the numeral above it on screen. */
 export function StatSlide({ slide, total, mode }: Props) {
   const stats = slide.stats ?? [];
   return (
@@ -16,9 +17,9 @@ export function StatSlide({ slide, total, mode }: Props) {
       <dl className="stats" data-count={stats.length}>
         {stats.map((s) => (
           <div className="stats__item" key={s.value + s.label}>
-            <dd className="stats__value">{s.value}</dd>
             <dt className="stats__label">{s.label}</dt>
-            {s.source ? <small className="stats__source">{hostOf(s.source)}</small> : null}
+            <dd className="stats__value">{s.value}</dd>
+            {s.source ? <dd className="stats__source">{hostOf(s.source)}</dd> : null}
           </div>
         ))}
       </dl>

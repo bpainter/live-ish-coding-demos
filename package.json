@@ -15,8 +15,11 @@
     "scan:private": "node scripts/scan/private.mjs",
     "export:talk": "node scripts/export/run.mjs",
     "build": "pnpm --filter starter build",
+    "build:conformance": "pnpm --filter conformance build",
     "test": "pnpm --filter @live-ish/engine test",
-    "typecheck": "pnpm --filter @live-ish/engine typecheck && pnpm --filter starter typecheck",
+    "test:contrast": "pnpm --filter @live-ish/engine test:contrast",
+    "gen:themes": "pnpm --filter @live-ish/engine gen:themes",
+    "typecheck": "pnpm --filter @live-ish/engine typecheck && pnpm --filter starter typecheck && pnpm --filter conformance typecheck",
     "lint": "pnpm --filter @live-ish/engine lint",
     "smoke": "node --import tsx scripts/smoke.mts"
   },

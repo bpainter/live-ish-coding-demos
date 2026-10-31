@@ -2,7 +2,7 @@ import { BASE_CSS, esc } from "./common";
 import type { ShellDef } from "./types";
 
 /**
- * A terminal app on dark glass: the title bar (three dots, the title, the "Recorded" chip), one
+ * A terminal app, in the theme's `--term-*` colors: the title bar (three dots, the title, the "Recorded" chip), one
  * session tab with the working directory, and a status bar with whatever the recording's `env`
  * holds. The shown block is the recorded lines. Nothing reads as live.
  */

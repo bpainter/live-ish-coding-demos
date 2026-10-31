@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 860" role="img" aria-label="A stacked harbor wall of pale stone blocks above a dark waterline">
+  <rect width="800" height="860" fill="#d8d0c0"/>
+  <g fill="#c4baa6" stroke="#8d8676" stroke-width="2">
+    <rect x="0" y="120" width="260" height="120"/>
+    <rect x="260" y="120" width="300" height="120"/>
+    <rect x="560" y="120" width="240" height="120"/>
+    <rect x="0" y="240" width="180" height="120"/>
+    <rect x="180" y="240" width="320" height="120"/>
+    <rect x="500" y="240" width="300" height="120"/>
+    <rect x="0" y="360" width="300" height="120"/>
+    <rect x="300" y="360" width="240" height="120"/>
+    <rect x="540" y="360" width="260" height="120"/>
+  </g>
+  <rect y="480" width="800" height="380" fill="#2f4a4c"/>
+  <path d="M0 540 q100 -24 200 0 t200 0 t200 0 t200 0 M0 620 q100 -24 200 0 t200 0 t200 0 t200 0" fill="none" stroke="#7fa79b" stroke-width="4"/>
+</svg>

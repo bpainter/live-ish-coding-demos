@@ -1,0 +1,70 @@
+{
+  "$schema": "./chrome-theme.schema.json",
+  "schemaVersion": 1,
+  "id": "swiss",
+  "name": "Swiss",
+  "traits": [
+    "White field",
+    "Strict grid",
+    "Heavy sans type",
+    "One red accent",
+    "No radii"
+  ],
+  "tokens": {
+    "--chrome-backdrop": "#ffffff",
+    "--chrome-backdrop-light": "#ffffff",
+    "--chrome-backdrop-dark": "#ffffff",
+    "--chrome-grain": "0",
+    "--chrome-ink": "#111111",
+    "--chrome-ink-soft": "#444444",
+    "--chrome-accent": "#c80000",
+    "--chrome-title-weight": "700",
+    "--chrome-card-surface": "#ffffff",
+    "--chrome-card-border": "1px solid #111111",
+    "--chrome-card-radius": "0",
+    "--chrome-card-shadow": "none",
+    "--chrome-blur": "none",
+    "--chrome-code-surface": "#f5f5f5",
+    "--chrome-code-highlight-bg": "rgb(200 0 0 / 0.08)",
+    "--chrome-code-highlight-bar": "#c80000",
+    "--chrome-code-dim-opacity": "0.82",
+    "--chrome-step-done": "#111111",
+    "--chrome-step-current": "#c80000",
+    "--chrome-step-future": "#8c8c8c",
+    "--chrome-spot-ring": "#c80000",
+    "--chrome-spot-halo": "#ffffff",
+    "--chrome-spot-width": "3px",
+    "--chrome-spot-style": "solid",
+    "--chrome-callout-bg": "#111111",
+    "--chrome-callout-ink": "#ffffff",
+    "--chrome-callout-leader": "#c80000",
+    "--chrome-keycap-bg": "#111111",
+    "--chrome-keycap-ink": "#ffffff",
+    "--chrome-keycap-edge": "#111111",
+    "--chrome-cursor": "#111111",
+    "--term-bg": "#111111",
+    "--term-ink": "#f5f5f5",
+    "--term-prompt": "#ff8a80",
+    "--term-comment": "#bdbdbd",
+    "--term-chrome": "#222222"
+  },
+  "code": {
+    "ink": "#111111",
+    "keyword": "#930000",
+    "string": "#1f3f8f",
+    "comment": "#474747",
+    "number": "#6a1f6a",
+    "property": "#0e5337"
+  },
+  "fonts": {
+    "sans": "Inter",
+    "mono": "JetBrains Mono"
+  },
+  "motion": {
+    "fade": 0,
+    "effect": "none"
+  },
+  "details": {
+    "rule": "hairline"
+  }
+}

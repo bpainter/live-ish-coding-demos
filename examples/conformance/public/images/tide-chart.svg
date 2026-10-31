@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" role="img" aria-label="Six contour lines rising across a dark field, like a tide chart">
+  <rect width="1920" height="1080" fill="#23302f"/>
+  <g fill="none" stroke="#7fa79b" stroke-width="3">
+    <path d="M0 860 C320 760 520 930 860 800 S1500 640 1920 720"/>
+    <path d="M0 760 C340 640 560 840 900 690 S1520 520 1920 610" opacity=".85"/>
+    <path d="M0 660 C360 530 600 740 940 590 S1540 410 1920 500" opacity=".7"/>
+    <path d="M0 560 C380 430 640 640 980 490 S1560 310 1920 400" opacity=".55"/>
+    <path d="M0 460 C400 330 680 540 1020 390 S1580 210 1920 300" opacity=".4"/>
+    <path d="M0 360 C420 240 720 440 1060 300 S1600 120 1920 200" opacity=".25"/>
+  </g>
+  <circle cx="1500" cy="240" r="96" fill="#e9c46a"/>
+</svg>
