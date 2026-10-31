@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // A small shim: check Node first, so an old version gets a sentence and not a syntax error, then
 // run the TypeScript CLI through tsx with the conditions the engine's server modules expect.
-import { spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -15,5 +15,7 @@ if (major < 22) {
 const here = path.dirname(fileURLToPath(import.meta.url));
 const tsx = pathToFileURL(createRequire(import.meta.url).resolve("tsx")).href;
 const main = path.join(here, "..", "src", "cli", "main.ts");
-const run = spawnSync(process.execPath, ["--conditions=react-server", "--import", tsx, main, ...process.argv.slice(2)], { stdio: "inherit" });
-process.exit(run.status ?? 1);
+const cli = spawn(process.execPath, ["--conditions=react-server", "--import", tsx, main, ...process.argv.slice(2)], { stdio: "inherit" });
+// `live-ish present` owns a server. A stop sent to this shim has to reach it, or the port stays taken.
+for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => cli.kill(signal));
+cli.on("exit", (code) => process.exit(code ?? 1));
