@@ -91,7 +91,7 @@ export function countLines(source: string): number {
 }
 
 /** `meter.source` is a glob on the demo folder: "before/*.js". Any other source keeps its typed value. */
-function writeMeters(root: string, { demos }: AssembledDeck) {
+export function computeMeters(root: string, { demos }: Pick<AssembledDeck, "demos">): Record<string, string> {
   const out: Record<string, string> = {};
   for (const demo of demos) {
     for (const page of demo.pages) {
@@ -110,7 +110,11 @@ function writeMeters(root: string, { demos }: AssembledDeck) {
       }
     }
   }
-  write(path.join(root, OUT, "meters.json"), JSON.stringify(out, null, 2) + "\n");
+  return out;
+}
+
+function writeMeters(root: string, assembled: AssembledDeck) {
+  write(path.join(root, OUT, "meters.json"), JSON.stringify(computeMeters(root, assembled), null, 2) + "\n");
 }
 
 function writeSupport(root: string, { demos }: AssembledDeck) {

@@ -1,8 +1,12 @@
 import { excerptFile, shownFile } from "../lib/demo-files";
 import type { ServerRoute } from "../lib/frames/routes";
+import { nearest } from "../lib/validate/nearest";
 import type { DeckConfig, DemoConfig, IntroConfig, ShownFile } from "./config";
 import { FULL_VIEWPORT, SPLITS, type Beat, type Demo, type DemoCodeFile, type DemoPage, type Frame, type FrameKind, type FramePage, type IntroPage, type SplitRatio, type Step } from "./demo";
+import { DeckError } from "./errors";
 import type { Citation, CopyContent, Slide, SlideConfig } from "./slide";
+
+export { DeckError };
 
 /** What `.live-ish/deck.gen.ts` hands the engine: the author's modules and where each demo lives. */
 export interface DeckInput {
@@ -38,10 +42,6 @@ export interface AssembledDeck {
   demos: Demo[];
 }
 
-export class DeckError extends Error {
-  override name = "DeckError";
-}
-
 export const DEFAULT_BEATS = { before: "What we used to do", after: "What we can do today" };
 
 function resolveDeck(config: DeckConfig): Deck {
@@ -69,24 +69,6 @@ function resolveDeck(config: DeckConfig): Deck {
     analytics: { provider: config.analytics?.provider ?? "none", speedInsights: config.analytics?.speedInsights ?? false, script: config.analytics?.script },
     timing: { target: config.timing?.target },
   };
-}
-
-/** The Levenshtein-nearest candidate, for "did you mean". */
-function nearest(name: string, candidates: string[]): string | undefined {
-  const distance = (a: string, b: string): number => {
-    const row = Array.from({ length: b.length + 1 }, (_, i) => i);
-    for (let i = 1; i <= a.length; i++) {
-      let prev = row[0];
-      row[0] = i;
-      for (let j = 1; j <= b.length; j++) {
-        const next = Math.min(row[j] + 1, row[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
-        prev = row[j];
-        row[j] = next;
-      }
-    }
-    return row[b.length];
-  };
-  return candidates.map((c) => ({ c, d: distance(name, c) })).sort((x, y) => x.d - y.d)[0]?.c;
 }
 
 function copyContent(slide: SlideConfig, deck: Deck): CopyContent | undefined {
