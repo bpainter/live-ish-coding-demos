@@ -1,0 +1,11 @@
+#!/bin/sh
+# Conventional Commits 1.0.0 on the subject line, and no agent attribution anywhere.
+subject=$(sed -n 1p "$1")
+if ! printf '%s' "$subject" | grep -Eq '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9-]+\))?!?: .+'; then
+  echo "commit-msg: subject must follow Conventional Commits: $subject" >&2
+  exit 1
+fi
+if grep -Eiq '^(co-authored-by:.*(claude|anthropic)|.*generated with \[?claude)' "$1"; then
+  echo "commit-msg: agent attribution is not allowed in this repo." >&2
+  exit 1
+fi
