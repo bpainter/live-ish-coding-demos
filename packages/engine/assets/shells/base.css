@@ -1,6 +1,5 @@
-/* Shared wrapper classes. Unshown,
-   composed around the shown markup at serve time. Selects only .wrap-* classes and the
-   [data-shown] slot; glass and --wrap-* tokens only; nothing moves. */
+/* Frame shell classes. Unshown, composed around the shown markup at serve time. Selects only .wrap-*
+   classes and the [data-shown] slot; --frame-* and --wrap-* tokens only; nothing moves. */
 @layer frame-theme, frame-layout, wrapper;
 
 @layer wrapper {
@@ -9,25 +8,20 @@
     grid-template-rows: minmax(0, 1fr);
     box-sizing: border-box;
     block-size: 100vh;
-    padding: var(--glass-frame-pad);
-    font: 400 var(--wrap-text-sm) / var(--wrap-leading-sm) var(--glass-font);
-    color: var(--glass-ink-soft);
+    padding: var(--frame-pad);
+    font: 400 var(--wrap-text-sm) / var(--wrap-leading-sm) var(--frame-font);
+    color: var(--frame-ink-soft);
   }
-  .wrap--store {
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    padding: 0;
-  }
-
-  /* The admin, app and report sheet: the only page-level blur (one per frame). */
+  /* A sheet: the page-level panel of an app, admin or report shell. */
   .wrap-sheet {
     position: relative;
     isolation: isolate;
     display: flex;
     flex-direction: column;
     min-block-size: 0;
-    border: var(--glass-border);
+    border: var(--frame-border);
     border-radius: 16px;
-    box-shadow: var(--glass-highlight), var(--glass-shadow);
+    box-shadow: var(--frame-highlight), var(--frame-shadow);
   }
   .wrap-sheet::before {
     content: "";
@@ -35,9 +29,9 @@
     inset: 0;
     z-index: -1;
     border-radius: inherit;
-    background: var(--glass-pane);
-    -webkit-backdrop-filter: var(--glass-filter-pane);
-    backdrop-filter: var(--glass-filter-pane);
+    background: var(--frame-pane);
+    -webkit-backdrop-filter: var(--frame-filter-pane);
+    backdrop-filter: var(--frame-filter-pane);
   }
 
   /* Header bar: one row at every width. */
@@ -49,7 +43,7 @@
     block-size: var(--wrap-bar-height);
     padding: 0 var(--wrap-pad);
     box-sizing: border-box;
-    border-block-end: 1px solid var(--glass-rule);
+    border-block-end: 1px solid var(--frame-rule);
     white-space: nowrap;
   }
   .wrap-brand {
@@ -65,30 +59,30 @@
     inline-size: 24px;
     block-size: 24px;
     border-radius: 6px;
-    background: var(--navy);
-    color: var(--white);
+    background: var(--frame-ink);
+    color: var(--frame-on-accent);
     font-size: 13px;
     font-weight: 700;
     line-height: 1;
   }
   .wrap-brand__name {
-    color: var(--glass-ink);
+    color: var(--frame-ink);
     font-weight: 700;
   }
   .wrap-bar__divider {
     flex: none;
     inline-size: 1px;
     block-size: 16px;
-    background: var(--glass-control-border);
+    background: var(--frame-control-border);
   }
   .wrap-bar__area {
-    color: var(--glass-ink);
+    color: var(--frame-ink);
     font-size: 15px;
     line-height: 20px;
     font-weight: 700;
   }
   .wrap-bar__meta {
-    color: var(--glass-ink-soft);
+    color: var(--frame-ink-soft);
   }
   .wrap-bar__end {
     display: inline-flex;
@@ -103,8 +97,8 @@
     inline-size: 28px;
     block-size: 28px;
     border-radius: 50%;
-    background: var(--purple);
-    color: var(--navy);
+    background: var(--frame-rule-solid);
+    color: var(--frame-ink);
     font-size: 12px;
     font-weight: 700;
     line-height: 1;
@@ -120,32 +114,32 @@
   }
   .wrap-title {
     margin: 0;
-    color: var(--glass-ink);
+    color: var(--frame-ink);
     font-size: 15px;
     line-height: 20px;
     font-weight: 700;
   }
   .wrap-caption {
     margin: 0;
-    color: var(--glass-ink-soft);
+    color: var(--frame-ink-soft);
     font-weight: 700;
   }
   .wrap-meta {
     margin: 0;
-    color: var(--glass-ink-soft);
+    color: var(--frame-ink-soft);
   }
 
-  /* Context tier: quiet glass, no shadow. */
+  /* Context tier: quiet, no shadow. */
   .wrap-card {
     margin: 0;
-    border: var(--glass-border);
+    border: var(--frame-border);
     border-radius: 12px;
     background: var(--wrap-surface-quiet);
-    box-shadow: var(--glass-highlight);
+    box-shadow: var(--frame-highlight);
   }
   .wrap-card__title {
     margin: 0;
-    color: var(--glass-ink);
+    color: var(--frame-ink);
     font-weight: 700;
   }
   .wrap-rows {
@@ -160,16 +154,16 @@
     padding: 0 var(--wrap-pad);
   }
   .wrap-row + .wrap-row {
-    border-block-start: 1px solid var(--glass-rule);
+    border-block-start: 1px solid var(--frame-rule);
   }
   .wrap-row__key {
-    color: var(--glass-ink);
+    color: var(--frame-ink);
     font-size: 15px;
     line-height: 20px;
     font-weight: 700;
   }
   .wrap-num {
-    color: var(--glass-ink);
+    color: var(--frame-ink);
     text-align: end;
   }
   .wrap-chip {
@@ -183,7 +177,7 @@
     border: 1px solid var(--wrap-chip-edge);
     border-radius: 999px;
     background: var(--wrap-chip-fill);
-    color: var(--glass-ink);
+    color: var(--frame-ink);
     font-weight: 700;
     white-space: nowrap;
   }
@@ -196,7 +190,7 @@
     opacity: 0.6;
   }
   .wrap-muted-label {
-    color: var(--glass-ink-soft);
+    color: var(--frame-ink-soft);
     font-weight: 700;
   }
   .wrap-icon {
@@ -214,97 +208,15 @@
   /* Focus tier: the shown block is the one raised object. Never a containing block or a backdrop
      root (no transform, filter, contain or overflow), so popovers and fixed layers behave. */
   .wrap-shown {
-    border: var(--glass-border);
+    border: var(--frame-border);
     border-radius: 12px;
     background: var(--wrap-surface-focus);
-    box-shadow: var(--glass-highlight), var(--wrap-shadow-focus);
+    box-shadow: var(--frame-highlight), var(--wrap-shadow-focus);
   }
   .wrap-shown--bare {
     border: 0;
     border-radius: 0;
     background: none;
     box-shadow: none;
-  }
-
-  /* Shop family. */
-  .wrap-site {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    block-size: var(--wrap-site-height);
-    padding: 0 20px;
-    box-sizing: border-box;
-    border-block-end: 1px solid var(--glass-rule);
-    box-shadow: inset 0 -1px 0 var(--glass-border-color);
-    white-space: nowrap;
-  }
-  .wrap-site::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--glass-surface-strong);
-    -webkit-backdrop-filter: var(--glass-filter-pane);
-    backdrop-filter: var(--glass-filter-pane);
-  }
-  .wrap-search {
-    display: inline-flex;
-    flex: 1;
-    align-items: center;
-    gap: 8px;
-    max-inline-size: 240px;
-    block-size: 32px;
-    padding: 0 12px;
-    box-sizing: border-box;
-    border-radius: 999px;
-    background: var(--wrap-search-fill);
-    color: var(--glass-ink-soft);
-  }
-  .wrap-site__end {
-    display: inline-flex;
-    align-items: center;
-    margin-inline-start: auto;
-    color: var(--glass-ink);
-  }
-  .wrap-site-foot {
-    display: flex;
-    align-items: center;
-    block-size: 40px;
-    padding: 0 20px;
-    box-sizing: border-box;
-    background: var(--wrap-surface-quiet);
-    border-block-start: 1px solid var(--glass-rule);
-  }
-
-  /* Developer tools drawer on dark glass. */
-  .wrap-drawer {
-    box-sizing: border-box;
-    border: 1px solid var(--wrap-dark-edge);
-    border-radius: 12px;
-    background: var(--wrap-surface-dark);
-    box-shadow: var(--glass-dark-highlight), var(--glass-shadow-float);
-    color: var(--wrap-dark-ink-body);
-  }
-  .wrap-drawer__tabs {
-    display: flex;
-    align-items: stretch;
-    gap: 16px;
-    block-size: 36px;
-    margin: 0;
-    padding: 0 14px;
-    list-style: none;
-    border-block-end: 1px solid var(--wrap-dark-rule);
-  }
-  .wrap-drawer__tab {
-    display: flex;
-    align-items: center;
-    color: var(--wrap-dark-ink-body);
-  }
-  .wrap-drawer__tab--current {
-    color: var(--wrap-dark-ink);
-    font-weight: 700;
-    box-shadow: inset 0 -2px 0 var(--cyan);
   }
 }

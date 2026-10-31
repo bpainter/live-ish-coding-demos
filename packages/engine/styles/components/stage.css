@@ -1,8 +1,8 @@
-/* Fixed 1920 x 1080 canvas scaled to fit the viewport, letterboxed on black. */
+/* Fixed 1920 x 1080 canvas scaled to fit the viewport, letterboxed on the presenter's own near-black. */
 .stage {
   @apply fixed grid place-items-center overflow-hidden;
   inset: 0;
-  background: var(--color-black);
+  background: var(--speaker-bg);
   /* The fit scale before Stage measures it: the server's markup paints
      at its final size in any window, not at 1 and then snapped. tan(atan2(a, b)) is a / b as a
      number. Stage writes the measured value inline after its first layout effect, and that wins. */
@@ -22,7 +22,8 @@
   height: var(--stage-height);
   transform: translate(-50%, -50%) scale(var(--stage-scale));
   transform-origin: center center;
-  background: var(--color-white);
+  --stage-backdrop: var(--deck-backdrop);
+  --stage-grain: var(--deck-grain);
 }
 .stage__canvas:focus {
   outline: none;
@@ -31,15 +32,77 @@
   visibility: hidden;
 }
 
-/* Backgrounds and grain. The stage draws the slide's background
-   and, in the audience window only, the shared grain tile above it and below every slide element.
-   The grain belongs to the stage, not the slide, so nothing doubles it. Nothing between the two
-   layers may set isolation, opacity or a filter, or the overlay blend breaks. */
+/* A copy slide's field. Every layout reads these, so a tone is one attribute on the canvas. */
+.stage__canvas[data-field="light"] {
+  --slide-fg: var(--deck-ink);
+  --slide-soft: var(--deck-ink-soft);
+  --slide-accent: var(--deck-accent);
+  --slide-rule: var(--deck-rule);
+  --slide-panel: var(--deck-panel);
+  --stage-backdrop: var(--deck-backdrop);
+  --slide-scrim: color-mix(in srgb, var(--deck-paper) 78%, transparent);
+}
+.stage__canvas[data-field="dark"] {
+  --slide-fg: var(--deck-on-carbon);
+  --slide-soft: var(--deck-on-carbon-soft);
+  --slide-accent: var(--deck-accent-on-carbon);
+  --slide-rule: var(--deck-rule-on-carbon);
+  --slide-panel: color-mix(in srgb, var(--deck-on-carbon) 8%, var(--deck-carbon));
+  --stage-backdrop: var(--deck-backdrop-dark);
+  --slide-scrim: color-mix(in srgb, var(--deck-carbon) 68%, transparent);
+  --focus-ring: var(--deck-accent-on-carbon);
+}
+.stage__canvas[data-field="accent"] {
+  --slide-fg: var(--deck-on-accent);
+  --slide-soft: var(--deck-on-accent);
+  --slide-accent: var(--deck-on-accent);
+  --slide-rule: color-mix(in srgb, var(--deck-on-accent) 45%, transparent);
+  --slide-panel: color-mix(in srgb, var(--deck-carbon) 22%, var(--deck-accent));
+  --stage-backdrop: var(--deck-backdrop-accent);
+  --slide-scrim: color-mix(in srgb, var(--deck-accent) 76%, transparent);
+  --focus-ring: var(--deck-on-accent);
+}
+/* A demo slide. The theme's own CSS sets these tokens on the same element. */
+.stage__canvas[data-chrome] {
+  --stage-backdrop: var(--chrome-backdrop);
+  --stage-grain: var(--chrome-grain);
+  --focus-ring: var(--chrome-accent);
+}
+
+/* Backgrounds and grain. The stage draws the slide's background and, in the audience window only, the
+   shared grain tile above it and below every slide element. The grain belongs to the stage, not the
+   slide, so nothing doubles it. Nothing between the two layers may set isolation, opacity or a
+   filter, or the overlay blend breaks. */
 .stage__bg {
   @apply absolute;
   inset: 0;
   z-index: 0;
-  background: var(--slide-bg-image, none) center / cover no-repeat, var(--glass-frame-fallback);
+  background: var(--slide-bg-image, none) center / cover no-repeat, var(--stage-backdrop);
+}
+/* Crop marks, on copy slides only: the galley proof's one piece of decoration. They sit in the
+   background layer, so a slide's own content can never collide with them. */
+.stage__canvas[data-field] .stage__bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  --crop: linear-gradient(var(--slide-soft), var(--slide-soft));
+  background:
+    var(--crop) left 48px top 20px / 1px 24px no-repeat,
+    var(--crop) left 20px top 48px / 24px 1px no-repeat,
+    var(--crop) right 48px top 20px / 1px 24px no-repeat,
+    var(--crop) right 20px top 48px / 24px 1px no-repeat,
+    var(--crop) left 48px bottom 20px / 1px 24px no-repeat,
+    var(--crop) left 20px bottom 48px / 24px 1px no-repeat,
+    var(--crop) right 48px bottom 20px / 1px 24px no-repeat,
+    var(--crop) right 20px bottom 48px / 24px 1px no-repeat;
+  opacity: 0.55;
+}
+/* A file behind a copy slide: the scrim keeps the field's text at 4.5:1 over any image. */
+.stage__canvas[data-field][data-background] .stage__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--slide-scrim);
 }
 .stage__grain {
   @apply absolute;
@@ -51,8 +114,8 @@
   /* One tile pixel per device pixel at any stage scale. */
   background-size: calc(256px / (var(--stage-scale) * var(--dpr)));
   image-rendering: pixelated;
-  mix-blend-mode: var(--grain-blend);
-  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+  opacity: var(--stage-grain);
 }
 .stage__slide {
   position: relative;

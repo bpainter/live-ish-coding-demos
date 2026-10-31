@@ -24,7 +24,7 @@ export function IntroSlide({ demo, page }: { demo: Omit<Demo, "routes">; page: I
           </picture>
         </figure>
       ) : null}
-      <div className="intro__text glass-dark">
+      <div className="intro__text">
         {demo.chip ? <p className="intro__group">{demo.chip}</p> : null}
         <h1 className="intro__title">{demo.title}</h1>
         <p className="intro__description">

@@ -2,7 +2,7 @@
 // Writes dist/schema/*.json from the engine's TypeScript types, so the types stay the one source of
 // truth. A small walker over the compiler API: the shapes here are plain data, and a generator
 // package would be a dependency for what fits in one file.
-import { mkdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
@@ -13,7 +13,7 @@ const TARGETS = [
   { out: "slide.json", file: "src/schema/slide.ts", type: "SlideConfig", title: "Live-ish slide" },
   { out: "demo.json", file: "src/schema/config.ts", type: "DemoConfig", title: "Live-ish demo" },
   { out: "recording.json", file: "src/lib/frames/terminal.ts", type: "TerminalRecording", title: "Live-ish terminal recording" },
-  { out: "chrome-theme.json", file: "src/schema/chrome-theme.ts", type: "ChromeThemeFile", title: "Live-ish audience theme" },
+
 ];
 
 const files = [...new Set(TARGETS.map((t) => path.join(root, t.file)))];
@@ -99,4 +99,6 @@ for (const target of TARGETS) {
   if (Object.keys(walker.defs).length) schema.$defs = walker.defs;
   writeFileSync(path.join(out, target.out), `${JSON.stringify(schema, null, 2)}\n`);
 }
-console.log(`wrote ${TARGETS.length} schemas to dist/schema`);
+// The theme file's schema has its own generator, which reads the token contract.
+copyFileSync(path.join(root, "themes", "chrome-theme.schema.json"), path.join(out, "chrome-theme.json"));
+console.log(`wrote ${TARGETS.length + 1} schemas to dist/schema`);

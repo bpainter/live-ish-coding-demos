@@ -1,0 +1,21 @@
+{
+  "engine": "0.0.0",
+  "files": {
+    ".gitignore": "ab153740a92d6e9a",
+    "app/%5Fhealth/route.ts": "fc0d53c34994122e",
+    "app/demos/[demo]/[build]/[[...path]]/route.ts": "0c8942dfa227d190",
+    "app/layout.tsx": "87843b4951993135",
+    "app/live-ish-address/[...address]/route.ts": "8084d64c9d09c504",
+    "app/not-found.tsx": "7a0645e8ad996559",
+    "app/page.tsx": "30fabe45478fb335",
+    "app/present/[id]/page.tsx": "108648095f898f88",
+    "app/present/layout.tsx": "12ebf4759eef826d",
+    "app/robots.txt/route.ts": "3f1c6d817c836c95",
+    "app/s/[id]/page.tsx": "68cd0fd48a902f77",
+    "app/sitemap.ts": "5750367a91bcf20f",
+    "app/speaker/[id]/page.tsx": "783921df7498a6e3",
+    "app/speaker/layout.tsx": "f5e10a098cecb820",
+    "next.config.ts": "4dfd3d7af1580f04",
+    "tsconfig.json": "ac1f24a33422a243"
+  }
+}

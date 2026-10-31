@@ -4,6 +4,7 @@ import { validateDeckConfig } from "../config";
 import type { Finding, Rule } from "../types";
 import { rules as assets } from "./assets";
 import { rules as backgrounds } from "./backgrounds";
+import { rules as chrome } from "./chrome";
 import { rules as code } from "./code";
 import { rules as deck } from "./deck";
 import { rules as frames } from "./frames";
@@ -25,7 +26,7 @@ const config: Rule[] = [
   }),
 ];
 
-/** Every group. `rules/chrome.ts` joins this list as its workstream lands. */
-export const groups: Rule[][] = [config, shape, code, frames, support, writing, seo, assets, deck, wrappers, backgrounds, terminal];
+/** Every group. */
+export const groups: Rule[][] = [config, shape, code, frames, support, writing, seo, assets, deck, chrome, wrappers, backgrounds, terminal];
 
 export const allRules: Rule[] = groups.flat();

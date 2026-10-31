@@ -1,0 +1,259 @@
+/* Demo page: eyebrow at y 48, title row at y 88, body at y 176. Walk pages split the
+   body 50/50 (880 + 32 + 880) or, with `split: "60/40"`, 1056 + 32 + 704; single pages use one
+   1792 px slot. Every color, face and edge here is a --chrome-* token: a theme changes these and no
+   layout, so "44 columns fit the card" holds in all of them. */
+.page {
+  @apply grid relative;
+  grid-template-rows: 36px 72px minmax(0, 1fr);
+  row-gap: 4px;
+  width: var(--stage-width);
+  height: var(--stage-height);
+  padding: 48px 64px 40px;
+  box-sizing: border-box;
+  color: var(--chrome-ink);
+  font-family: var(--chrome-font-sans);
+}
+/* A demo's own `background` is content, not theme: a wash keeps the title band readable over it. */
+.stage__canvas[data-background] .page {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--chrome-backdrop-light) 82%, transparent) 0, color-mix(in srgb, var(--chrome-backdrop-light) 82%, transparent) 168px, color-mix(in srgb, var(--chrome-backdrop-light) 45%, transparent) 320px);
+}
+/* Swiss and any theme that asks: the grid shows as one hairline under the title row. */
+.page::after {
+  content: "";
+  @apply absolute;
+  top: 168px;
+  right: 64px;
+  left: 64px;
+  border-top: var(--fx-rule, 0);
+  pointer-events: none;
+}
+.page__header {
+  @apply contents;
+}
+.page__eyebrow {
+  grid-row: 1;
+  margin: 0;
+  font-size: 28px;
+  font-weight: var(--weight-bold);
+  line-height: 36px;
+  color: var(--chrome-accent);
+}
+.page__title {
+  @apply self-center;
+  grid-row: 2;
+  margin: 0;
+  font-size: 64px;
+  font-weight: var(--chrome-title-weight);
+  line-height: 72px;
+  text-shadow: var(--fx-title-shadow, none);
+}
+/* Single pages keep the title on the walk pages' baseline (y 88); the badge sits at its right. */
+.page[data-beat="single"] .page__title {
+  grid-row: 2;
+}
+.page__badge {
+  @apply absolute inline-flex items-center;
+  top: 100px;
+  right: 64px;
+  height: 48px;
+  gap: 12px;
+  margin: 0;
+  padding: 0 20px;
+  box-sizing: border-box;
+  border: var(--chrome-card-border);
+  border-radius: calc(var(--chrome-card-radius) * 4);
+  background: var(--chrome-card-surface);
+  font-size: 22px;
+  font-weight: var(--weight-bold);
+  color: var(--chrome-code-ink);
+}
+.page__badge s {
+  font-weight: var(--weight-regular);
+}
+.page__body {
+  @apply grid;
+  grid-row: 3;
+  grid-template-columns: 1792px;
+  height: 864px;
+  margin-top: 12px;
+  gap: 32px;
+  min-height: 0;
+}
+.page[data-split="true"] .page__body {
+  grid-template-columns: 880px 880px;
+}
+/* 60/40 (schema/demo.ts SPLITS): the frame gets 1056 px (a 768 by 628 viewport at the same
+   1.372 scale), the code 704 px. 704 minus the card edge, 2 x 24 px padding and 2 x 8 px line
+   padding leaves 638 px: 44 columns of 24 px code at 0.6 em are 634 px, so nothing wraps. */
+.page[data-split="true"][data-ratio="60/40"] .page__body {
+  grid-template-columns: 1056px 704px;
+}
+.page__frame {
+  @apply relative;
+  min-width: 0;
+  min-height: 0;
+}
+.page__code {
+  min-width: 0;
+  min-height: 0;
+}
+.page__meter {
+  @apply absolute flex items-baseline;
+  top: 88px;
+  right: 64px;
+  height: 72px;
+  margin: 0;
+  gap: 12px;
+  line-height: 72px;
+}
+.page__meter-label {
+  font-size: 20px;
+  color: var(--chrome-ink-soft);
+}
+.page__meter-value {
+  padding: var(--fx-meter-pad, 0);
+  background: var(--fx-meter-bg, transparent);
+  box-shadow: var(--fx-meter-edge, none);
+  font-family: var(--fx-meter-font, inherit);
+  font-size: 40px;
+  font-weight: var(--weight-bold);
+  color: var(--fx-meter-ink, var(--chrome-accent));
+}
+
+/* Step indicator: right edge at 1856, y 48; width and text carry the state, not color alone. */
+.page__steps {
+  @apply absolute flex items-center;
+  top: 48px;
+  right: 64px;
+  height: 36px;
+  margin: 0;
+  gap: 12px;
+  font-size: 20px;
+  color: var(--chrome-ink-soft);
+}
+.page__steps-bar {
+  @apply flex items-center;
+  gap: 6px;
+}
+.page__steps-seg {
+  width: 16px;
+  height: 6px;
+  border-radius: min(var(--chrome-card-radius), 3px);
+  background: var(--chrome-step-done);
+}
+.page__steps-seg[data-state="current"] {
+  width: 40px;
+  background: var(--chrome-step-current);
+}
+.page__steps-seg[data-state="future"] {
+  background: var(--chrome-step-future);
+}
+
+/* The frame shell carries the scale, so overlay coordinates are frame CSS pixels. The surface shows
+   where a hook narrows the frame, and while a document loads. */
+.page-frame {
+  @apply relative overflow-hidden;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: var(--chrome-card-border);
+  border-radius: var(--chrome-card-radius);
+  box-shadow: var(--chrome-card-shadow);
+  background: var(--chrome-card-surface);
+}
+.page-frame__edge {
+  @apply absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed color-mix(in srgb, var(--chrome-code-ink) 40%, transparent);
+  pointer-events: none;
+}
+.page-frame__scaled {
+  @apply absolute;
+  top: 0;
+  left: 0;
+  width: var(--frame-width);
+  height: var(--frame-height);
+  transform: scale(var(--frame-scale));
+  transform-origin: 0 0;
+  transition: width var(--frame-resize-ms, 0ms) var(--ease-settle);
+}
+.page-frame__slot,
+.page-frame__iframe {
+  @apply absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.page-frame__iframe {
+  border: 0;
+  background: Canvas;
+}
+.page-frame__iframe[data-visible="false"] {
+  opacity: 0;
+  pointer-events: none;
+}
+/* The step's captured poster under the slot until the first document has replayed, so the hidden
+   document's own background never shows. Posters are captured from the shown iframe, so a step a
+   hook narrows has a narrower poster: `contain` from the top left keeps it at the frame's own size,
+   with the card background beside it as the live frame shows. */
+.page-frame__poster {
+  @apply absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left top;
+  pointer-events: none;
+}
+.page-frame__status {
+  @apply absolute flex items-center justify-center;
+  inset: 0;
+  margin: 0;
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--chrome-code-comment);
+  font-size: 20px;
+  background: var(--chrome-code-surface);
+}
+.page-frame[data-status="ready"] .page-frame__status {
+  display: none;
+}
+
+/* Speaker preview: a poster or the step label instead of a live frame. */
+.page__poster {
+  @apply relative flex items-end;
+  height: 100%;
+  box-sizing: border-box;
+  border: var(--chrome-card-border);
+  border-radius: var(--chrome-card-radius);
+  box-shadow: var(--chrome-card-shadow);
+  background: var(--chrome-code-surface);
+  overflow: hidden;
+}
+.page__poster-image {
+  @apply absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.page__poster-label {
+  @apply relative;
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  font-size: 28px;
+  font-weight: var(--weight-bold);
+  color: var(--chrome-code-ink);
+}
+/* A frame whose origin is not deployed shows its poster on stage too, with a note. */
+.page__poster-note {
+  @apply relative;
+  margin: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-radius: calc(var(--chrome-card-radius) * 4);
+  font-size: 18px;
+  color: var(--chrome-code-ink);
+  background: var(--chrome-code-surface);
+}

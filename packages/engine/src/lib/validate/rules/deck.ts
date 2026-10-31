@@ -1,12 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { navGroups } from "../../nav-groups";
 import { beatConfig, copySlides, defineRule, facts, framePages, publicExists, publicPath, whereDeck, whereDemo, wherePage, whereSlide } from "../context";
 import { lintTheme } from "../theme";
 import type { Rule } from "../types";
 
-const FRAME_THEME = fileURLToPath(new URL("../../../../assets/theme.css", import.meta.url));
 
 const isHttps = (url: string) => /^https:\/\/[^\s]+$/.test(url);
 
@@ -65,8 +63,7 @@ export const rules: Rule[] = [
     }
   }),
 
-  defineRule("theme-lint", "Frame theme CSS stays in its layers and paints only.", (ctx, add) => {
-    if (existsSync(FRAME_THEME)) for (const l of lintTheme(readFileSync(FRAME_THEME, "utf8"))) add(`frame theme, line ${l.line}`, l.message);
+  defineRule("theme-lint", "A demo's page CSS stays in its layers and paints only.", (ctx, add) => {
     for (const demo of ctx.deck.demos) {
       for (const page of framePages(demo)) {
         for (const href of beatConfig(ctx, demo, page)?.styles ?? []) {

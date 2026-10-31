@@ -1,0 +1,80 @@
+/* Forced colors: system colors throughout, and every state keeps its text or its shape. Backgrounds
+   and shadows drop out, so anything that was only a fill gets a real edge. */
+@media (forced-colors: active) {
+  .page-frame,
+  .page__poster,
+  .page__badge,
+  .code,
+  .intro__visual,
+  .intro__text,
+  .support-row__tile {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .support-row__tile[data-supported="false"] {
+    border-style: dashed;
+  }
+  .page__steps-seg {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+  .page__steps-seg[data-state="current"] {
+    background: Highlight;
+  }
+  .page__steps-seg[data-state="future"] {
+    box-sizing: border-box;
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+  .code__tab[aria-selected="true"] {
+    box-shadow: none;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+  .code .code__line[data-highlighted="true"] {
+    forced-color-adjust: none;
+    outline: 1px solid Highlight;
+    outline-offset: -1px;
+    background: Canvas;
+    box-shadow: inset 4px 0 0 Highlight;
+    color: CanvasText;
+  }
+  .code .code__line[data-highlighted="true"] * {
+    color: CanvasText !important;
+  }
+  .code__off-chip {
+    border: 1px solid CanvasText;
+  }
+  .overlay__spotlight::before,
+  .overlay__focus::before {
+    border-color: Highlight;
+    box-shadow: 0 0 0 2px Canvas;
+  }
+  .overlay__spotlight::after {
+    border-color: Canvas;
+    box-shadow: none;
+  }
+  .overlay__callout,
+  .overlay__keycap {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+  .overlay__callout::after {
+    background: CanvasText;
+  }
+  .overlay__cursor path {
+    fill: CanvasText;
+    stroke: Canvas;
+  }
+  .overlay__ripple {
+    border-color: Highlight;
+  }
+  .stage__bg::after {
+    display: none;
+  }
+}

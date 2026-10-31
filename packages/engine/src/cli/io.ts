@@ -88,6 +88,7 @@ export interface DeckSummary {
   addresses: unknown[];
   demos: string[];
   servers: { app: string; command: string; port: number }[];
+  customThemes?: string[];
 }
 
 export function readSummary(root: string): DeckSummary {

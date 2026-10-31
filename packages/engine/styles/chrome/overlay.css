@@ -1,0 +1,246 @@
+/* Overlay: spotlights, callouts, cursor, ripple, keycaps. It renders in the presenter's document,
+   above the iframe, inside the scaled wrapper, so a theme reaches it as plain CSS. */
+.overlay {
+  @apply absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--chrome-font-sans);
+  /* The settle gate (lib/engine/settle.ts) fades out over 100 ms. A theme's fade sets the fade in, and
+     never lengthens the way out, so a spotlight never lags its step. */
+  --spot-fade-out: min(var(--chrome-dur-fade), 100ms);
+  --spot-fade-in: var(--chrome-dur-fade);
+}
+/* Spotlight boxes. The box covers the target with its four corner radii and has no paint; the ring
+   and the halo are borders on its pseudo-elements, so the arcs stay concentric in every engine. Only
+   opacity animates, keyed on data-state from the settle gate. Position and size are never
+   transitioned. */
+/* Each gated box sits in a layer the size of the overlay, so its coordinates are unchanged. The
+   layer carries the box's top-layer hole mask (Overlay holeMask): an open popover or modal dialog
+   above the box's target paints over the box too. */
+.overlay__layer {
+  @apply absolute;
+  inset: 0;
+}
+.overlay__spotlight,
+.overlay__focus,
+.overlay__callout {
+  opacity: 0;
+  transition: opacity var(--spot-fade-out) var(--ease-out);
+}
+.overlay__spotlight[data-state="shown"],
+.overlay__focus[data-state="shown"],
+.overlay__callout[data-state="shown"] {
+  opacity: 1;
+  transition-duration: var(--spot-fade-in);
+  transition-timing-function: var(--ease-settle);
+}
+.overlay__spotlight {
+  @apply absolute;
+  box-sizing: border-box;
+  border-radius: var(--r-tl) var(--r-tr) var(--r-br) var(--r-bl);
+}
+.overlay__spotlight::before,
+.overlay__spotlight::after {
+  content: "";
+  @apply absolute;
+  box-sizing: border-box;
+}
+/* The outer inset stays 7 px: merge and inset math rely on it. The halo fills the whole band under
+   the ring, so a dashed ring reads on any content, and the ring sits on top at its theme width. */
+.overlay__spotlight::before {
+  z-index: 1;
+  inset: -7px;
+  border: var(--chrome-spot-width) var(--chrome-spot-style) var(--chrome-spot-ring);
+  border-radius: var(--ring-tl) var(--ring-tr) var(--ring-br) var(--ring-bl);
+}
+.overlay__spotlight::after {
+  inset: -7px;
+  border: 7px solid var(--chrome-spot-halo);
+  border-radius: var(--ring-tl) var(--ring-tr) var(--ring-br) var(--ring-bl);
+  box-shadow: 0 0 0 2px var(--chrome-spot-halo);
+}
+/* Inset mode: a target at the frame edge gets its ring inside the box. */
+.overlay__spotlight[data-mode="inset"]::before {
+  inset: 0;
+}
+.overlay__spotlight[data-mode="inset"]::after {
+  inset: 0;
+  border-width: 5px;
+  box-shadow: none;
+}
+/* The overlay focus ring: at -4 with a 2 px halo outside. */
+.overlay__focus {
+  @apply absolute;
+  box-sizing: border-box;
+}
+.overlay__focus::before {
+  content: "";
+  @apply absolute;
+  box-sizing: border-box;
+  inset: -4px;
+  border: 2px solid var(--chrome-spot-ring);
+  border-radius: var(--focus-tl) var(--focus-tr) var(--focus-br) var(--focus-bl);
+  box-shadow: 0 0 0 2px var(--chrome-spot-halo);
+}
+@media (prefers-reduced-motion: reduce) {
+  .overlay__spotlight,
+  .overlay__focus,
+  .overlay__callout {
+    transition: none;
+  }
+}
+.overlay[data-reduced="true"] .overlay__spotlight,
+.overlay[data-reduced="true"] .overlay__focus,
+.overlay[data-reduced="true"] .overlay__callout {
+  transition: none;
+}
+.overlay__callout {
+  @apply absolute;
+  padding: 6px 12px;
+  border-radius: min(var(--chrome-card-radius), 9px);
+  background: var(--chrome-callout-bg);
+  color: var(--chrome-callout-ink);
+  font-size: 19px;
+  font-weight: var(--weight-bold);
+  line-height: 23px;
+  white-space: nowrap;
+}
+/* The leader crosses unknown demo content, so it carries the halo, as the ring does. */
+.overlay__callout::after {
+  content: "";
+  @apply absolute;
+  background: var(--chrome-callout-leader);
+  box-shadow: 0 0 0 1px var(--chrome-spot-halo);
+}
+.overlay__callout[data-side="top"]::after {
+  left: 50%;
+  top: 100%;
+  width: 2px;
+  height: 24px;
+}
+.overlay__callout[data-side="bottom"]::after {
+  left: 50%;
+  bottom: 100%;
+  width: 2px;
+  height: 24px;
+}
+/* Above or below a side target, the leader sits at that edge (Overlay placeCallout). */
+.overlay__callout[data-align="end"]::after {
+  left: auto;
+  right: 24px;
+}
+.overlay__callout[data-align="start"]::after {
+  left: 24px;
+}
+.overlay__callout[data-side="left"]::after {
+  left: 100%;
+  top: 50%;
+  width: 24px;
+  height: 2px;
+}
+.overlay__callout[data-side="right"]::after {
+  right: 100%;
+  top: 50%;
+  width: 24px;
+  height: 2px;
+}
+.overlay__cursor {
+  @apply absolute;
+  width: 28px;
+  height: 28px;
+  margin: -4px 0 0 -4px;
+  opacity: 0;
+  transition:
+    left 420ms var(--ease-settle),
+    top 420ms var(--ease-settle),
+    opacity 200ms linear;
+}
+.overlay__cursor[data-visible="true"] {
+  opacity: 1;
+}
+/* The pair reads on any demo: the theme's cursor inside its halo color. */
+.overlay__cursor path {
+  fill: var(--chrome-cursor);
+  stroke: var(--chrome-spot-halo);
+}
+.overlay[data-reduced="true"] .overlay__cursor {
+  transition: opacity 120ms linear;
+}
+.overlay__ripple {
+  @apply absolute;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  border: 3px solid var(--chrome-spot-ring);
+  border-radius: 50%;
+  animation: overlay-ripple 260ms ease-out forwards;
+}
+.overlay[data-reduced="true"] .overlay__ripple {
+  animation: overlay-ripple-static 160ms linear forwards;
+}
+@keyframes overlay-ripple {
+  from {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+@keyframes overlay-ripple-static {
+  0%,
+  90% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.overlay__keycap {
+  @apply absolute;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 20px;
+  border: 2px solid var(--chrome-keycap-edge);
+  border-radius: calc(var(--chrome-card-radius) * 4);
+  background: var(--chrome-keycap-bg);
+  color: var(--chrome-keycap-ink);
+  font-size: 28px;
+  font-weight: var(--weight-bold);
+  /* Fades in and stays until the next keycap or step. Themes with `press` swap this for a shift. */
+  animation: var(--fx-press, overlay-cap) 160ms ease-out both;
+}
+/* The keycap sits above a docked drawer, never on it. */
+.overlay[data-keycap="above-drawer"] .overlay__keycap {
+  left: 93px;
+  bottom: 140px;
+  transform: none;
+  padding: 4px 18px;
+  font-size: 24px;
+  line-height: 36px;
+  animation-name: overlay-cap-start;
+}
+@keyframes overlay-cap-start {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes overlay-cap {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+.overlay[data-reduced="true"] .overlay__keycap {
+  animation: overlay-cap-fade var(--dur-fast) linear both;
+}
+@keyframes overlay-cap-fade {
+  from {
+    opacity: 0;
+  }
+}

@@ -1,9 +1,0 @@
-/* Slide chrome cards: white edge, inner highlight, soft shadow,
-   radius 24, no blur (the chrome uses none). */
-.chrome-card {
-  box-sizing: border-box;
-  overflow: hidden;
-  border: var(--chrome-card-border);
-  border-radius: var(--chrome-card-radius);
-  box-shadow: var(--chrome-card-highlight), var(--chrome-card-shadow);
-}

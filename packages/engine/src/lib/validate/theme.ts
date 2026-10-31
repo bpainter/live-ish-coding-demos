@@ -75,7 +75,7 @@ export function lintTheme(css: string, opts: { perDemo?: boolean } = {}): Lint[]
     // Per-demo CSS lays out its own content classes; the shared theme keeps to its own classes.
     if (layer === "frame-layout" && !opts.perDemo) {
       for (const sel of rule.selectors) {
-        const ok = compounds(sel).every((c) => /^\.(app-shell|glass-|chrome-)[\w-]*/.test(c) && !/\[|::(?!before|after)/.test(c) && !/(^|[^\w-])(dialog|select|option|input|textarea|button|a|ul|li|nav|main|header|h[1-6])\b(?![\w-])/.test(c.replace(/^\.[\w-]+/, "")));
+        const ok = compounds(sel).every((c) => /^\.(app-shell|frame-|chrome-)[\w-]*/.test(c) && !/\[|::(?!before|after)/.test(c) && !/(^|[^\w-])(dialog|select|option|input|textarea|button|a|ul|li|nav|main|header|h[1-6])\b(?![\w-])/.test(c.replace(/^\.[\w-]+/, "")));
         if (!ok) add(line, `frame-layout selector "${sel}" must use the engine's own class selectors only.`);
       }
     }
@@ -114,6 +114,8 @@ export function lintShellCss(css: string, banned: { name: string; pattern: RegEx
       return;
     }
     for (const sel of rule.selectors) {
+      // A shell may paint the frame document's own body, scoped to documents it wraps.
+      if (/^:root\[data-wrapper="[\w-]+"\] body$/.test(sel)) continue;
       for (const c of compounds(sel)) {
         const head = /^(\.wrap[\w-]*|\[data-shown\])/.exec(c);
         const rest = head ? c.slice(head[0].length) : "";

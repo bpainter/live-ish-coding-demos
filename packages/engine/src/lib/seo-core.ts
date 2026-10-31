@@ -157,7 +157,7 @@ export function createSeo({ deck, slides, demos }: { deck: Deck; slides: Slide[]
 
   /**
    * A walk or single page's intro is the speaker's opening notes (lib/notes.ts): the description
-   * takes its plain text, and its short sentences when it has any, as the glass ledes do.
+   * takes its plain text, and its short sentences when it has any, as the grid ledes do.
    */
   function spokenDescription(intro: string): string {
     const all = notesPlain(intro).split(/(?<=[.?!])\s+/).map((s) => s.trim()).filter(Boolean);
@@ -167,7 +167,7 @@ export function createSeo({ deck, slides, demos }: { deck: Deck; slides: Slide[]
 
   /**
    * The slide's description, 160 characters at most: the one written for it in
-   * content/descriptions.ts, else the section's description on intro pages, the page intro on walk and single pages, the lede or card titles on glass slides.
+   * content/descriptions.ts, else the section's description on intro pages, the page intro on walk and single pages, the lede or card titles on grid slides.
    */
   function slideDescription(slide: Slide): string {
     if (slide.description) return clampSentences(slide.description);
