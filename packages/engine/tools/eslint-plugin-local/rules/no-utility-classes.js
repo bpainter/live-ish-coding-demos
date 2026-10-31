@@ -1,5 +1,5 @@
 // Rejects Tailwind utility classes in JSX. JSX carries semantic block__element--modifier names only;
-// utilities live in styles/components/**/*.css behind @apply. (PRD Part A, section 10.4.)
+// utilities live in styles/components/**/*.css behind @apply.
 const SEMANTIC = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:__[a-z0-9]+(?:-[a-z0-9]+)*)?(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$/;
 const UTILITY_HINT =
   /^(?:-?(?:p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|w|h|min-w|min-h|max-w|max-h|gap|space-[xy]|inset|top|right|bottom|left|z|text|bg|border|rounded|font|leading|tracking|flex|grid|col|row|items|justify|content|self|place|overflow|opacity|shadow|ring|outline|transition|duration|ease|translate|scale|rotate|cursor|select|pointer-events|sr-only|not-sr-only|hidden|block|inline|table|absolute|relative|fixed|sticky|static|size)(?:-|$)|.*[:[\]/!].*)/;
