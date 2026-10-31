@@ -16,7 +16,8 @@ import { chromium, type Frame, type Page } from "@playwright/test";
 const DEV = process.argv.includes("--dev");
 const PORT = Number(process.env.SMOKE_PORT ?? 3217);
 const BASE = `http://localhost:${PORT}`;
-const STARTER = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "examples", "starter");
+/** SMOKE_DECK points at a copy of the starter, such as one installed from a packed engine. */
+const STARTER = process.env.SMOKE_DECK ?? path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "examples", "starter");
 /** A first request in development compiles the route. */
 const TIMEOUT = DEV ? 60_000 : 15_000;
 
