@@ -123,6 +123,11 @@ const CASES: Case[] = [
   // Fit
   c("file-size", "a line past 44 columns", (f) => f.write("demos/x1/after/index.html", `<button id="open">${"x".repeat(50)}</button><dialog id="box"></dialog>\n`)),
   c("file-size", "more lines than the panel holds", (f) => f.write("demos/x1/after/index.html", `<button id="open"></button><dialog id="box"></dialog>\n${"<p></p>\n".repeat(41)}`)),
+  c("presenter-public", "a deck that publishes its presenter", (f) => (f.config.presenter = { onHost: true })),
+  c("third-party-script", "shown markup loading a remote script", (f) => {
+    f.write("demos/x1/after/remote.html", '<script src="https://cdn.example.com/a.js"></script>\n');
+    f.demo.after!.files!.push(shown("remote.html"));
+  }),
   c("storage-clear", "shown code clears storage", (f) => {
     f.write("demos/x1/after/app.js", "localStorage.clear();\n");
     f.demo.after!.files!.push(shown("app.js"));

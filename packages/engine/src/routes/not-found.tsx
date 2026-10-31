@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { deck } from "../lib/content";
 import { navGroups } from "../lib/nav";
 
 /** 404: lists the deck's opening, each demo and its closing. No redirect to `/`. */
 export default function NotFound() {
-  const links = navGroups().flatMap((g) => g.links);
+  const links = deck.reader.enabled ? navGroups().flatMap((g) => g.links) : [];
   return (
     <main className="not-found">
       <h1 className="not-found__title">That slide does not exist</h1>

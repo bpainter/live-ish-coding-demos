@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { deckKey } from "../../lib/deck-keys";
+
+const GLASS_KEY = deckKey("glass");
 
 /**
  * `?glass=off` on /present and /speaker: marks the window's root with
@@ -13,9 +16,9 @@ export function GlassMode() {
     if (new URLSearchParams(window.location.search).get("capture") === "1") document.documentElement.dataset.capture = "1";
     const q = new URLSearchParams(window.location.search).get("glass");
     try {
-      if (q === "off") sessionStorage.setItem("deck:glass", "off");
-      if (q === "on") sessionStorage.removeItem("deck:glass");
-      if (sessionStorage.getItem("deck:glass") === "off") document.documentElement.dataset.glass = "off";
+      if (q === "off") sessionStorage.setItem(GLASS_KEY, "off");
+      if (q === "on") sessionStorage.removeItem(GLASS_KEY);
+      if (sessionStorage.getItem(GLASS_KEY) === "off") document.documentElement.dataset.glass = "off";
       else delete document.documentElement.dataset.glass;
     } catch {
       if (q === "off") document.documentElement.dataset.glass = "off";

@@ -1,3 +1,5 @@
+import { deckKey } from "../deck-keys";
+
 export type DemoHealth = "loading" | "ready" | "error" | "fallback";
 
 /** Shared state of the two presenter windows, plus the demo view and cell. */
@@ -29,18 +31,24 @@ export interface Playback {
   playing: boolean;
 }
 
-export const STORAGE_KEY = "deck:state";
+export const STORAGE_KEY = deckKey("state");
 
-export function buildId(): string {
-  return process.env.NEXT_PUBLIC_BUILD_ID ?? "dev";
-}
+export const BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID ?? "dev";
 
+/** The build in the name keeps two windows on different deployments from driving each other. */
 export function channelName(): string {
-  return `deck:${buildId()}`;
+  return deckKey(`sync:${BUILD_ID}`);
 }
 
-/** One name for every build, so two windows that cannot sync can at least say why. */
-export const BUILDS_CHANNEL = "deck:builds";
+/** Every build of a deck shares this one, only to say which build it is. */
+export function buildsChannelName(): string {
+  return deckKey("builds");
+}
+
+/** A window's own message on the builds channel. */
+export interface BuildNotice {
+  build: string;
+}
 
 export function newWriterId(): string {
   return Math.random().toString(36).slice(2, 10);

@@ -4,7 +4,10 @@ import path from "node:path";
 import { portOf } from "../args";
 import { CliError, EXIT, engineVersion, environment, readSummary, requireDeck, type Ctx, type ExitCode } from "../io";
 import { openUrl, portAnswers, runNext, runSelf, spawnNext, startServers, watchDeck, type RunningServers } from "../process";
-import { prepareDeck } from "../../prepare";
+import { PUBLIC_NOTES_LINE } from "../../lib/validate/rules/hosting";
+import { assertHosting, detectProvider, resolveHosting } from "../../next/hosting.cjs";
+import { keepsNotes, prepareDeck } from "../../prepare";
+import { collectNotes } from "../../prepare/strip";
 import { encodeImages, hasMasters } from "./images";
 import { runCheck, NOT_ASSEMBLED, printFindings } from "./check";
 import { writeSchemas } from "./schema";
@@ -87,37 +90,61 @@ export async function dev(ctx: Ctx): Promise<ExitCode> {
   });
 }
 
-/** Hosts that say their own address, so a deck deployed there needs no `hosts.site`. */
-export function providerSite(env: Record<string, string | undefined>): { provider: string; site: string } | null {
-  if (env.VERCEL_PROJECT_PRODUCTION_URL) return { provider: "Vercel", site: `https://${env.VERCEL_PROJECT_PRODUCTION_URL}` };
-  if (env.VERCEL_URL) return { provider: "Vercel", site: `https://${env.VERCEL_URL}` };
-  if (env.CF_PAGES_URL) return { provider: "Cloudflare Pages", site: env.CF_PAGES_URL };
-  if (env.NETLIFY && env.URL) return { provider: "Netlify", site: env.URL };
-  return null;
+/** Files of a finished build that contain a line of the deck's notes. */
+function notesInBuild(root: string, notes: string[]): string[] {
+  const found: string[] = [];
+  const visit = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name !== "cache") visit(file);
+      } else if (entry.isFile()) {
+        const text = readFileSync(file, "utf8");
+        if (notes.some((n) => text.includes(n))) found.push(path.relative(root, file));
+      }
+    }
+  };
+  visit(path.join(root, ".next"));
+  return found;
 }
 
+/**
+ * A deployable build. The target decides everything `withDeck()` does differently for a public host.
+ * A build meant to carry no notes is then read back, so a `routes.ts` that imports its own `demo.ts`
+ * fails here and not on the public host.
+ */
 export async function build(ctx: Ctx): Promise<ExitCode> {
   const root = requireDeck(ctx);
-  const { findings } = await runCheck(root, ctx.flags.strict === true);
+  const { findings, assembled } = await runCheck(root, ctx.flags.strict === true);
   await printFindings(findings, ctx.log);
-  if (findings.some((f) => f.severity === "error")) return EXIT.findings;
+  if (findings.some((f) => f.severity === "error") || !assembled) return EXIT.findings;
 
-  const preset = providerSite(process.env);
-  const site = process.env.LIVE_ISH_SITE_ORIGIN ?? readSummary(root).hosts.site ?? preset?.site;
-  if (!site) {
-    throw new CliError("A deployable build needs an address for canonical URLs and share cards.", EXIT.findings, "Set hosts.site in deck.config.ts or LIVE_ISH_SITE_ORIGIN. To present from this laptop, run `live-ish present`.");
+  // Before the deployed prepare, which writes a deck module with the notes removed: a failed build
+  // must not leave that behind for the next `dev`.
+  try {
+    const { mode, site } = resolveHosting({ env: process.env, hosts: assembled.deck.hosts, target: "deployed", provider: detectProvider(process.env) });
+    assertHosting({ target: "deployed", mode, site });
+  } catch (error) {
+    throw new CliError((error as Error).message.replace(/^live-ish: /, ""), EXIT.misuse, "To present from this laptop, run `live-ish present`.");
   }
-  if (!process.env.LIVE_ISH_SITE_ORIGIN && !readSummary(root).hosts.site && preset) ctx.log(`Using ${site} from ${preset.provider}.`);
   writeSchemas(root);
   if (hasMasters(root)) await encodeImages(root, { log: ctx.log, optional: true });
-  const code = await runNext(root, ["build"], { LIVE_ISH_PREPARED: root, LIVE_ISH_SITE_ORIGIN: site });
-  return code === 0 ? EXIT.ok : EXIT.findings;
+  const deployed = await prepareDeck(root, "deployed");
+  const code = await runNext(root, ["build"], { ...process.env, LIVE_ISH_TARGET: "deployed", LIVE_ISH_PREPARED: root });
+  if (code !== 0) return EXIT.findings;
+  if (keepsNotes(deployed, "deployed")) {
+    if (deployed.deck.presenter.onHost) ctx.log(PUBLIC_NOTES_LINE);
+    return EXIT.ok;
+  }
+  const leaked = notesInBuild(root, collectNotes(deployed));
+  if (!leaked.length) return EXIT.ok;
+  throw new CliError(`Speaker notes reached the build, in ${leaked.join(", ")}.`, EXIT.findings, "A routes.ts must not import its demo.ts.");
 }
 
 export async function start(ctx: Ctx): Promise<ExitCode> {
   const root = requireDeck(ctx);
   if (!existsSync(path.join(root, ".next", "BUILD_ID"))) throw new CliError("There is no build to serve yet.", EXIT.findings, "Run `live-ish build`, or `live-ish present` for a local build.");
-  const child = spawnNext(root, ["start", "-p", String(portOf(ctx.flags))], { env: { ...process.env, LIVE_ISH_PREPARED: root } });
+  const child = spawnNext(root, ["start", "-p", String(portOf(ctx.flags))], { env: { ...process.env, LIVE_ISH_TARGET: "deployed", LIVE_ISH_PREPARED: root } });
   onSignal(() => child.kill("SIGTERM"));
   return new Promise<ExitCode>((resolve) => child.on("exit", (code) => resolve(code ? EXIT.findings : EXIT.ok)));
 }
@@ -195,9 +222,10 @@ export async function present(ctx: Ctx): Promise<ExitCode> {
   const port = portOf(ctx.flags);
   if (await portAnswers(port)) throw environment(`Port ${port} is taken.`, `Stop what is using it, or pass --port=${port + 1}.`);
 
-  // Local mode: no configured host applies, so the build cannot depend on one.
-  const env = { NEXT_DIST_DIR: PRESENT_DIST, LIVE_ISH_SITE_ORIGIN: "", LIVE_ISH_FRAMES_ORIGIN: "", LIVE_ISH_PREPARED: root, ...presenterEnv(port) };
-  await prepareDeck(root);
+  // A local build needs no host, whatever this shell has set.
+  const { LIVE_ISH_SITE_ORIGIN: _site, LIVE_ISH_FRAMES_ORIGIN: _frames, ...shell } = process.env;
+  const env = { ...shell, LIVE_ISH_TARGET: "local", NEXT_DIST_DIR: PRESENT_DIST, LIVE_ISH_PREPARED: root, ...presenterEnv(port) };
+  await prepareDeck(root, "local");
   writeSchemas(root);
 
   const stamp = readStamp(root);
@@ -215,7 +243,7 @@ export async function present(ctx: Ctx): Promise<ExitCode> {
 
   const { servers: list } = readSummary(root);
   const servers = await startServers(root, list, env, ctx.log);
-  const child = spawnNext(root, ["start", "-p", String(port)], { env: { ...process.env, ...env, LIVE_ISH_BUILD_ID: build } });
+  const child = spawnNext(root, ["start", "-p", String(port)], { env: { ...env, LIVE_ISH_BUILD_ID: build } });
   let stopped = false;
   child.on("exit", () => {
     stopped = true;

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { SiteAnalytics } from "../components/presenter/SiteAnalytics";
 import { deck, slides } from "../lib/content";
 import { versioned } from "../lib/frames/compose";
 import { baseMetadata } from "../lib/seo";
@@ -7,15 +8,17 @@ import { baseMetadata } from "../lib/seo";
 /** The deck's card with no canonical: pages set their own in full (lib/seo.ts). */
 export const metadata: Metadata = baseMetadata();
 
-/** The provider's script tags, on deployed builds only. Dev, walks and captures never load them. */
+/**
+ * The analytics adapter, on deployed builds only. Dev, walks and captures never load it. The script
+ * addresses stay on this side of the client boundary, so a deck that did not choose a provider
+ * ships none of its paths. Those two paths exist only on the provider, and need no package.
+ */
 function Analytics() {
-  if (deck.analytics.provider !== "vercel" || !process.env.VERCEL) return null;
-  return (
-    <>
-      <script defer src="/_vercel/insights/script.js" />
-      {deck.analytics.speedInsights ? <script defer src="/_vercel/speed-insights/script.js" /> : null}
-    </>
-  );
+  const { provider, speedInsights } = deck.analytics;
+  if (provider === "none" || process.env.NEXT_PUBLIC_LIVE_ISH_TARGET !== "deployed") return null;
+  if (provider === "custom") return <SiteAnalytics scripts={[]} custom />;
+  if (process.env.NEXT_PUBLIC_LIVE_ISH_PROVIDER !== "vercel") return null;
+  return <SiteAnalytics scripts={["/_vercel/insights/script.js", ...(speedInsights ? ["/_vercel/speed-insights/script.js"] : [])]} custom={false} />;
 }
 
 /**

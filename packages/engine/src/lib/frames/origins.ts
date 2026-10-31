@@ -1,58 +1,90 @@
 /**
- * Where frames come from. There are three modes, and neither of the first two depends on a port or
+ * Where frames come from. There are three modes, and neither of the first two names a port or a
  * host at build time:
  *
  * - Local: the presenter and the frames are one process, answering on `localhost:<port>` and
  *   `127.0.0.1:<port>`. They are different origins, so neither can read the other. The pair comes
  *   from the address in use.
- * - One host: frames are on the presenter's own origin, and `frame-ancestors` says 'self'.
- * - Two hosts: `hosts.frames` is set, and frames come from there.
+ * - One host: frames are on the presenter's own origin. Their URLs are relative, and
+ *   `frame-ancestors` says 'self'.
+ * - Two hosts: frames come from an origin named at build, and only the site may embed them.
  *
- * `withDeck()` inlines `hosts` from the deck config, which the environment can override.
+ * `withDeck()` picks the mode (src/next/hosting.cjs) and inlines it.
  */
-const SITE_ORIGIN = process.env.NEXT_PUBLIC_LIVE_ISH_SITE_ORIGIN ?? "";
-const FRAMES_ORIGIN = process.env.NEXT_PUBLIC_LIVE_ISH_FRAMES_ORIGIN ?? "";
+export type HostingMode = "local" | "one-host" | "two-hosts";
+
+export interface Hosting {
+  mode: HostingMode;
+  /** The site that embeds frames, on two hosts. Empty otherwise. */
+  site: string;
+  /** The frames origin, on two hosts. Empty otherwise. */
+  frames: string;
+}
+
+export const HOSTING: Hosting = {
+  mode: (process.env.NEXT_PUBLIC_LIVE_ISH_MODE ?? "local") as HostingMode,
+  site: process.env.NEXT_PUBLIC_LIVE_ISH_PRESENTER_ORIGIN ?? "",
+  frames: process.env.NEXT_PUBLIC_LIVE_ISH_FRAMES_ORIGIN ?? "",
+};
 const EXTERNAL: Record<string, string> = JSON.parse(process.env.NEXT_PUBLIC_LIVE_ISH_EXTERNAL ?? "{}") as Record<string, string>;
+const FRAMES_OFF = Boolean(process.env.NEXT_PUBLIC_LIVE_ISH_FRAMES_OFF);
 
 const LOCAL_PAIR: Record<string, string> = { localhost: "127.0.0.1", "127.0.0.1": "localhost" };
 
-/** The site's own origin for canonical URLs. Local builds fall back to the default dev address. */
-export const SITE = SITE_ORIGIN || "http://localhost:3000";
+type Place = Pick<Location, "protocol" | "hostname" | "port" | "origin">;
+
+/** `place`'s origin under the other local name. A host that is not local has no pair. */
+function pairOf(place: Place): string | null {
+  const pair = LOCAL_PAIR[place.hostname];
+  return pair ? `${place.protocol}//${pair}${place.port ? `:${place.port}` : ""}` : null;
+}
 
 /** The frames origin for a window at `location`. */
-function framesOrigin(location: Pick<Location, "protocol" | "hostname" | "port" | "origin">): string {
-  if (FRAMES_ORIGIN) return FRAMES_ORIGIN;
-  const pair = LOCAL_PAIR[location.hostname];
-  return pair ? `${location.protocol}//${pair}${location.port ? `:${location.port}` : ""}` : location.origin;
+export function framesOriginFor(location: Place, hosting: Hosting = HOSTING): string {
+  if (hosting.mode === "two-hosts") return hosting.frames;
+  if (hosting.mode === "local") return pairOf(location) ?? location.origin;
+  return location.origin;
 }
 
 /**
  * The origin allowed to embed a frame served from `origin`, for the CSP and the runtime's message
  * check: the other local address, the site on two hosts, or the origin itself on one host.
  */
-export function presenterOriginFor(origin: string): string {
-  const url = new URL(origin);
-  const pair = LOCAL_PAIR[url.hostname];
-  if (pair) return `${url.protocol}//${pair}${url.port ? `:${url.port}` : ""}`;
-  if (FRAMES_ORIGIN && SITE_ORIGIN && origin === FRAMES_ORIGIN) return SITE_ORIGIN;
+export function presenterOriginFor(origin: string, hosting: Hosting = HOSTING): string {
+  if (hosting.mode === "two-hosts") return origin === hosting.frames ? hosting.site : origin;
+  if (hosting.mode === "local") return pairOf(new URL(origin)) ?? origin;
   return origin;
 }
 
-/** Absolute URL of a `Frame.route` on the origin that serves it. Browser only. */
+/** `route` as a window at `location` loads it: relative on its own origin, so no host is named. */
+export function frameUrlFor(route: string, location: Place, hosting: Hosting = HOSTING): { origin: string; url: string } {
+  const origin = framesOriginFor(location, hosting);
+  return { origin, url: origin === location.origin ? route : `${origin}${route}` };
+}
+
+/** The URL of a `Frame.route` on the origin that serves it. Browser only. */
 export function frameUrl(route: string): { origin: string; url: string } {
   const server = /^\/@([\w-]+)(\/.*)?$/.exec(route);
   if (server) {
     const origin = EXTERNAL[server[1]] ?? "";
     return { origin, url: `${origin}${server[2] ?? "/"}` };
   }
-  const origin = framesOrigin(window.location);
-  return { origin, url: `${origin}${route}` };
+  return frameUrlFor(route, window.location);
 }
 
-/** False when the route's app has no origin configured. Safe during server rendering. */
+/**
+ * False when the route's app has no origin configured, and on a preview of a two-host deck, whose
+ * address the frames host does not name in `frame-ancestors`. Safe during server rendering.
+ */
 export function frameLive(route: string): boolean {
+  if (FRAMES_OFF) return false;
   const server = /^\/@([\w-]+)/.exec(route);
   return !server || Boolean(EXTERNAL[server[1]]);
+}
+
+/** What a poster says in place of a frame `frameLive` turned off. */
+export function offlineNote(): string {
+  return FRAMES_OFF ? "Captured still. Live demos run on the production address." : "Captured still. This live demo runs as its own app, which this site does not include.";
 }
 
 /**

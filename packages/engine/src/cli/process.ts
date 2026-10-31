@@ -26,10 +26,10 @@ export function spawnNext(root: string, args: string[], options: SpawnOptions = 
   return spawn(process.execPath, [bin, ...args], { cwd: root, stdio: "inherit", ...options });
 }
 
-/** Runs `next <args>` to the end and returns its exit code. */
-export function runNext(root: string, args: string[], env: Record<string, string>): Promise<number> {
+/** Runs `next <args>` to the end, with exactly this environment, and returns its exit code. */
+export function runNext(root: string, args: string[], env: NodeJS.ProcessEnv): Promise<number> {
   return new Promise((resolve) => {
-    const child = spawnNext(root, args, { env: { ...process.env, ...env } });
+    const child = spawnNext(root, args, { env });
     child.on("exit", (code) => resolve(code ?? 1));
   });
 }
@@ -92,7 +92,7 @@ export const portAnswers = (port: number, host = "127.0.0.1") =>
  * Starts `servers` from the config in their own process groups, so stopping one stops whatever its
  * command spawned. A port already taken is left alone: the author started that server by hand.
  */
-export async function startServers(root: string, servers: DeckSummary["servers"], env: Record<string, string>, log: (message: string) => void): Promise<RunningServers> {
+export async function startServers(root: string, servers: DeckSummary["servers"], env: Record<string, string | undefined>, log: (message: string) => void): Promise<RunningServers> {
   const children: ChildProcess[] = [];
   for (const server of servers) {
     if (await portAnswers(server.port)) {
