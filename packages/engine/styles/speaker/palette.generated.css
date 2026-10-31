@@ -1,0 +1,31 @@
+/* Generated from src/lib/palettes.ts by scripts/gen-themes.mts. Presenter chrome: fixed, and out of any theme's reach. Do not edit. */
+:root {
+  --speaker-bg: #0e0f0d;
+  --speaker-solid: #23251f;
+  --speaker-ink: #ffffff;
+  --speaker-ink-body: #dcdccf;
+  --speaker-ink-soft: #bcbcae;
+  --speaker-here: #ffcb6b;
+  --speaker-cue: #a5e27a;
+  --speaker-alert: #ff9180;
+  --speaker-over: #ffa899;
+  --speaker-primary: #2c6e49;
+  --speaker-primary-hover: #245a3c;
+  --speaker-on-flag: #14150f;
+  --speaker-glow-warm: rgb(255 203 107 / 0.08);
+  --speaker-glow-green: rgb(165 226 122 / 0.05);
+  --speaker-panel: rgb(255 255 255 / 0.05);
+  --speaker-panel-strong: rgb(255 255 255 / 0.08);
+  --speaker-card: rgb(255 255 255 / 0.04);
+  --speaker-hover: rgb(255 255 255 / 0.1);
+  --speaker-rule: rgb(255 255 255 / 0.12);
+  --speaker-edge: rgb(255 255 255 / 0.16);
+  --speaker-pill: rgb(35 37 31 / 0.88);
+  --speaker-tint-here: rgb(255 203 107 / 0.16);
+  --speaker-tint-cue: rgb(165 226 122 / 0.16);
+  --speaker-tint-alert: rgb(255 145 128 / 0.18);
+  --speaker-tint-neutral: rgb(255 255 255 / 0.08);
+  --speaker-scrim: rgb(14 15 13 / 0.56);
+  --speaker-clear-tint: rgb(35 37 31 / 0.3);
+  --speaker-shadow-color: rgb(0 0 0 / 0.42);
+}

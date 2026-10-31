@@ -1,0 +1,67 @@
+{
+  "$schema": "./chrome-theme.schema.json",
+  "schemaVersion": 1,
+  "id": "glass",
+  "name": "Glass",
+  "traits": [
+    "The default",
+    "Translucent panes",
+    "Soft edges",
+    "Blurred backdrop",
+    "Large radii"
+  ],
+  "tokens": {
+    "--chrome-backdrop": "radial-gradient(1100px 760px at 16% 10%, #dfe6f7 0, transparent 72%), radial-gradient(1000px 760px at 90% 92%, #c7d3f1 0, transparent 70%), linear-gradient(135deg, #dfe6f7, #b7c6ee)",
+    "--chrome-backdrop-light": "#dfe6f7",
+    "--chrome-backdrop-dark": "#b7c6ee",
+    "--chrome-grain": "0.1",
+    "--chrome-ink": "#10203f",
+    "--chrome-ink-soft": "#33405c",
+    "--chrome-accent": "#1a4fc4",
+    "--chrome-title-weight": "700",
+    "--chrome-card-surface": "rgb(255 255 255 / 0.62)",
+    "--chrome-card-border": "1px solid rgb(255 255 255 / 0.72)",
+    "--chrome-card-radius": "24px",
+    "--chrome-card-shadow": "inset 0 1px 0 rgb(255 255 255 / 0.8), 0 24px 64px rgb(16 32 63 / 0.16), 0 2px 6px rgb(16 32 63 / 0.06)",
+    "--chrome-blur": "blur(24px) saturate(140%)",
+    "--chrome-code-surface": "#f7f9fd",
+    "--chrome-code-highlight-bg": "rgb(26 86 219 / 0.08)",
+    "--chrome-code-highlight-bar": "#1a4fc4",
+    "--chrome-code-dim-opacity": "0.82",
+    "--chrome-step-done": "#10203f",
+    "--chrome-step-current": "#1a4fc4",
+    "--chrome-step-future": "#566586",
+    "--chrome-spot-ring": "#1a4fc4",
+    "--chrome-spot-halo": "#ffffff",
+    "--chrome-spot-width": "3px",
+    "--chrome-spot-style": "solid",
+    "--chrome-callout-bg": "#10203f",
+    "--chrome-callout-ink": "#ffffff",
+    "--chrome-callout-leader": "#1a4fc4",
+    "--chrome-keycap-bg": "#10203f",
+    "--chrome-keycap-ink": "#ffffff",
+    "--chrome-keycap-edge": "#1a4fc4",
+    "--chrome-cursor": "#10203f",
+    "--term-bg": "#0d1526",
+    "--term-ink": "#e6ebf5",
+    "--term-prompt": "#8fb4ff",
+    "--term-comment": "#a6b3cc",
+    "--term-chrome": "#1a2740"
+  },
+  "code": {
+    "ink": "#10203f",
+    "keyword": "#1a3fb0",
+    "string": "#6b2c91",
+    "comment": "#444d65",
+    "number": "#8a1f2e",
+    "property": "#00536a"
+  },
+  "fonts": {
+    "sans": "Inter",
+    "mono": "JetBrains Mono"
+  },
+  "motion": {
+    "fade": 160,
+    "effect": "none"
+  }
+}

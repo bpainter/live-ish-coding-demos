@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Live-ish built-in chrome theme id",
+  "enum": [
+    "glass",
+    "flat",
+    "early-web",
+    "soft",
+    "brutalist",
+    "layered",
+    "tactile",
+    "phosphor",
+    "swiss",
+    "high-contrast"
+  ]
+}
