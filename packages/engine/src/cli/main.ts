@@ -1,7 +1,7 @@
 import { nearest, parseArgs, UsageError, type FlagSpec } from "./args";
 import { CliError, EXIT, engineVersion, makeCtx, requireDeck, type Ctx } from "./io";
 import { prepareDeck } from "../prepare";
-import { DeckError } from "../schema/assemble";
+import { isDeckError } from "../schema/errors";
 import { check, devTick } from "./commands/check";
 import { fonts } from "./commands/fonts";
 import { images } from "./commands/images";
@@ -155,7 +155,7 @@ function report(error: unknown): number {
     return error.code;
   }
   // An author's mistake gets its sentence, with no stack.
-  if (error instanceof DeckError) {
+  if (isDeckError(error)) {
     process.stderr.write(`live-ish: ${error.message}\n`);
     return EXIT.findings;
   }

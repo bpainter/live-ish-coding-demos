@@ -1,8 +1,8 @@
-import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import type { ImageEntry, ImageManifest, ImageVariant } from "../../lib/assets";
+import { listMasters, MANIFEST_FILE, sha256, walkFiles, type ImageGroup } from "../../lib/validate/assets";
 import { prepareDeck } from "../../prepare";
 import { EXIT, environment, printJson, requireDeck, resolveFromDeck, type Ctx, type ExitCode } from "../io";
 
@@ -13,20 +13,6 @@ import { EXIT, environment, printJson, requireDeck, resolveFromDeck, type Ctx, t
  * one file. Hashed names are write-once: an existing file with that name must hold the same bytes.
  * Files under public/opt that no entry names are deleted at the end.
  */
-
-export interface ImageGroup {
-  id: "intro" | "backgrounds" | "posters" | "images";
-  dir: string;
-  match: RegExp;
-  out: string;
-}
-
-export const IMAGE_GROUPS: ImageGroup[] = [
-  { id: "intro", dir: "intro", match: /\.png$/i, out: "intro" },
-  { id: "backgrounds", dir: "backgrounds", match: /\.(jpe?g|png)$/i, out: "bg" },
-  { id: "posters", dir: "posters", match: /\.(jpe?g|png)$/i, out: "posters" },
-  { id: "images", dir: "images", match: /\.(jpe?g|png)$/i, out: "images" },
-];
 
 /** AVIF q70 4:4:4 keeps text sharp on stills and posters. The WebP fallback is q85. */
 const AVIF = { quality: 70, chromaSubsampling: "4:4:4", effort: 4 } as const;
@@ -61,24 +47,6 @@ function loadSharp(root: string): Sharp | null {
   } catch {
     return null;
   }
-}
-
-const sha256 = (buf: Buffer | string) => createHash("sha256").update(buf).digest("hex");
-
-function walk(dir: string): string[] {
-  if (!existsSync(dir)) return [];
-  return readdirSync(dir, { withFileTypes: true, recursive: true })
-    .filter((e) => e.isFile() && !e.name.startsWith("."))
-    .map((e) => path.relative(dir, path.join(e.parentPath, e.name)).split(path.sep).join("/"))
-    .sort();
-}
-
-export function listMasters(root: string): { master: string; group: ImageGroup }[] {
-  return IMAGE_GROUPS.flatMap((group) =>
-    walk(path.join(root, "public", group.dir))
-      .filter((rel) => group.match.test(rel))
-      .map((rel) => ({ master: `/${group.dir}/${rel}`, group })),
-  );
 }
 
 export const hasMasters = (root: string) => listMasters(root).length > 0;
@@ -152,7 +120,7 @@ export async function encodeImages(root: string, opts: { log: Ctx["log"]; force?
   }
   const onlyRes = opts.only ? opts.only.split(",").filter(Boolean).map(globRe) : null;
   const matches = (master: string) => !onlyRes || onlyRes.some((re) => re.test(master));
-  const manifestPath = path.join(root, ".live-ish", "images.json");
+  const manifestPath = path.join(root, ".live-ish", MANIFEST_FILE);
   const old = existsSync(manifestPath) ? (JSON.parse(readFileSync(manifestPath, "utf8")) as ImageManifest) : {};
   const next: ImageManifest = {};
   let encoded = 0;
@@ -200,7 +168,7 @@ export async function encodeImages(root: string, opts: { log: Ctx["log"]; force?
   // Delete what no entry names any more: an older encode of a re-captured master.
   const named = new Set(Object.values(next).flatMap((e) => [...e.avif, ...e.webp].map((v) => v.src)));
   let pruned = 0;
-  for (const rel of walk(path.join(root, "public", "opt"))) {
+  for (const rel of walkFiles(path.join(root, "public", "opt"))) {
     if (!named.has(`/opt/${rel}`)) {
       rmSync(path.join(root, "public", "opt", rel));
       pruned++;

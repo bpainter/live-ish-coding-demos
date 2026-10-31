@@ -239,12 +239,15 @@ test("terminal-range passes contiguous ranges, and fails past the end or on a ga
   for (const d of [ok, past, gap]) rmSync(d.root, { recursive: true });
 });
 
-test("terminal-range fails with a fix when the recording is missing", async () => {
+test("terminal-range leaves a missing recording to the build rule, and names one that will not parse", async () => {
   const { ctx, root } = terminalDeck([[1, 1]], ["$ a"]);
-  rmSync(path.join(root, "demos/term/recordings/session.json"));
+  const file = path.join(root, "demos/term/recordings/session.json");
+  writeFileSync(file, "{ not json");
   const [finding] = await ruleOf("terminal-range").run(ctx);
-  assert.match(finding.message, /no recording/);
+  assert.match(finding.message, /not valid JSON/);
   assert.match(finding.fix ?? "", /live-ish record term/);
+  rmSync(file);
+  assert.deepEqual(await ruleOf("terminal-range").run(ctx), []);
   rmSync(root, { recursive: true });
 });
 

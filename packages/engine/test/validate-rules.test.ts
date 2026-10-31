@@ -40,12 +40,21 @@ interface Case {
 
 const c = (rule: string, name: string, breakIt: Case["breakIt"], extra: Partial<Case> = {}): Case => ({ rule, name, breakIt, ...extra });
 
+/** Turns the after beat into a terminal page over a recording of these lines. */
+const terminalAfter = (f: Fixture, ranges: [number, number][], lines: string[]) => {
+  f.demo.after = { kind: "terminal", files: [], minutes: 1, steps: ranges.map((range, i) => ({ id: `s${i}`, label: "Run it", actions: [{ type: "terminal", lines: range }], notes: ["It ran."] })) };
+  f.write("demos/x1/recordings/session.json", JSON.stringify({ id: "session", capturedAt: "2026-10-31T00:00:00Z", env: {}, lines: lines.map((text, i) => ({ line: i + 1, delay: 0, text, kind: text.startsWith("$ ") ? "cmd" : "out" })) }));
+};
+
 const CASES: Case[] = [
   // Integrity
   c("config", "a misspelled field", (f) => Object.assign(f.config, { titel: "Oops" })),
   c("build", "a demo in order with no folder", (f) => f.config.order.push("x2")),
   c("build", "a listed page that is gone", (f) => (f.demo.after!.pages = ["nope.html"])),
   c("build", "a terminal page with no recording", (f) => (f.demo.after!.kind = "terminal")),
+  c("terminal-range", "a range past the last line", (f) => terminalAfter(f, [[1, 2], [3, 9]], ["$ one", "1", "$ two", "2"])),
+  c("terminal-range", "a gap between steps", (f) => terminalAfter(f, [[1, 2], [4, 4]], ["$ one", "1", "$ two", "2"])),
+  c("terminal-token", "a token-like line", (f) => terminalAfter(f, [[1, 2]], ["$ cat .npmrc", `npm_${"ab".repeat(18)}`])),
   c("code", "a step with no code", (f) => delete after(f)[1].code),
   c("code", "code.file not in files", (f) => (after(f)[1].code = { file: "missing.html", lines: [1] })),
   c("code", "a line past the end", (f) => (after(f)[1].code = { file: "index.html", lines: [[1, 9]] })),

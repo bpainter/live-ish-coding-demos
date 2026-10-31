@@ -99,7 +99,7 @@ export function providerSite(env: Record<string, string | undefined>): { provide
 export async function build(ctx: Ctx): Promise<ExitCode> {
   const root = requireDeck(ctx);
   const { findings } = await runCheck(root, ctx.flags.strict === true);
-  printFindings(findings, ctx.log);
+  await printFindings(findings, ctx.log);
   if (findings.some((f) => f.severity === "error")) return EXIT.findings;
 
   const preset = providerSite(process.env);

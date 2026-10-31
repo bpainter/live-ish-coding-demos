@@ -33,7 +33,7 @@ function unknownRule(key: string, path: string, valid: readonly string[], out: C
     return;
   }
   const near = closeTo(key, [...valid]);
-  out.push({ path, message: `"${key}" is not a rule id.`, fix: near ? `Did you mean "${near}"?` : `Run live-ish explain <rule> for a rule's id.` });
+  out.push({ path, message: `"${key}" is not a rule id.`, fix: near ? `Did you mean "${near}"?` : `Use live-ish explain <rule> to look up a rule's id.` });
 }
 
 /** `writing.rules`: the Style tier, by severity, and `sentence` by its two word limits. */
