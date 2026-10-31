@@ -545,3 +545,14 @@
 .sg--title {
   background: var(--slide-bg-image, linear-gradient(135deg, #14192e 0%, #2a3a9e 100%)) center / cover no-repeat;
 }
+
+/* Icon cards: the icon, then the text, inset from the card's edge. */
+.sg--icons .sg-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+}
+.sg--icons .sg-cards {
+  margin-top: 32px;
+}
