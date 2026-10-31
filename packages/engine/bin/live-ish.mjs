@@ -8,15 +8,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const major = Number.parseInt(process.versions.node, 10);
 if (major < 22) {
-  console.error(`live-ish needs Node 22 or later. This is Node ${process.versions.node}.`);
-  process.exit(3);
+  console.error(`live-ish needs Node 22 or newer. This is Node ${process.versions.node}.`);
+  process.exit(1);
 }
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const tsx = pathToFileURL(createRequire(import.meta.url).resolve("tsx")).href;
 const main = path.join(here, "..", "src", "cli", "main.ts");
-const child = spawn(process.execPath, ["--conditions=react-server", "--import", tsx, main, ...process.argv.slice(2)], { stdio: "inherit" });
-
-// The CLI stops its own children, so a signal only has to reach it.
-for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => child.kill(signal));
-child.on("exit", (code, signal) => process.exit(code ?? (signal ? 1 : 3)));
+const cli = spawn(process.execPath, ["--conditions=react-server", "--import", tsx, main, ...process.argv.slice(2)], { stdio: "inherit" });
+// `live-ish present` owns a server. A stop sent to this shim has to reach it, or the port stays taken.
+for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => cli.kill(signal));
+cli.on("exit", (code) => process.exit(code ?? 1));

@@ -24,7 +24,6 @@ const KEY_VIA: Partial<Record<Key, RegExp>> = {
 };
 
 /** `localStorage.clear()` on one origin wipes the presenter's own keys too. */
-const CLEARS_STORAGE = /\b(?:localStorage|sessionStorage)\s*\??\.\s*clear\s*\(/;
 
 /** Problems with an excerpt against its source file: bad ranges, then the first line that drifted. */
 export function excerptIssues(file: DemoCodeFile, full: string): { message: string; fix?: string }[] {
@@ -195,17 +194,4 @@ export const rules: Rule[] = [
     for (const { demo, page, step } of eachStep(ctx)) if (isTodo(step.code?.file)) add(whereStep(demo, page, step, "code"), "code.file is still TODO.");
   }),
 
-  defineRule("storage-clear", "Shown code does not clear storage shared with the presenter.", (ctx, add) => {
-    for (const demo of ctx.deck.demos) {
-      for (const page of framePages(demo)) {
-        for (const f of page.files) {
-          const source = shownSource(f);
-          if (source === null) continue;
-          source.split("\n").forEach((line, i) => {
-            if (CLEARS_STORAGE.test(line)) add(wherePage(demo, page, `files, ${f.file}`), `${f.file}:${i + 1} clears storage. On one origin a frame shares storage with the presenter, so this wipes the deck's own keys.`, { fix: "Remove the keys the demo set, one by one, with removeItem()." });
-          });
-        }
-      }
-    }
-  }),
 ];

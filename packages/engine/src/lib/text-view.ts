@@ -1,9 +1,11 @@
+import { deckKey } from "./deck-keys";
+
 /**
  * The reader's text view switch: `html[data-text-view="on"]`, kept in
  * `sessionStorage` for the tab's session. Below 900 px wide or 500 px tall the view is automatic
  * (styles/components/reading-view.css) and the switch is hidden.
  */
-export const TEXT_VIEW_KEY = "deck:text-view";
+export const TEXT_VIEW_KEY = deckKey("text-view");
 
 /**
  * Sets the attribute before the stage paints, from the session's choice, so a reload in text view

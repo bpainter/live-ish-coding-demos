@@ -3,24 +3,21 @@
 const { execFileSync } = require("node:child_process");
 const { existsSync, readFileSync } = require("node:fs");
 const path = require("node:path");
+const { PROVIDERS, addressSource, assertHosting, detectProvider, headerRules, resolveBuildId, resolveHosting, resolveTarget } = require("./hosting.cjs");
 
 const ENGINE = path.join(__dirname, "..", "..");
-const IMMUTABLE = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
-const HOUR = [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }];
+/** `page.presenter.tsx` and `layout.presenter.tsx` are pages only when this is listed. */
+const PRESENTER_EXTENSION = "presenter.tsx";
+const NEXT_EXTENSIONS = ["tsx", "ts", "jsx", "js"];
 
 /** Runs `prepareDeck` to completion in a child process. A config file has to load synchronously. */
-function prepare(root) {
+function prepare(root, target) {
   // Next loads the config in several processes, and they inherit this.
   if (process.env.LIVE_ISH_PREPARED === root) return;
   const tsx = require.resolve("tsx");
   const main = path.join(ENGINE, "src", "prepare", "main.ts");
-  execFileSync(process.execPath, ["--conditions=react-server", "--import", require("node:url").pathToFileURL(tsx).href, main, root], { stdio: "inherit", cwd: root });
+  execFileSync(process.execPath, ["--conditions=react-server", "--import", require("node:url").pathToFileURL(tsx).href, main, root, target], { stdio: "inherit", cwd: root });
   process.env.LIVE_ISH_PREPARED = root;
-}
-
-function buildId() {
-  const { LIVE_ISH_BUILD_ID, VERCEL_GIT_COMMIT_SHA, CF_PAGES_COMMIT_SHA, COMMIT_REF, GITHUB_SHA } = process.env;
-  return LIVE_ISH_BUILD_ID ?? (VERCEL_GIT_COMMIT_SHA ?? CF_PAGES_COMMIT_SHA ?? COMMIT_REF ?? GITHUB_SHA)?.slice(0, 7) ?? "dev";
 }
 
 /**
@@ -41,45 +38,32 @@ function presenterRewrites(first) {
  * refuse capturing ones; the route handler matches again with the original to read them.
  */
 function addressRewrites(addresses) {
-  return addresses.map((a) => {
-    const pattern = a.regex ? a.regex.replace(/^\^(\\?\/)?/, "").replace(/\$$/, "").replace(/\(\?<[A-Za-z_]\w*>/g, "(?:").replace(/\((?!\?)/g, "(?:") : a.path.replace(/^\//, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return { source: `/:address(${pattern})`, destination: "/live-ish-address/:address" };
-  });
-}
-
-function headers(frames) {
-  const production = process.env.NODE_ENV === "production";
-  const framesHost = new URL(frames ?? "http://127.0.0.1").hostname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return [
-    ...(production
-      ? [
-          // Unversioned engine files get an hour. Links the frame shell versions with ?v= are immutable.
-          { source: "/live-ish/:path*", headers: HOUR },
-          { source: "/live-ish/:path*", has: [{ type: "query", key: "v" }], headers: IMMUTABLE },
-        ]
-      : []),
-    {
-      source: "/:path*",
-      headers: [
-        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-        { key: "X-Content-Type-Options", value: "nosniff" },
-      ],
-    },
-    // Every response from the frames host stays out of search indexes.
-    { source: "/:path*", has: [{ type: "host", value: framesHost }], headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
-  ];
+  return addresses.map((a) => ({ source: addressSource(a), destination: "/live-ish-address/:address" }));
 }
 
 /** The deck's whole Next config: alias, rewrites, cache headers, tracing and the build ID. */
 function withDeck(options = {}) {
   const root = path.resolve(options.root ?? process.cwd());
-  prepare(root);
+  const env = process.env;
+  const target = resolveTarget(env);
+  prepare(root, target);
   const summary = JSON.parse(readFileSync(path.join(root, ".live-ish", "deck.json"), "utf8"));
-  const site = process.env.LIVE_ISH_SITE_ORIGIN ?? summary.hosts.site ?? "";
-  const frames = process.env.LIVE_ISH_FRAMES_ORIGIN ?? summary.hosts.frames ?? "";
+  const provider = options.provider ?? detectProvider(env);
+  const { mode, site, frames } = resolveHosting({ env, hosts: summary.hosts, target, provider });
+  // `next start` loads this file too, and a server that is already built has nothing to guard.
+  const building = process.argv.includes("build");
+  if (building) assertHosting({ target, mode, site });
+  const deployed = target === "deployed";
+  // Local modes always have the presenter. A deployed host has it only when the deck asks.
+  const presenter = !deployed || summary.presenter.onHost;
+  const preview = Boolean(deployed && PROVIDERS[provider]?.preview?.(env));
+  // A plain `next build` is the one path to a host the engine cannot see, so it says what it made.
+  if (building && !deployed && site && !env.LIVE_ISH_TARGET) console.warn("live-ish: local build, with the presenter and speaker notes in it. Deploy with `live-ish build`.");
   const generated = path.join(root, ".live-ish", "deck.gen.ts");
-  if (!existsSync(generated)) throw new Error("live-ish: .live-ish/deck.gen.ts is missing after prepareDeck.");
+  const analytics = path.join(root, ".live-ish", "analytics.gen.ts");
+  if (!existsSync(generated) || !existsSync(analytics)) throw new Error("live-ish: generated files are missing from .live-ish/ after prepareDeck.");
   const { next = {} } = options;
+  const aliases = { "@live-ish/deck": "./.live-ish/deck.gen.ts", "@live-ish/analytics": "./.live-ish/analytics.gen.ts" };
   return {
     reactStrictMode: true,
     // No dev badge on stage or in captures.
@@ -90,27 +74,42 @@ function withDeck(options = {}) {
     distDir: process.env.NEXT_DIST_DIR ?? ".next",
     images: { unoptimized: true },
     ...next,
+    // The one way to leave a page out of a build, with no route, no chunk and no payload.
+    pageExtensions: [...(presenter ? [PRESENTER_EXTENSION] : []), ...(next.pageExtensions ?? NEXT_EXTENSIONS)],
     transpilePackages: ["@live-ish/engine", ...(next.transpilePackages ?? [])],
     env: {
-      NEXT_PUBLIC_BUILD_ID: buildId(),
-      NEXT_PUBLIC_LIVE_ISH_SITE_ORIGIN: site,
+      NEXT_PUBLIC_BUILD_ID: resolveBuildId(env, provider),
+      NEXT_PUBLIC_LIVE_ISH_DECK: summary.deckId,
+      NEXT_PUBLIC_LIVE_ISH_TARGET: target,
+      NEXT_PUBLIC_LIVE_ISH_MODE: mode,
+      // Only two hosts name an origin in client code. Local and one-host builds carry none.
+      NEXT_PUBLIC_LIVE_ISH_PRESENTER_ORIGIN: mode === "two-hosts" ? site : "",
       NEXT_PUBLIC_LIVE_ISH_FRAMES_ORIGIN: frames,
       NEXT_PUBLIC_LIVE_ISH_EXTERNAL: JSON.stringify(summary.hosts.external ?? {}),
+      NEXT_PUBLIC_LIVE_ISH_PROVIDER: provider ?? "",
+      // A preview cannot embed frames from a frames host that names production in `frame-ancestors`.
+      NEXT_PUBLIC_LIVE_ISH_FRAMES_OFF: preview && mode === "two-hosts" ? "1" : "",
+      // Read by server modules only, so client chunks never carry the host.
+      LIVE_ISH_SITE: site,
+      LIVE_ISH_PRESENTER: presenter ? "1" : "",
+      LIVE_ISH_PREVIEW: preview ? "1" : "",
+      LIVE_ISH_BUILD_FILE_HEADERS: JSON.stringify(PROVIDERS[provider]?.buildFileHeaders ?? {}),
       ...next.env,
     },
-    turbopack: { ...next.turbopack, resolveAlias: { ...next.turbopack?.resolveAlias, "@live-ish/deck": "./.live-ish/deck.gen.ts" } },
+    turbopack: { ...next.turbopack, resolveAlias: { ...next.turbopack?.resolveAlias, ...aliases } },
     webpack(config, context) {
       config.resolve.alias["@live-ish/deck"] = generated;
+      config.resolve.alias["@live-ish/analytics"] = analytics;
       return next.webpack ? next.webpack(config, context) : config;
     },
     // Files the server reads with fs at request time. Every read has a runtime path, which tracing
     // can't follow, so a deployment gets them from these globs.
-    outputFileTracingIncludes: { ...next.outputFileTracingIncludes, "/**": ["./demos/**/*", "./.live-ish/**/*", ...(next.outputFileTracingIncludes?.["/**"] ?? [])] },
+    outputFileTracingIncludes: { ...next.outputFileTracingIncludes, "/**": [...summary.demoFiles, "./.live-ish/**/*", ...(next.outputFileTracingIncludes?.["/**"] ?? [])] },
     async rewrites() {
-      return { beforeFiles: [...presenterRewrites(summary.firstSlide), ...addressRewrites(summary.addresses)], afterFiles: [], fallback: [] };
+      return { beforeFiles: [...(presenter ? presenterRewrites(summary.firstSlide) : []), ...addressRewrites(summary.addresses)], afterFiles: [], fallback: [] };
     },
     async headers() {
-      return [...headers(frames || undefined), ...((await next.headers?.()) ?? [])];
+      return [...headerRules({ production: process.env.NODE_ENV === "production", mode, site, frames, addresses: summary.addresses }), ...((await next.headers?.()) ?? [])];
     },
   };
 }

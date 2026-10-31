@@ -7,7 +7,6 @@ import { fileURLToPath } from "node:url";
 import { nearest, parseArgs, portOf, UsageError } from "../src/cli/args";
 import { detectPackageManager } from "../src/cli/commands/maintain";
 import { LAYOUTS, nextSlideNumber, slugify } from "../src/cli/commands/new";
-import { providerSite } from "../src/cli/commands/run";
 import { searchFeatures } from "../src/cli/commands/support";
 import { addServer, insertOrderId, readOrder, readSchemaVersion } from "../src/cli/edit-config";
 import { hashOf, HEADER, MANIFEST, shellFiles, shellStatus, strayFiles, writeShell } from "../src/cli/shell";
@@ -327,11 +326,6 @@ test("detectPackageManager prefers the lockfile", () => {
   writeFileSync(path.join(root, "package-lock.json"), "{}");
   assert.equal(detectPackageManager(root, {}), "npm");
   rmSync(root, { recursive: true });
-});
-
-test("providerSite reads a host's own address", () => {
-  assert.deepEqual(providerSite({ VERCEL_PROJECT_PRODUCTION_URL: "talk.example.com" }), { provider: "Vercel", site: "https://talk.example.com" });
-  assert.equal(providerSite({ URL: "https://x.dev" }), null);
 });
 
 test("searchFeatures ranks an exact id first and keeps versions from the data", () => {

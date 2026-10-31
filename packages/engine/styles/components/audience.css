@@ -6,25 +6,6 @@
   cursor: none;
 }
 
-/* Either presenter window, opened on the address it must not use. */
-.address-banner {
-  @apply fixed;
-  inset-block-start: 0;
-  inset-inline: 0;
-  z-index: 200;
-  margin: 0;
-  padding: var(--space-2) var(--space-4);
-  background: #b3261e;
-  color: #fff;
-  font-size: 18px;
-  text-align: center;
-}
-.address-banner__link {
-  color: inherit;
-  font-weight: 700;
-  text-decoration: underline;
-}
-
 /* The `dev` overlay on a frame. Production builds never render it. */
 .dev-fault {
   @apply absolute;
