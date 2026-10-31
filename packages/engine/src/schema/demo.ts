@@ -120,7 +120,7 @@ export interface Step {
   posterUnderlay?: false;
   /**
    * Multi-page builds: the document this step ends on, relative to the build ("index.html",
-   * "product.html?id=trail"). The forward run keeps the real navigation, so a cross-document view
+   * "product.html?id=one"). The forward run keeps the real navigation, so a cross-document view
    * transition plays. Instant replay opens the route with no transition, then runs the step's
    * actions after its last click or navigate.
    */

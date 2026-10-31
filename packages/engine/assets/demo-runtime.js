@@ -434,7 +434,7 @@
           // lanes, or the columns fallback. Pages with positive blocks only behave as before.
           removedSupports = [];
           Array.prototype.slice.call(document.styleSheets).forEach(function (sheet) {
-            // The portal theme is never part of an enhancement.
+            // The base stylesheet is never part of an enhancement.
             if (sheet.href && sheet.href.indexOf("/live-ish/theme.css") !== -1) return;
             var removed = [];
             try {
