@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { deck, demos, slides } from "./content";
-import { SITE } from "./frames/origins";
+import { SITE } from "./site";
 import { generated } from "./paths";
 import { createSeo, type OgFile } from "./seo-core";
 

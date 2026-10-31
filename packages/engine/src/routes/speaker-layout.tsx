@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { hasFrame } from "../schema/demo";
 import { slides } from "../lib/content";
+import { AddressBanner } from "../components/presenter/AddressBanner";
 import { GlassMode } from "../components/presenter/GlassMode";
 import { PresenterProvider } from "../lib/presenter/context";
 import { SpeakerShell, type SpeakerSlideInfo } from "../components/presenter/SpeakerView";
@@ -21,6 +22,7 @@ export default function SpeakerLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <GlassMode />
+      <AddressBanner />
       <PresenterProvider mode="speaker" slideIds={slideIds}>
         <SpeakerShell slides={slideInfo}>{children}</SpeakerShell>
       </PresenterProvider>

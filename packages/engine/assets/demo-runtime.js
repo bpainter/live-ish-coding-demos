@@ -16,6 +16,8 @@
 
   var metaEl = document.querySelector('meta[name="presenter-origin"]');
   var PRESENTER = metaEl ? metaEl.getAttribute("content") : null;
+  // On one origin the composer names no host: the presenter is this document's own origin.
+  if (PRESENTER === "self") PRESENTER = location.origin;
   var embedded = window.parent && window.parent !== window;
   // A warm-up document (FrameWarm, `warm=1`) only loads, so its files and the theme are cached: it
   // posts nothing, probes nothing and calls no focus(). In Chromium a focus() in a frame moves the
@@ -880,14 +882,12 @@
   // Counts this frame's entries: a document load that is a new navigation, then every same-document
   // push (the Navigation API's navigate event followed by navigatesuccess, which covers intercepted
   // links and pushState; without the API, the pushState wrapper). A frame's first document leaves
-  // the name alone; a load the frame made itself has a same-origin referrer.
+  // the name alone until it is left, when `pagehide` writes the count (multi-page builds, below), so
+  // a named load is one the frame made itself. Frames send no referrer, so nothing else can say.
   (function recordFrameEntries() {
     var type = (performance.getEntriesByType("navigation")[0] || {}).type;
     var d = frameDepth();
-    if (type === "navigate") {
-      if (window.name) saveDepth({ index: d.index + 1, max: d.index + 1 });
-      else if (document.referrer.indexOf(location.origin + "/") === 0) saveDepth({ index: 1, max: 1 });
-    }
+    if (type === "navigate" && window.name) saveDepth({ index: d.index + 1, max: d.index + 1 });
     function pushed() {
       var cur = frameDepth();
       saveDepth({ index: cur.index + 1, max: cur.index + 1 });
@@ -1114,8 +1114,8 @@
   // link or a navigate that loads another page ends this document's part of the run: the runtime
   // waits here for pagehide, whose `unloading` names the next action, and the presenter resumes
   // the run in the new document. A same-document traversal (popstate) or a load that never comes
-  // ends the wait. The load is counted as one of the frame's own entries (the frame's referrer
-  // policy hides the referrer that recordFrameEntries looks for).
+  // ends the wait. The load is counted as one of the frame's own entries, as any load the frame
+  // makes is: a link pressed in hands-on mode counts through `pagehide`.
   var multiPage = document.documentElement.hasAttribute("data-pages");
   // Flags travel on the request, so no server instance has to remember them: a link or navigate to
   // another page of this build carries the document's flags in `?flags=`.
@@ -1136,6 +1136,7 @@
     return u.href;
   }
   if (multiPage) {
+    window.addEventListener("pagehide", markOwnLoad);
     document.addEventListener(
       "click",
       function (e) {

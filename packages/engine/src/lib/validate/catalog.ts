@@ -13,7 +13,7 @@ import type { Tier } from "./types";
  */
 export const TIERS: Record<Tier, readonly string[]> = {
   integrity: ["config", "build", "code", "files", "excerpt", "selector", "hook", "flags", "via", "viewport", "label", "page-order", "frame-change", "duration", "nav", "group", "deck-links", "theme", "wrapper-markup", "wrapper-unknown", "wrapper-missing", "wrapper-shown", "terminal-range", "terminal-token", "reserved-route", "bg-missing", "bg-unknown", "bg-file"],
-  fit: ["file-size", "storage-clear", "callouts", "step-cap", "bullets", "key-step", "keyboard", "proof", "meter", "todo", "images", "public-files", "fonts", "poster-fresh", "og-stale", "og-image", "jsonld", "seo-title", "event-date", "theme-lint", "theme-contrast", "wrapper-lint", "wrapper-banned", "support-claim", "skills-stale", "timing", "bg-unused", "bg-shared", "bg-size", "bg-bytes", "bg-duplicate", "bg-stats"],
+  fit: ["file-size", "storage-clear", "presenter-public", "third-party-script", "callouts", "step-cap", "bullets", "key-step", "keyboard", "proof", "meter", "todo", "images", "public-files", "fonts", "poster-fresh", "og-stale", "og-image", "jsonld", "seo-title", "event-date", "theme-lint", "theme-contrast", "wrapper-lint", "wrapper-banned", "support-claim", "skills-stale", "timing", "bg-unused", "bg-shared", "bg-size", "bg-bytes", "bg-duplicate", "bg-stats"],
   support: ["support", "intro", "eyebrow"],
   // `seo-description` is here for its taste checks; its length check stays Fit (rules/seo.ts).
   style: ["dash", "exclaim", "case", "slide-case", "banned", "sentence", "x-not-y", "intro-sentences", "bullet-length", "step-words", "budget", "cautions", "seo-description"],

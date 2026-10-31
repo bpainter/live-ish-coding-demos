@@ -16,6 +16,8 @@ export interface Presenter {
   transport: Transport;
   /** Windows heard from (any message, presence every 2 s) in the last 5 s, including this one. */
   peers: number;
+  /** A build another window of this deck runs, heard in the last 5 s. It cannot sync with this one. */
+  otherBuild: string | null;
   /**
    * Whether an audience window is connected: null until 5 s after mount
    * or under the storage transport, then true if one was heard within 5 s, else false.
@@ -69,7 +71,7 @@ interface Props {
  * Two windows, one state. Owns the sync transport, the hello handshake
  * and URL mirroring; the stage and speaker view read and write through `update`.
  *
- * Rendered by the window's layout (`app/present/layout.tsx`, `app/speaker/layout.tsx`), above the
+ * Rendered by the window's layout (`app/present/layout.presenter.tsx`, `app/speaker/layout.presenter.tsx`), above the
  * prerendered `[id]` pages: a slide move swaps the page and keeps this provider, its state and its
  * transport. Inside a page it would remount on every move, as a
  * new window that has lost the shared step. The first slide comes from the route's `[id]`.
@@ -95,6 +97,8 @@ export function PresenterProvider({ mode, slideIds, children }: Props) {
   const [demoHealth, setDemoHealth] = useState<Record<string, DemoHealth>>({});
   const [playback, setPlayback] = useState<Playback | null>(null);
   const [audienceConnected, setAudienceConnected] = useState<boolean | null>(null);
+  const [otherBuild, setOtherBuild] = useState<string | null>(null);
+  const otherBuildSeen = useRef(0);
   // Last time each window was heard from, and the last time an audience window was (presence, 8.6).
   const peerSeen = useRef<Record<string, number>>({});
   const audienceSeen = useRef(0);
@@ -186,13 +190,25 @@ export function PresenterProvider({ mode, slideIds, children }: Props) {
         seen(msg.writer, true);
         setDemoHealth((h) => (h[msg.demoId] === msg.status ? h : { ...h, [msg.demoId]: msg.status }));
       }
+    }, {
+      // Written back at once: the place lives here, and the store is what a reload resumes from.
+      onCleared: () => {
+        if (settled || stateRef.current.seq > 0) sync.send({ type: "state", state: stateRef.current });
+      },
+      onOtherBuild: (build) => {
+        otherBuildSeen.current = Date.now();
+        setOtherBuild(build);
+      },
     });
     syncRef.current = sync;
     setTransport(sync.transport);
     sync.send({ type: "hello", writer });
     // Still here (8.6): a window only sends state on a change, so presence is what keeps an idle
     // audience window counted.
-    const presence = () => sync.send({ type: "presence", writer, mode: modeRef.current });
+    const presence = () => {
+      sync.send({ type: "presence", writer, mode: modeRef.current });
+      sync.announceBuild();
+    };
     presence();
     const beat = window.setInterval(presence, 2000);
     const t = window.setTimeout(() => {
@@ -289,6 +305,7 @@ export function PresenterProvider({ mode, slideIds, children }: Props) {
       const now = Date.now();
       const cutoff = now - 5000;
       setPeers(1 + Object.values(peerSeen.current).filter((t) => t > cutoff).length);
+      if (otherBuildSeen.current <= cutoff) setOtherBuild(null);
       if (transport !== "broadcast") setAudienceConnected(null);
       else if (audienceSeen.current > cutoff) setAudienceConnected(true);
       else setAudienceConnected(now - mounted >= 5000 ? false : null);
@@ -298,8 +315,8 @@ export function PresenterProvider({ mode, slideIds, children }: Props) {
   }, [transport]);
 
   const value = useMemo<Presenter>(
-    () => ({ mode, state, writer, transport, peers, audienceConnected, demoHealth, update, getState, reportHealth, playback, reportPlayback, registerPerform, perform, setRenderedSlide: setRendered }),
-    [mode, state, writer, transport, peers, audienceConnected, demoHealth, update, getState, reportHealth, playback, reportPlayback, registerPerform, perform],
+    () => ({ mode, state, writer, transport, peers, otherBuild, audienceConnected, demoHealth, update, getState, reportHealth, playback, reportPlayback, registerPerform, perform, setRenderedSlide: setRendered }),
+    [mode, state, writer, transport, peers, otherBuild, audienceConnected, demoHealth, update, getState, reportHealth, playback, reportPlayback, registerPerform, perform],
   );
 
   return <PresenterContext.Provider value={value}>{children}</PresenterContext.Provider>;
