@@ -16,8 +16,10 @@
   --speaker-panel-filter: var(--speaker-filter);
   --speaker-clear-filter: blur(16px) saturate(170%) brightness(0.58);
   --speaker-ease: var(--ease-out);
-  --speaker-font-sans: var(--deck-font-sans);
-  --speaker-font-mono: var(--deck-font-mono);
+  /* System faces: presenter chrome loads no font file, so it never adds to a demo page's budget, and
+     it reads the same whichever fonts a deck resolves to. */
+  --speaker-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --speaker-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 @supports not (backdrop-filter: blur(1px)) {

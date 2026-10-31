@@ -17,13 +17,15 @@ const text = files
   })
   .join("\n");
 
-// Names from the far ends of the alphabet, which nothing in the engine imports directly.
-const absent = ["a-arrow-down", "zoom-out", "wheat-off", ...slideIcons];
-const found = absent.filter((name) => text.includes(`"${name}"`) || text.includes(`lucide-${name}`));
-const used = new Set([...text.matchAll(/lucide-([a-z0-9-]+)/g)].map((m) => m[1]));
-console.log(`client JS: ${files.length} files, ${(bytes / 1024).toFixed(0)} KB, ${used.size} Lucide icons: ${[...used].sort().join(", ")}`);
-if (found.length) {
-  console.error(`check-client-js: found in client JavaScript: ${found.join(", ")}`);
+// A bundled Lucide icon carries its own name. The engine's client components import a couple of dozen
+// directly; the whole map holds about 1,700.
+const LIMIT = 40;
+const used = [...new Set([...text.matchAll(/name:"([a-z0-9-]+)",size:\d+,node:/g)].map((m) => m[1]))].sort();
+const shipped = new Set(used);
+const leaked = ["zoom-out", "wheat-off", "a-large-small", ...slideIcons].filter((name) => shipped.has(name));
+console.log(`client JS: ${files.length} files, ${(bytes / 1024).toFixed(0)} KB, ${used.length} Lucide icons: ${used.join(", ")}`);
+if (leaked.length || used.length > LIMIT) {
+  console.error(`check-client-js: ${used.length} icons in client JavaScript, and these should not be: ${leaked.join(", ") || "none named"}`);
   process.exit(1);
 }
 console.log("check-client-js: the icon map is not in client JavaScript.");

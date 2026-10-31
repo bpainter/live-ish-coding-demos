@@ -105,10 +105,12 @@
   line-height: 23px;
   white-space: nowrap;
 }
+/* The leader crosses unknown demo content, so it carries the halo, as the ring does. */
 .overlay__callout::after {
   content: "";
   @apply absolute;
   background: var(--chrome-callout-leader);
+  box-shadow: 0 0 0 1px var(--chrome-spot-halo);
 }
 .overlay__callout[data-side="top"]::after {
   left: 50%;

@@ -25,7 +25,7 @@
     --frame-muted: #d0d7de;
     --frame-new: #fff3bf;
     --frame-danger: #e5484d;
-    --frame-rule-solid: #e6e6e6;
+    --frame-rule-solid: #d8dee4;
     --frame-gray: #57606a;
 
     /* Text */
@@ -119,11 +119,11 @@
     --frame-chip-info-edge: rgb(11 87 208 / 0.36);
     --frame-chip-info-dot: #0b57d0;
     --frame-chip-success-bg: rgb(14 116 144 / 0.14);
-    --frame-chip-success-edge: rgb(0 127 140 / 0.4);
-    --frame-chip-success-dot: #007f8c;
-    --frame-chip-pending-bg: rgb(107 79 216 / 0.14);
-    --frame-chip-pending-edge: rgb(107 79 216 / 0.36);
-    --frame-chip-pending-dot: #6b4fd8;
+    --frame-chip-success-edge: rgb(14 116 144 / 0.4);
+    --frame-chip-success-dot: #0e7490;
+    --frame-chip-pending-bg: rgb(102 57 186 / 0.14);
+    --frame-chip-pending-edge: rgb(102 57 186 / 0.36);
+    --frame-chip-pending-dot: #6639ba;
     --frame-chip-error-bg: rgb(229 72 77 / 0.14);
     --frame-chip-error-edge: rgb(229 72 77 / 0.6);
     --frame-chip-error-dot: #e5484d;
@@ -883,7 +883,7 @@
 
   .frame-toast--success {
     box-shadow:
-      inset 3px 0 0 #007f8c,
+      inset 3px 0 0 #0e7490,
       var(--frame-shadow-float);
   }
 
@@ -898,7 +898,7 @@
   }
 
   .frame-toast__icon--success {
-    color: #007f8c;
+    color: #0e7490;
   }
 
   .frame-toast__icon--error {

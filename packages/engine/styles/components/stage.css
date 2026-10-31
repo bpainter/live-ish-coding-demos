@@ -87,12 +87,12 @@
   inset: 0;
   --crop: linear-gradient(var(--slide-soft), var(--slide-soft));
   background:
-    var(--crop) 48px 20px / 1px 24px no-repeat,
-    var(--crop) 20px 48px / 24px 1px no-repeat,
+    var(--crop) left 48px top 20px / 1px 24px no-repeat,
+    var(--crop) left 20px top 48px / 24px 1px no-repeat,
     var(--crop) right 48px top 20px / 1px 24px no-repeat,
     var(--crop) right 20px top 48px / 24px 1px no-repeat,
-    var(--crop) 48px bottom 20px / 1px 24px no-repeat,
-    var(--crop) 20px bottom 48px / 24px 1px no-repeat,
+    var(--crop) left 48px bottom 20px / 1px 24px no-repeat,
+    var(--crop) left 20px bottom 48px / 24px 1px no-repeat,
     var(--crop) right 48px bottom 20px / 1px 24px no-repeat,
     var(--crop) right 20px bottom 48px / 24px 1px no-repeat;
   opacity: 0.55;
