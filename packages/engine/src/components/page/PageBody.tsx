@@ -8,7 +8,7 @@ import type { RenderedFile } from "../../lib/highlight";
 export type PanelFile = RenderedFile & { elisions: number[] };
 import type { StepResult } from "../../lib/engine/frame";
 import { useStage } from "../../lib/stage-context";
-import { frameLive } from "../../lib/frames/origins";
+import { frameLive, offlineNote } from "../../lib/frames/origins";
 import { announce, ensureAnnouncer } from "../../lib/announce";
 import { stepAnnouncement, stepCodeSentence } from "../../lib/code-description";
 import { PageFrame } from "./PageFrame";
@@ -76,7 +76,7 @@ export function PageBody({ page, files, sandbox, mode, slot, meters, posters }: 
             {/* A static poster, served from public/; next/image adds nothing for a preview. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {poster ? <img className="page__poster-image" src={poster} alt={offline ? `Captured still of the live demo: ${step ? step.label : page.title}` : ""} /> : null}
-            {offline ? <p className="page__poster-note">Captured still. This live demo runs as its own app, which this site does not include.</p> : <p className="page__poster-label">{step ? step.label : page.title}</p>}
+            {offline ? <p className="page__poster-note">{offlineNote()}</p> : <p className="page__poster-label">{step ? step.label : page.title}</p>}
           </div>
         ) : (
           // The step's poster sits under the frame until its document has replayed, unless the step

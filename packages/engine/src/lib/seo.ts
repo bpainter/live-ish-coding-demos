@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import { readFileSync } from "node:fs";
 import type { CopyContent, Slide } from "../schema/slide";
-import type { Demo } from "../schema/demo";
+import type { Demo, IntroPage } from "../schema/demo";
 import { deck, demos, slides } from "./content";
-import { SITE } from "./frames/origins";
 import { notesPlain } from "./notes";
 import { generated } from "./paths";
+import { SITE } from "./site";
 
 /**
  * Metadata and JSON-LD for the presenter's pages. Every route builds its
  * full metadata from these helpers, so none depends on Next's shallow merge of `openGraph`.
- * Canonical URLs, Open Graph URLs and JSON-LD ids all sit on NEXT_PUBLIC_PRESENTER_ORIGIN.
+ * Canonical URLs, Open Graph URLs and JSON-LD ids all sit on the deck's site. A local build with no
+ * site names no host: its ids are relative, and it writes no canonical URL.
  */
 
 export const ORIGIN = SITE;
@@ -146,7 +147,8 @@ export function slideDescription(slide: Slide): string {
   if (slide.description) return clampSentences(slide.description);
   const page = slide.page;
   let text: string;
-  if (page) text = page.beat === "intro" ? page.description : spokenDescription(page.notes);
+  // A public build carries no notes, so the demo's own public line stands in for them.
+  if (page) text = page.beat === "intro" ? page.description : spokenDescription(page.notes) || (slide.demo?.pages.find((p): p is IntroPage => p.beat === "intro")?.description ?? slide.demo?.scenario ?? slide.title);
   else if (slide.copy) text = copyDescription(slide.copy);
   else text = slide.body?.join(" ") ?? slide.title;
   return clampSentences(text);
@@ -154,12 +156,17 @@ export function slideDescription(slide: Slide): string {
 
 // --------------------------------------------------------------- metadata
 
-function shared(title: string, description: string, url?: string): Metadata {
+function shared(title: string, description: string, path?: string): Metadata {
+  // Next resolves a relative URL against localhost:3000 when there is no base, so with no site the
+  // absolute fields are left out.
+  const url = ORIGIN ? path : undefined;
+  const image = ORIGIN ? OG_IMAGE : null;
   return {
-    metadataBase: new URL(ORIGIN),
+    ...(ORIGIN ? { metadataBase: new URL(ORIGIN) } : {}),
     title,
     description,
     authors: [{ name: deck.speaker.name, url: deck.speaker.url }],
+    ...(deck.reader.index ? {} : { robots: { index: false, follow: false } }),
     ...(url ? { alternates: { canonical: url } } : {}),
     openGraph: {
       type: "website",
@@ -168,13 +175,13 @@ function shared(title: string, description: string, url?: string): Metadata {
       ...(url ? { url } : {}),
       title,
       description,
-      ...(OG_IMAGE ? { images: [{ url: OG_IMAGE.path, width: OG_IMAGE.width, height: OG_IMAGE.height, type: OG_IMAGE.type, alt: OG_IMAGE.alt }] } : {}),
+      ...(image ? { images: [{ url: image.path, width: image.width, height: image.height, type: image.type, alt: image.alt }] } : {}),
     },
     twitter: {
-      card: OG_IMAGE ? "summary_large_image" : "summary",
+      card: image ? "summary_large_image" : "summary",
       title,
       description,
-      ...(OG_IMAGE ? { images: [{ url: OG_IMAGE.path, alt: OG_IMAGE.alt }] } : {}),
+      ...(image ? { images: [{ url: image.path, alt: image.alt }] } : {}),
     },
   };
 }
