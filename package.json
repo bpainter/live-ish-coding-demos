@@ -13,7 +13,20 @@
   },
   "scripts": {
     "scan:private": "node scripts/scan/private.mjs",
-    "export:talk": "node scripts/export/run.mjs"
+    "export:talk": "node scripts/export/run.mjs",
+    "build": "pnpm --filter starter build",
+    "test": "pnpm --filter @live-ish/engine test",
+    "typecheck": "pnpm --filter @live-ish/engine typecheck && pnpm --filter starter typecheck",
+    "lint": "pnpm --filter @live-ish/engine lint",
+    "smoke": "node --import tsx scripts/smoke.mts"
   },
-  "packageManager": "pnpm@12.16.1+sha512.091d1dee7927575661b25dab3c2ae31cafc1c54d6b71ed6a6600cf0c1cb10434a447eae14015f1b23e2e6bedeed79df94a932e2164d2832280dce3fb32f656d1"
+  "packageManager": "pnpm@12.16.1+sha512.091d1dee7927575661b25dab3c2ae31cafc1c54d6b71ed6a6600cf0c1cb10434a447eae14015f1b23e2e6bedeed79df94a932e2164d2832280dce3fb32f656d1",
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@tailwindcss/postcss": "4.3.3",
+    "postcss": "8.5.31",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
 }
