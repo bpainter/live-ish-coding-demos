@@ -1,0 +1,3 @@
+#!/bin/sh
+# Nothing private lands, even once.
+exec node scripts/scan/private.mjs

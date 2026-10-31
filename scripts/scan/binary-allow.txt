@@ -1,0 +1,4 @@
+# Paths allowed to hold fonts or raster images. One glob per line. Anything else fails the scan.
+packages/engine/assets/grain.png
+packages/engine/assets/fonts/**
+docs/assets/**

@@ -1,0 +1,7 @@
+packages:
+  - packages/*
+  - examples/*
+  - docs
+
+# Hold versions younger than three days. Urgent fixes follow the exception path in CONTRIBUTING.md.
+minimumReleaseAge: 4320
