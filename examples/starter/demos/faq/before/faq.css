@@ -1,0 +1,19 @@
+.faq__item {
+  border-block-end: 1px solid #c8cfdc;
+  padding-block: 12px;
+}
+
+.faq__item button {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  font-weight: 700;
+}
+
+.faq__item button:focus-visible {
+  outline: 3px solid #0b57d0;
+}
+
+.faq__item button[aria-expanded="true"] {
+  color: #0b57d0;
+}

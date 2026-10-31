@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="t">
+  <title id="t">A speaker window and an audience window share one deck</title>
+  <rect x="24" y="48" width="280" height="196" rx="12" fill="#10203f"/>
+  <rect x="40" y="64" width="120" height="68" rx="6" fill="#dfe6f7"/>
+  <rect x="172" y="64" width="116" height="10" rx="5" fill="#ffffff"/>
+  <rect x="172" y="84" width="116" height="10" rx="5" fill="#b7c6ee"/>
+  <rect x="172" y="104" width="84" height="10" rx="5" fill="#b7c6ee"/>
+  <rect x="40" y="148" width="72" height="42" rx="6" fill="#b7c6ee"/>
+  <rect x="40" y="208" width="248" height="20" rx="10" fill="#1a56db"/>
+  <rect x="336" y="96" width="280" height="196" rx="12" fill="#dfe6f7"/>
+  <rect x="352" y="112" width="120" height="164" rx="8" fill="#ffffff"/>
+  <rect x="484" y="112" width="116" height="164" rx="8" fill="#10203f"/>
+  <rect x="496" y="132" width="88" height="8" rx="4" fill="#b7c6ee"/>
+  <rect x="496" y="152" width="88" height="8" rx="4" fill="#ffffff"/>
+  <rect x="496" y="172" width="64" height="8" rx="4" fill="#b7c6ee"/>
+  <rect x="372" y="168" width="80" height="44" rx="6" fill="none" stroke="#1a56db" stroke-width="4"/>
+  <path d="M304 146 C 316 146 324 170 336 170" fill="none" stroke="#1a56db" stroke-width="4"/>
+</svg>

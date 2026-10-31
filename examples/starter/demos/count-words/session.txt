@@ -1,0 +1,3 @@
+cat notes.txt
+node word-count.mjs notes.txt
+node word-count.mjs --top notes.txt
