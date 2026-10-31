@@ -2,7 +2,7 @@ import "server-only";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { generated } from "../paths";
-import { presenterOriginFor } from "./origins";
+import { presenterOriginFor, type Hosting } from "./origins";
 import type { BuildDef } from "./types";
 import { shellDef, type ShellContext } from "./shells";
 
@@ -126,7 +126,7 @@ export function composeFrame(def: BuildDef, opts: ComposeOptions): string {
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="color-scheme" content="light">',
-    `<meta name="presenter-origin" content="${escapeAttr(presenterOriginFor(opts.origin))}">`,
+    `<meta name="presenter-origin" content="${escapeAttr(presenterMeta(opts.origin))}">`,
     `<title>${escapeAttr(opts.title ?? def.title)}</title>`,
     `<script src="${versioned(RUNTIME_HREF)}"></script>`,
     "</head>",
@@ -137,6 +137,12 @@ export function composeFrame(def: BuildDef, opts: ComposeOptions): string {
     "</html>",
     "",
   ].join("\n");
+}
+
+/** The presenter's origin for the runtime. "self" names no host: the document knows its own. */
+function presenterMeta(origin: string): string {
+  const presenter = presenterOriginFor(origin);
+  return presenter === origin ? "self" : presenter;
 }
 
 /** `<html>` attributes the walk and the theme read: the shell id, `scrolls`, the lifted ids. */
@@ -171,11 +177,13 @@ export function wrapIn(body: string, manifest: BuildDef["manifest"], window?: Sh
   };
 }
 
-export function cspFor(def: BuildDef, origin: string, flags: Record<string, boolean>): { header: string; value: string } {
+export function cspFor(def: BuildDef, origin: string, flags: Record<string, boolean>, hosting?: Hosting): { header: string; value: string } {
   const template = def.manifest.csp ?? BASE_CSP;
-  // On one host the frame and its presenter share an origin, so `'self'` needs no name.
-  const presenter = presenterOriginFor(origin);
-  const value = template.replace(/ORIGIN/g, origin).replace(/PRESENTER/g, presenter === origin ? "'self'" : presenter);
+  // On one host the frame and its presenter share an origin, so `'self'` names neither, and a proxy
+  // that rewrites `host` cannot blank a frame. Across origins the policy has to name both.
+  const presenter = presenterOriginFor(origin, hosting);
+  const same = presenter === origin;
+  const value = template.replace(/ORIGIN/g, same ? "'self'" : origin).replace(/PRESENTER/g, same ? "'self'" : presenter);
   // A `csp-enforce` flag turns the page's policy to report-only while it is off.
   const reportOnly = def.manifest.flags["csp-enforce"] && flags["csp-enforce"] === false;
   return { header: reportOnly ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy", value };
@@ -222,9 +230,10 @@ const TYPES: Record<string, string> = {
 /**
  * Cache headers for a file that is fixed for the life of a deployment: a build's own CSS and JS,
  * vendored scripts, instrumentation, photos served beside a document. The browser keeps it 5
- * minutes and may use it stale for a day while it rechecks. Development keeps `no-store`.
+ * minutes and may use it stale for a day while it rechecks. A provider preset may add what its CDN
+ * reads. Development keeps `no-store`.
  */
-export const BUILD_FILE_CACHE: Record<string, string> = PRODUCTION ? { "Cache-Control": "public, max-age=300, stale-while-revalidate=86400" } : { "Cache-Control": "no-store" };
+export const BUILD_FILE_CACHE: Record<string, string> = PRODUCTION ? { "Cache-Control": "public, max-age=300, stale-while-revalidate=86400", ...(JSON.parse(process.env.LIVE_ISH_BUILD_FILE_HEADERS ?? "{}") as Record<string, string>) } : { "Cache-Control": "no-store" };
 
 /**
  * Re-labels a successful GET response as a build file (above), for addresses that serve files a demo

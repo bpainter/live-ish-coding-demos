@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { bySlideId, slideIdByNumber, slides } from "../lib/content";
+import { bySlideId, deck, slideIdByNumber, slides } from "../lib/content";
 import { SlidePage } from "../components/stage/SlidePage";
 import { ReadingView } from "../components/page/ReadingView";
 import { TextViewBoot } from "../components/page/TextViewBoot";
@@ -11,7 +11,7 @@ interface Params {
 }
 
 export function generateStaticParams() {
-  return slides.map((s) => ({ id: s.id }));
+  return deck.reader.enabled ? slides.map((s) => ({ id: s.id })) : [];
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function SlideRoute({ params }: Params) {
+  if (!deck.reader.enabled) notFound();
   const { id } = await params;
   // `/s/12` redirects to the id of slide 12.
   if (/^\d+$/.test(id)) {
