@@ -162,7 +162,7 @@ function frameFor(demo: DemoConfig, beat: Exclude<Beat, "intro">, viewport: Fram
   const kind = beatKind(demo, beat);
   const hooks = kind === "terminal" ? [...new Set(["reset", ...(page.hooks ?? [])])] : page.hooks;
   const route = kind === "server" ? serverRoute(demo, beat) : (page.address ?? `/demos/${demo.id}/${beat}`);
-  return { kind, route, viewport, flags: page.flags, hooks, poster: page.poster, spotlightClip: page.spotlightClip, keycap: page.keycap };
+  return { kind, route, viewport, flags: page.flags, hooks, poster: page.poster, recording: kind === "terminal" ? (page.recording ?? "session") : undefined, spotlightClip: page.spotlightClip, keycap: page.keycap };
 }
 
 /** A server frame's route names its app: `/@shop/products/1`. lib/frames/origins.ts resolves it. */
@@ -287,7 +287,7 @@ export function assembleDeck(input: DeckInput): AssembledDeck {
       for (const page of expanded.pages) parts.push(demoSlide(page, expanded));
     } else {
       const hint = nearest(id, known);
-      throw new DeckError(`deck.config.ts: order names "${id}", which is neither a slide nor a demo.${hint ? ` Did you mean "${hint}"?` : ""}`);
+      throw new DeckError(`deck.config.ts: order names "${id}", which is neither a slide nor a demo. Looked in slides/ and for demos/${id}/demo.ts.${hint ? ` Did you mean "${hint}"?` : ""}`);
     }
   }
   let cumulative = 0;

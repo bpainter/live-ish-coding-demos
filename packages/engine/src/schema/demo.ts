@@ -52,6 +52,8 @@ export interface Frame {
   hooks?: string[];
   /** A static image for speaker previews and the offline state. */
   poster?: string;
+  /** Terminal frames: the recording under `recordings/`, by name. */
+  recording?: string;
   /** Spotlights are clipped above this frame y: a docked drawer the ring must not cross. */
   spotlightClip?: { bottom: number };
   /** Keycaps sit above a docked drawer instead of at the frame's foot. */
