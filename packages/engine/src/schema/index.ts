@@ -1,3 +1,4 @@
+import { assertDeckConfig } from "../lib/validate/config";
 import type { DeckConfig, DemoConfig, ShownFile } from "./config";
 import type { SlideConfig } from "./slide";
 
@@ -7,8 +8,9 @@ export type { Background, TextZone } from "./backgrounds";
 export type { Citation, CopyLayout, GridCard, SlideConfig, SlideImage, SlideItem } from "./slide";
 export type { ServerRoute } from "../lib/frames/routes";
 
-/** The deck. `deck.config.ts` default-exports this. */
+/** The deck. `deck.config.ts` default-exports this. A wrong field fails here, with its path and the nearest valid name. */
 export function defineDeck(config: DeckConfig): DeckConfig {
+  assertDeckConfig(config);
   return config;
 }
 
