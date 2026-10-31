@@ -1,0 +1,20 @@
+/* The banner on a presenter window opened on 127.0.0.1. It sits above the stage and the speaker
+   grid in both windows, and it is the same in each: this is a setup mistake, seen before a talk. */
+.address-banner {
+  @apply fixed text-center;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 100;
+  margin: 0;
+  padding: 10px 16px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--color-black);
+  background: var(--color-white);
+}
+
+.address-banner a {
+  font-weight: 700;
+  color: inherit;
+  text-decoration: underline;
+}
