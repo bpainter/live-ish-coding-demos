@@ -1,0 +1,17 @@
+.faq details {
+  border-block-end: 1px solid #c8cfdc;
+  padding-block: 12px;
+}
+
+.faq summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.faq summary:focus-visible {
+  outline: 3px solid #0b57d0;
+}
+
+.faq details[open] summary {
+  color: #0b57d0;
+}
