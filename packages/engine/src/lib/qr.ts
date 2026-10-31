@@ -22,6 +22,6 @@ export async function qrSvg(url: string): Promise<{ svg: string; modules: number
     }
   }
   const title = url.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" width="${size}" height="${size}" shape-rendering="crispEdges" data-modules="${total}" data-module="${px}"><title>QR code for ${title}</title><rect width="${total}" height="${total}" fill="#FFFFFF"/><path fill="#14192E" d="${d}"/></svg>\n`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" width="${size}" height="${size}" shape-rendering="crispEdges" data-modules="${total}" data-module="${px}"><title>QR code for ${title}</title><rect width="${total}" height="${total}" fill="#FFFFFF"/><path fill="#000000" d="${d}"/></svg>\n`;
   return { svg, modules: total, module: px, size };
 }

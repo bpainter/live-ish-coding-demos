@@ -1,12 +1,15 @@
 @import "./theme.css";
-/* Glass tokens (--chrome-*, --intro-*, --glass-*); its frame rules are scoped to :root[data-build]. */
-@import "../assets/theme.css";
+/* Copy tokens, presenter chrome and the audience chrome's fixed values. Themes arrive as their own
+   small files under /live-ish/chrome/, linked only for themes the deck resolves to. */
+@import "./deck/tokens.css";
+@import "./speaker/tokens.css";
+@import "./chrome/tokens.css";
 
 @layer base {
   html {
-    font-family: var(--font-sans);
-    color: var(--color-black);
-    background: var(--color-black);
+    font-family: var(--deck-font-sans);
+    color: var(--speaker-ink);
+    background: var(--speaker-bg);
     -webkit-text-size-adjust: 100%;
   }
   body {
@@ -31,28 +34,21 @@
 }
 
 @import "./components/stage.css";
-@import "./components/slide.css";
-@import "./components/item-list.css";
-@import "./components/code.css";
-@import "./components/slide-image.css";
-@import "./components/stats.css";
-@import "./components/comparison.css";
-@import "./components/timeline.css";
-@import "./components/table.css";
-@import "./components/chart.css";
-@import "./components/quad.css";
-@import "./components/strip.css";
-@import "./components/legend.css";
-@import "./components/image-led.css";
-@import "./components/slides-glass.css";
-@import "./components/glass.css";
-@import "./components/page.css";
-@import "./components/intro.css";
+@import "./deck/slide.css";
+@import "./deck/display.css";
+@import "./deck/lists.css";
+@import "./deck/data.css";
+@import "./chrome/page.css";
+@import "./chrome/code.css";
+@import "./chrome/overlay.css";
+@import "./chrome/intro.css";
+@import "./chrome/effects.css";
+@import "./chrome/forced-colors.css";
 @import "./components/audience.css";
-@import "./components/speaker.css";
-@import "./components/reader-controls.css";
-@import "./components/nav-drawer.css";
+@import "./speaker/speaker.css";
+@import "./speaker/reader-controls.css";
+@import "./speaker/nav-drawer.css";
+@import "./speaker/keyboard-help.css";
 @import "./components/stage-transition.css";
-@import "./components/keyboard-help.css";
 @import "./components/reading-view.css";
 @import "./components/not-found.css";

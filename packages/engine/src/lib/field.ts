@@ -1,8 +1,11 @@
 import type { Field, Layout, Slide } from "../schema/slide";
 
-// Image-backed layouts sit on navy so their text is white over the scrimmed still.
-const DEFAULT_FIELD: Partial<Record<Layout, Field>> = { title: "navy", statement: "navy", section: "navy", closing: "navy", image: "navy" };
+/** The openers and closers sit on carbon: a change of light tells the room the section moved. */
+const DEFAULT_FIELD: Partial<Record<Layout, Field>> = { title: "dark", statement: "dark", section: "dark", closing: "dark", image: "dark" };
 
-export function fieldFor(slide: Slide): Field {
-  return slide.field ?? DEFAULT_FIELD[slide.layout] ?? "white";
+/** A copy slide's field, or undefined on a demo slide, which takes its surfaces from its theme. */
+export function fieldFor(slide: Slide): Field | undefined {
+  if (slide.layout === "demo-page") return undefined;
+  const tone = slide.copy?.kind === "grid" ? slide.copy.tone : undefined;
+  return slide.field ?? (tone === "dark" ? "dark" : undefined) ?? DEFAULT_FIELD[slide.layout] ?? "light";
 }

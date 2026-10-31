@@ -2,6 +2,7 @@ import "server-only";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { generated } from "../paths";
+import { frameThemeHref } from "../posters";
 import { presenterOriginFor } from "./origins";
 import type { BuildDef } from "./types";
 import { shellDef, type ShellContext } from "./shells";
@@ -30,8 +31,8 @@ export function versioned(href: string): string {
   return v ? `${href}?v=${v}` : href;
 }
 
-/** The shared frame theme, copied from the engine by `prepareDeck`. */
-export const THEME_HREF = "/live-ish/theme.css";
+/** The neutral frame base, copied from the engine by `prepareDeck`. The same under every theme. */
+export const BASE_HREF = "/live-ish/frame-base.css";
 /** Per-demo frame images, written from the deck by `prepareDeck`. */
 export const BACKGROUNDS_HREF = "/live-ish/backgrounds.css";
 /** The frame runtime. */
@@ -55,6 +56,8 @@ export interface ComposeOptions {
   title?: string;
   /** What the frame shell shows on terminal pages. */
   window?: ShellContext["window"];
+  /** Terminal pages: the theme whose `--term-*` file to link, from `?chrome=` or the page. */
+  chrome?: string;
 }
 
 /**
@@ -116,9 +119,10 @@ export function composeFrame(def: BuildDef, opts: ComposeOptions): string {
     "<!doctype html>",
     `<html lang="en" data-demo="${escapeAttr(manifest.demo)}" data-build="${manifest.build}" data-kind="${manifest.kind}" data-flags="${escapeAttr(flagsAttr)}" data-enhance-css-mode="${mode}"${manifest.background ? ` data-section-bg="${escapeAttr(manifest.demo)}"` : ""}${def.pages?.length ? " data-pages" : ""}${wrapAttrs(manifest)}>`,
     "<head>",
-    // The theme comes first, so every build's own CSS (shown CSS is unlayered) wins over it. The
-    // enhance-css flag never touches it: it is not tagged.
-    `<link rel="stylesheet" href="${versioned(THEME_HREF)}">`,
+    // The base comes first, so every build's own CSS (shown CSS is unlayered) wins over it. The
+    // enhance-css flag never touches it: it is not tagged. `frame: { base: false }` leaves it out.
+    ...(manifest.base === false ? [] : [`<link rel="stylesheet" href="${versioned(BASE_HREF)}">`]),
+    ...(manifest.kind === "terminal" && opts.chrome ? [`<link rel="stylesheet" href="${escapeAttr(versioned(frameThemeHref(opts.chrome)))}">`] : []),
     ...(manifest.background ? [`<link rel="stylesheet" href="${versioned(BACKGROUNDS_HREF)}">`] : []),
     ...(manifest.styles ?? []).map((href) => `<link rel="stylesheet" href="${escapeAttr(versioned(href))}">`),
     ...wrapStyles.map((href) => `<link rel="stylesheet" href="${escapeAttr(versioned(href))}">`),

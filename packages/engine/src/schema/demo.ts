@@ -56,6 +56,8 @@ export interface Frame {
   spotlightClip?: { bottom: number };
   /** Keycaps sit above a docked drawer instead of at the frame's foot. */
   keycap?: "above-drawer";
+  /** False leaves the neutral frame-base.css out of the document. */
+  base?: boolean;
 }
 
 export type DemoCodeLang = "html" | "css" | "js" | "ts" | "tsx" | "http" | "yaml" | "bash" | "json" | "text";
@@ -136,6 +138,8 @@ interface PageBase {
   /** Step 0 is the entry state. */
   steps: Step[];
   timing: { minutes: number; cumulative: number };
+  /** The audience theme, resolved: page, beat default, demo, deck. */
+  chrome: string;
 }
 
 export interface IntroPage extends PageBase {

@@ -1,0 +1,175 @@
+/* Intro slide: the demo's backdrop, a card holding the still on the left and a text panel on the
+   right. Both panels take the card surface and the code ink, which every theme keeps at 4.5:1 or
+   more, so a theme whose backdrop ink is white still gets dark text on a gray card. */
+.intro {
+  @apply grid relative;
+  grid-template-columns: 880px 880px;
+  column-gap: 32px;
+  width: var(--stage-width);
+  height: var(--stage-height);
+  padding: 64px;
+  box-sizing: border-box;
+  font-family: var(--chrome-font-sans);
+}
+.intro__visual {
+  @apply relative flex items-center justify-center overflow-hidden;
+  margin: 0;
+  height: 952px;
+  padding: 0 24px;
+  box-sizing: border-box;
+  border: var(--chrome-card-border);
+  border-radius: var(--chrome-card-radius);
+  background: var(--chrome-card-surface);
+  -webkit-backdrop-filter: var(--chrome-blur);
+  backdrop-filter: var(--chrome-blur);
+  box-shadow: var(--chrome-card-shadow);
+}
+/* The still keeps its frame's aspect inside 832 by 816 with its border: a 640 by 628 frame fills
+   it, a 60/40 frame (768 by 628) shows 832 by 681, so the edge hugs the image, never a letterbox.
+   The size is the image's own (content-box): its width and height attributes give the pixels
+   `live-ish images` encoded at 1x (830 by 814 at most), so the box is there before the file loads
+   (no layout shift) and the projector draws the file one to one. The <picture> leaves the layout
+   to the image. */
+.intro__visual > picture {
+  display: contents;
+}
+.intro__image {
+  @apply block;
+  box-sizing: content-box;
+  height: auto;
+  max-width: 830px;
+  max-height: 814px;
+  object-fit: contain;
+  border: 1px solid color-mix(in srgb, var(--chrome-code-ink) 18%, transparent);
+  border-radius: min(var(--chrome-card-radius), 16px);
+}
+.intro__missing {
+  margin: 0;
+  font-size: 24px;
+  color: var(--chrome-code-ink);
+}
+.intro__text {
+  @apply flex flex-col justify-center;
+  min-width: 0;
+  height: 952px;
+  padding: 0 48px;
+  box-sizing: border-box;
+  border: var(--chrome-card-border);
+  border-radius: var(--chrome-card-radius);
+  background: var(--chrome-card-surface);
+  -webkit-backdrop-filter: var(--chrome-blur);
+  backdrop-filter: var(--chrome-blur);
+  box-shadow: var(--chrome-card-shadow);
+  color: var(--chrome-code-ink);
+}
+/* A demo's `chip`: a small label above the title, with a dot so the label is never color alone. */
+.intro__group {
+  @apply inline-flex items-center self-start;
+  gap: 12px;
+  height: 44px;
+  margin: 0 0 24px;
+  padding: 0 20px 0 16px;
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--chrome-code-keyword) 45%, transparent);
+  border-radius: calc(var(--chrome-card-radius) * 4);
+  color: var(--chrome-code-keyword);
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: var(--weight-bold);
+}
+.intro__group::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.intro__title {
+  margin: 0;
+  font-size: 88px;
+  line-height: 96px;
+  font-weight: var(--chrome-title-weight);
+}
+.intro__description {
+  margin: 32px 0 0;
+  font-size: 36px;
+  line-height: 50px;
+}
+.intro__also {
+  margin: 32px 0 0;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--chrome-code-comment);
+}
+
+/* Support row: 184 px tiles, 16 px apart. A missing browser keeps the row height, with a dashed
+   edge and "Not yet", so color is never the only signal. */
+.support-row {
+  @apply flex;
+  gap: 16px;
+  margin: 56px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.support-row__tile {
+  @apply flex flex-col items-center justify-center;
+  width: 184px;
+  height: 184px;
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--chrome-code-ink) 22%, transparent);
+  border-radius: min(var(--chrome-card-radius), 20px);
+  background: var(--chrome-code-surface);
+  animation: support-tile-in var(--chrome-dur-fade) var(--ease-out) both;
+  animation-delay: calc(var(--tile-index) * min(var(--chrome-dur-fade), 80ms));
+}
+.support-row__version {
+  margin-top: 12px;
+  font-size: 48px;
+  line-height: 48px;
+  font-weight: var(--weight-bold);
+  color: var(--chrome-code-ink);
+}
+.support-row__name {
+  margin-top: 4px;
+  font-size: 24px;
+  line-height: 28px;
+  color: var(--chrome-code-comment);
+}
+.support-row__tile[data-supported="false"] {
+  border: 1px dashed color-mix(in srgb, var(--chrome-code-ink) 60%, transparent);
+  background: transparent;
+}
+.support-row__tile[data-supported="false"] .support-row__version {
+  font-size: 36px;
+}
+@keyframes support-tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .support-row__tile {
+    animation: none;
+  }
+}
+
+.frame-warm {
+  @apply absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  border: 0;
+}
+
+/* With no still, the text panel sits in the middle of the slide. */
+.intro[data-still="false"] {
+  grid-template-columns: 880px;
+  justify-content: center;
+}

@@ -4,6 +4,8 @@ import type { CopyContent, Slide } from "../../schema/slide";
 import { hasFrame, type Demo, type DemoCodeFile, type FramePage, type IntroPage } from "../../schema/demo";
 import { deck, outboundHref } from "../../lib/content";
 import { fromDeck } from "../../lib/paths";
+import { hostOf } from "../../lib/text";
+import { posterUrl } from "../../lib/posters";
 import { elisionLines, lineSet } from "../../lib/excerpt";
 import { firstPoster, introImage, pictureSources } from "../../lib/assets";
 import { supportEntry } from "../../lib/support";
@@ -53,12 +55,13 @@ function SlideText({ slide }: { slide: Slide }) {
   return (
     <>
       <H1>{slide.title}</H1>
+      {slide.eyebrow ? <p className="reading-view__eyebrow">{slide.eyebrow}</p> : null}
       {slide.body?.map((b) => (
         <p key={b}>{b}</p>
       ))}
-      {slide.items?.length ? (
+      {slide.items?.length || slide.legend?.length ? (
         <ul>
-          {slide.items.map((item) => (
+          {(slide.legend ?? slide.items)!.map((item) => (
             <li key={item.label}>
               <strong>{item.label}</strong>
               {item.detail ? `: ${item.detail}` : null}
@@ -66,9 +69,82 @@ function SlideText({ slide }: { slide: Slide }) {
           ))}
         </ul>
       ) : null}
+      {slide.stats?.length ? (
+        <ul className="reading-view__stats">
+          {slide.stats.map((s) => (
+            <li key={s.value + s.label}>
+              <strong>{s.value}</strong> {s.label}
+              {s.source ? ` (${hostOf(s.source)})` : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <DataTable slide={slide} />
+      <ChartTable slide={slide} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {slide.image ? <img className="reading-view__image" src={slide.image.src} alt={slide.image.alt} loading="lazy" decoding="async" /> : null}
     </>
+  );
+}
+
+/** A `table` slide as a real table. */
+function DataTable({ slide }: { slide: Slide }) {
+  const rows = slide.tableRows;
+  if (!rows?.length) return null;
+  return (
+    <div className="reading-view__table">
+      <table>
+        <caption className="visually-hidden">{slide.title}</caption>
+        {slide.tableColumns?.length ? (
+          <thead>
+            <tr>
+              {slide.tableColumns.map((c) => (
+                <th scope="col" key={c}>
+                  {c}
+                </th>
+              ))}
+            </tr>
+          </thead>
+        ) : null}
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.cells.join("|")}>
+              {row.cells.map((cell, i) => (i === 0 ? <th scope="row" key={i}>{cell}</th> : <td key={i}>{cell}</td>))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** A `chart` slide's data: the numbers carry the slide, so the text view keeps them all. */
+function ChartTable({ slide }: { slide: Slide }) {
+  const chart = slide.chart;
+  if (!chart) return null;
+  const bar = chart.kind === "bar";
+  return (
+    <div className="reading-view__table">
+      <table>
+        <caption className="visually-hidden">{slide.title}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            {bar ? null : <th scope="col">{chart.xLabel}</th>}
+            <th scope="col">{chart.yLabel}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {chart.points.map((p) => (
+            <tr key={p.label}>
+              <th scope="row">{p.label}</th>
+              {bar ? null : <td>{p.x}</td>}
+              <td>{p.y}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -238,7 +314,7 @@ function WalkText({ page, demo }: { page: FramePage; demo: Omit<Demo, "routes"> 
           const skip = new Set(file?.elisions ?? []);
           const runs = file && step.code && !step.code.off ? lineRuns([...lineSet(step.code.lines)].filter((n) => !skip.has(n))) : [];
           const source = file ? file.source.split("\n") : [];
-          const poster = firstPoster(step.poster, `/posters/${page.id}/${step.id}.jpg`, page.frame.poster);
+          const poster = firstPoster(step.poster, posterUrl(page, step.id, page.chrome), page.frame.poster);
           return (
             <li key={step.id} className="reading-view__step">
               <h3>{step.label}</h3>
