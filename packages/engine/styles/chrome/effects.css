@@ -1,0 +1,55 @@
+/*
+  The four engine effects. A theme file names them in `motion.effect`, and the generated theme CSS sets
+  a private --fx-* value, so a theme cannot add one of its own. Nothing flashes more than three times
+  in a second, and everything but `scanlines` stops under reduced motion.
+
+    blink       The current step segment only, at 1 Hz, stopping after 3 cycles.
+    marquee     The eyebrow slides in once and stops, in 3 s.
+    scanlines   A static overlay on the backdrop, never on code. Stays under reduced motion.
+    press       A short shift on keycaps, by the theme's own shadow direction.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .page__steps-seg[data-state="current"] {
+    animation: var(--fx-blink, none) 1s steps(1, end) 3;
+  }
+  .page__eyebrow {
+    animation: var(--fx-marquee, none) 3s linear 1;
+  }
+}
+@keyframes chrome-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+@keyframes chrome-marquee {
+  from {
+    transform: translateX(1792px);
+  }
+}
+/* Under reduced motion this name never runs: .overlay[data-reduced] swaps the animation, and the
+   media query below covers a window the overlay has not marked yet. */
+@keyframes chrome-press {
+  from {
+    transform: translate(calc(-50% - 4px), -4px);
+    box-shadow: 6px 6px 0 var(--chrome-keycap-edge);
+  }
+  to {
+    transform: translate(-50%, 0);
+    box-shadow: 0 0 0 var(--chrome-keycap-edge);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .overlay__keycap {
+    animation: overlay-cap-fade var(--dur-fast) linear both;
+  }
+}
+
+/* The scanlines belong to the backdrop layer, which sits under every slide element. */
+.stage__bg::after {
+  content: "";
+  display: var(--fx-scanlines, none);
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, color-mix(in srgb, var(--chrome-accent) 7%, transparent) 0 1px, transparent 1px 4px);
+  pointer-events: none;
+}

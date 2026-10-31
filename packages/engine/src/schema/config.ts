@@ -1,6 +1,10 @@
 import type { Background } from "./backgrounds";
 import type { Action, Browser, DemoCodeLang, FrameKind, Key, SplitRatio, Step, SupportSource } from "./demo";
+import type { ChromeThemeId } from "../lib/chrome-themes.generated";
 import type { Citation, SlideConfig } from "./slide";
+
+/** A built-in audience theme, or the id of one listed in `chrome.custom`. */
+export type ChromeThemeName = ChromeThemeId | (string & {});
 
 /** The event the deck is given at. Unset drops the Event node from the structured data. */
 export interface DeckEventConfig {
@@ -38,18 +42,27 @@ export interface DeckConfig {
   footer?: string;
   /** The titles of the two walk pages. */
   beats?: { before?: string; after?: string };
+  /** Copy slides. Presenter chrome is fixed. */
   theme?: {
+    /** "default", or a path to a CSS file of --deck-* tokens. */
     extends?: string;
+    /** `{ "--deck-accent": "#0b57d0" }`. */
     tokens?: Record<string, string>;
+    /** Font files under public/: `{ sans: ["/fonts/Face-400.woff2", "/fonts/Face-700.woff2"] }`. */
     fonts?: { sans?: string[]; mono?: string[] };
+    /** The audience window's overlay. */
     grain?: boolean;
     /** The wordmark. */
     brand?: { text: string; url?: string };
   };
+  /** Demo slides. */
   chrome?: {
-    theme?: string;
-    beats?: { before?: string; after?: string };
+    /** The deck default. */
+    theme?: ChromeThemeName;
+    /** A default for each beat: `{ before: "early-web", after: "glass" }`. */
+    beats?: { before?: ChromeThemeName; after?: ChromeThemeName };
     copySlides?: boolean;
+    /** Theme files, relative to the deck: `["./themes/my-theme.json"]`. */
     custom?: string[];
   };
   hosts?: {
@@ -122,8 +135,13 @@ interface PageConfig {
   recording?: string;
   /** Terminal pages: the title bar and the working directory. */
   window?: { title?: string; cwd?: string };
-  /** Frame kind "server": the app in `hosts.external` and the page to open. */
-  frame?: { app: string; path: string };
+  /** This page's audience theme. Wins over everything else. */
+  chrome?: ChromeThemeName;
+  /**
+   * Frame kind "server": the app in `hosts.external` and the page to open. `base: false` leaves the
+   * neutral frame-base.css out of this page's document.
+   */
+  frame?: { app?: string; path?: string; base?: boolean };
   /** Documents besides index.html that this beat serves as composed pages. */
   pages?: string[];
   /** A frame shell around the shown markup. */
@@ -146,6 +164,8 @@ export interface IntroConfig {
   visual?: { src?: string; alt: string; capture?: { beat: "before" | "after" | "single"; step: string; selector?: string } };
   notes?: string;
   minutes?: number;
+  /** This page's audience theme. */
+  chrome?: ChromeThemeName;
 }
 
 /** `demos/<id>/demo.ts`. */
@@ -157,7 +177,10 @@ export interface DemoConfig {
   /** "single": one page, under `single`. Default: `intro`, `before`, `after`, as present. */
   beats?: "single";
   support?: SupportSource;
-  chrome?: string;
+  /** This demo's audience theme. */
+  chrome?: ChromeThemeName;
+  /** `base: false` leaves the neutral frame-base.css out of every page of this demo. */
+  frame?: { base?: boolean };
   background?: Background;
   /** An intro chip above the title. */
   chip?: string;

@@ -1,0 +1,14 @@
+/*
+  Audience chrome. A theme file sets --chrome-* on `[data-chrome="<id>"]`, on .stage__canvas, and
+  nothing outside the canvas can see them. Copy slides carry no data-chrome and read --deck-*.
+
+  These stay out of theme files. --chrome-code-size and --chrome-code-leading set the 44 columns and
+  21 lines the layout limits count on; the rest are the code card's fixed geometry.
+*/
+.stage__canvas {
+  --chrome-code-size: 24px;
+  --chrome-code-leading: 36px;
+  --chrome-code-tabs-height: 56px;
+  --chrome-code-pad-inline: 32px;
+  --chrome-code-pad-block: 24px;
+}

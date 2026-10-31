@@ -33,6 +33,8 @@ export interface StageState {
   /** Keys forwarded from inside a frame. */
   dispatchKey: (key: string, shiftKey: boolean) => void;
   focusStage: () => void;
+  /** The audience theme on show, with any `?chrome=` preview applied. */
+  chrome?: string;
 }
 
 export const StageContext = createContext<StageState | null>(null);

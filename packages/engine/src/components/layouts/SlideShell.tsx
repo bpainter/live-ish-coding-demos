@@ -1,69 +1,69 @@
 import type { ReactNode } from "react";
 import type { Slide } from "../../schema/slide";
 import type { Mode } from "../../lib/mode";
-import { fieldFor } from "../../lib/field";
 import { deck, outboundHref } from "../../lib/content";
+import { NewTabLink } from "./NewTabLink";
 
 interface Props {
   slide: Slide;
   total: number;
   mode: Mode;
-  /** Rendered under the title inside the header (demo slides put `body[0]` here). */
+  /** Rendered under the title inside the header. */
   headerExtra?: ReactNode;
-  /** Rendered before the header, for full-bleed imagery behind the content. */
+  /** Rendered before the header, for imagery behind the content. */
   before?: ReactNode;
-  /** Title size: "xl" (64px, default) or "2xl" (88px for title, section and close). */
-  titleSize?: "xl" | "2xl";
-  /** Keep the h1 in the DOM but hide it (statement layout). */
-  hideTitle?: boolean;
-  /** Omit the eyebrow/title header entirely (layouts that place the title themselves). */
+  /** Omit the eyebrow and title header (layouts that place the title themselves). */
   noHeader?: boolean;
   footer?: boolean;
   /** The `content` layout's image placement, for the body's width. */
   imagePlacement?: string;
+  /** Extra attributes a layout's stylesheet selects on. */
+  data?: Record<`data-${string}`, string | number | undefined>;
   children: ReactNode;
 }
 
+/** The foot of the slide: the site on the left when the deck has one, the footer text and the folio. */
 export function SlideFooter({ slide, mode }: { slide: Slide; mode: Mode }) {
   const site = deck.links.site;
   return (
     <footer className="slide__footer">
       {site ? (
-        mode === "reader" ? (
-          <a className="slide__footer-link" href={outboundHref(site.url, slide.id)}>
+        <p className="slide__footer-link">
+          <NewTabLink href={outboundHref(site.url, slide.id)} mode={mode}>
             {site.label}
-          </a>
-        ) : (
-          <p className="slide__footer-link">{site.label}</p>
-        )
+          </NewTabLink>
+        </p>
       ) : (
         <span />
       )}
       <p className="slide__footer-label">{deck.footer}</p>
-      <p className="slide__counter">{slide.index}</p>
+      <p className="slide__counter">
+        {/* The number is named for screen readers: "..., slide 48". */}
+        <span className="visually-hidden">Slide </span>
+        {slide.index}
+      </p>
     </footer>
   );
 }
 
-/** The outer shell every layout shares: header, body, footer. */
-export function SlideShell({ slide, total, mode, headerExtra, before, titleSize = "xl", hideTitle, noHeader, footer = true, imagePlacement, children }: Props) {
+/** The title every layout gets. Exactly one h1 on a slide. */
+export function SlideTitle({ children }: { children: ReactNode }) {
   return (
-    <section
-      className={`slide slide--${slide.layout}`}
-      aria-roledescription="slide"
-      aria-label={`Slide ${slide.index} of ${total}: ${slide.title}`}
-      data-field={fieldFor(slide)}
-      data-slide-id={slide.id}
-      data-footer={footer}
-      data-image={imagePlacement}
-    >
+    <h1 className="slide__title" id="slide-title" tabIndex={-1}>
+      {children}
+    </h1>
+  );
+}
+
+/** The outer shell every copy layout shares: header, body, footer. */
+export function SlideShell({ slide, total, mode, headerExtra, before, noHeader, footer = true, imagePlacement, data, children }: Props) {
+  return (
+    <section className={`slide slide--${slide.layout}`} aria-roledescription="slide" aria-label={`Slide ${slide.index} of ${total}: ${slide.title}`} data-slide-id={slide.id} data-header={!noHeader} data-footer={footer} data-image={imagePlacement} {...data}>
       {before}
       {noHeader ? null : (
         <header className="slide__header">
           {slide.eyebrow ? <p className="slide__eyebrow">{slide.eyebrow}</p> : null}
-          <h1 className={hideTitle ? "slide__title visually-hidden" : "slide__title"} data-size={titleSize} id="slide-title" tabIndex={-1}>
-            {slide.title}
-          </h1>
+          <SlideTitle>{slide.title}</SlideTitle>
           {headerExtra}
         </header>
       )}

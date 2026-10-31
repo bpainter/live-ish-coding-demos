@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { bySlideId, slideIdByNumber, slides } from "../lib/content";
 import { SlidePage } from "../components/stage/SlidePage";
 import { ReadingView } from "../components/page/ReadingView";
+import { GlassMode } from "../components/presenter/GlassMode";
 import { TextViewBoot } from "../components/page/TextViewBoot";
 import { baseMetadata, jsonLdHtml, slideJsonLd, slideMetadata } from "../lib/seo";
 
@@ -36,6 +37,7 @@ export default async function SlideRoute({ params }: Params) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(slideJsonLd(slide)) }} />
       {/* The session's text view switch applies before the stage paints. */}
       <TextViewBoot />
+      <GlassMode />
       <ReadingView slide={slide} total={slides.length} />
       <SlidePage slide={slide} mode="reader" />
     </>

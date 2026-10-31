@@ -1,0 +1,107 @@
+/* The code panel: tabs 56 px, code 24/36 px with 24 px top and bottom and 32 px at the sides, 21
+   lines visible. Size and leading never change with a theme. Highlight state lives in data-*
+   attributes. Syntax colors reach the spans as var(--chrome-code-*) through lib/highlight.ts. */
+.code {
+  @apply grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border: var(--chrome-card-border);
+  border-radius: var(--chrome-card-radius);
+  box-shadow: var(--chrome-card-shadow);
+  background: var(--chrome-code-surface);
+  color: var(--chrome-code-ink);
+  /* The backdrop's accent can sit on the surface at under 3:1 (yellow on gray); the bar never does. */
+  --focus-ring: var(--chrome-code-highlight-bar);
+}
+.code__tabs {
+  @apply flex items-stretch;
+  height: var(--chrome-code-tabs-height);
+  box-sizing: border-box;
+  padding: 0 var(--chrome-code-pad-inline);
+  gap: 24px;
+  border-bottom: 1px solid color-mix(in srgb, var(--chrome-code-ink) 16%, transparent);
+}
+.code__tab {
+  @apply inline-flex items-center;
+  appearance: none;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--chrome-font-mono);
+  font-size: 20px;
+  font-weight: var(--weight-regular);
+  color: var(--chrome-code-comment);
+  cursor: pointer;
+}
+/* The face ships at 400 only on a demo page, so the bar and the ink carry the state, not weight. */
+.code__tab[aria-selected="true"] {
+  color: var(--chrome-code-ink);
+  box-shadow: inset 0 -3px 0 var(--chrome-code-highlight-bar);
+}
+/* Static tabs; reader tabs are all pressable. */
+.code__tab:not([data-interactive]) {
+  cursor: default;
+}
+.code__off-chip {
+  padding: 2px 12px;
+  border-radius: calc(var(--chrome-card-radius) * 4);
+  background: var(--chrome-callout-bg);
+  color: var(--chrome-callout-ink);
+  font-family: var(--chrome-font-sans);
+  font-size: 18px;
+  font-weight: var(--weight-bold);
+}
+/* The scroller is exactly 21 lines tall (756 px) between 24 px and 28 px margins, and scrolls in
+   whole lines, so no line is ever cut at the tabs or the bottom edge. Ligatures stay off: a code
+   face must never hide the characters it stands for. */
+.code__pre {
+  @apply overflow-y-auto overflow-x-hidden;
+  height: 756px;
+  margin: var(--chrome-code-pad-block) 0 28px;
+  padding: 0 24px;
+  font-family: var(--chrome-font-mono);
+  font-size: var(--chrome-code-size);
+  font-variant-ligatures: none;
+  line-height: var(--chrome-code-leading);
+  tab-size: 2;
+  scrollbar-width: thin;
+}
+/* The code card sits in the scaled canvas: its rings keep their on-screen size. */
+.code__pre:focus-visible,
+.code__tab:focus-visible {
+  outline-width: calc(var(--focus-ring-width) / var(--stage-scale, 1));
+  outline-offset: calc(-1 * var(--focus-ring-width) / var(--stage-scale, 1));
+}
+.code__code {
+  @apply block;
+  font: inherit;
+}
+.code__line {
+  @apply block;
+  padding: 0 8px;
+  white-space: pre;
+  transition:
+    opacity var(--chrome-dur-fade) var(--ease-settle),
+    background-color var(--chrome-dur-fade) var(--ease-settle);
+}
+.code[data-has-highlight="true"] .code__line[data-highlighted="false"],
+.code[data-off="true"] .code__line {
+  opacity: var(--chrome-code-dim-opacity);
+}
+.code .code__line[data-elision],
+.code[data-has-highlight="true"] .code__line[data-elision] {
+  font-style: italic;
+  color: var(--chrome-code-comment);
+  opacity: 1;
+}
+.code .code__line[data-elision] * {
+  color: inherit !important;
+}
+.code .code__line[data-highlighted="true"] {
+  background: var(--chrome-code-highlight-bg);
+  box-shadow: inset 4px 0 0 var(--chrome-code-highlight-bar);
+}

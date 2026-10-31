@@ -1,0 +1,168 @@
+/* Layouts where one line of type is the slide: title, section, statement, closing. All flush left,
+   with the space above the line left empty on purpose. */
+
+/* Title */
+.slide--title {
+  padding-bottom: 88px;
+}
+.slide--title .slide__body {
+  justify-content: flex-end;
+  gap: 0;
+  padding-bottom: 0;
+}
+.cover__slug {
+  margin-bottom: var(--space-7);
+}
+.cover__display {
+  display: grid;
+  gap: 0;
+  margin-top: var(--space-6);
+  font-size: var(--cover-size, var(--text-display));
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  letter-spacing: var(--deck-tracking-display);
+}
+.cover__display[data-fit="md"] {
+  --cover-size: 140px;
+}
+.cover__display[data-fit="sm"] {
+  --cover-size: 112px;
+}
+.cover__byline {
+  @apply flex items-baseline;
+  gap: var(--space-6);
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--slide-rule);
+  font-size: var(--text-body);
+  line-height: 48px;
+}
+.cover__name {
+  font-weight: var(--weight-bold);
+}
+.cover__role {
+  color: var(--slide-soft);
+}
+.cover__byline .slide__wordmark {
+  margin-left: auto;
+}
+
+/* Section */
+.slide--section {
+  grid-template-rows: minmax(0, 1fr) auto auto;
+}
+.slide--section .slide__header {
+  justify-content: flex-end;
+  padding-bottom: var(--space-6);
+}
+.slide--section .slide__title {
+  font-size: var(--text-section);
+  line-height: 136px;
+}
+.slide--section .slide__body {
+  padding-bottom: var(--space-7);
+}
+.legend {
+  @apply grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-7);
+}
+.legend__item {
+  @apply flex flex-col;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 2px solid var(--slide-fg);
+}
+.legend__tier {
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-slug);
+  line-height: 34px;
+  color: var(--slide-accent);
+}
+.legend__detail {
+  font-size: var(--text-detail);
+  line-height: 40px;
+  color: var(--slide-soft);
+}
+
+/* Statement */
+.slide--statement .slide__body {
+  justify-content: center;
+  gap: var(--space-7);
+}
+.statement__lines {
+  display: grid;
+  max-width: 1600px;
+  font-size: var(--text-statement);
+  font-weight: var(--weight-bold);
+  line-height: 124px;
+  letter-spacing: var(--deck-tracking-display);
+}
+
+/* Closing: the name on the left, the QR on its white plate on the right. */
+.slide--closing .slide__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 544px;
+  gap: var(--space-8);
+  align-items: end;
+}
+.closing__text {
+  @apply flex flex-col;
+  padding-bottom: var(--space-4);
+}
+.closing__name {
+  margin-top: var(--space-6);
+  font-size: 128px;
+  font-weight: var(--weight-bold);
+  line-height: 136px;
+  letter-spacing: var(--deck-tracking-display);
+}
+.closing__role {
+  margin-top: var(--space-5);
+  font-size: var(--text-body);
+  line-height: 48px;
+  color: var(--slide-soft);
+}
+/* fit-content: as a link, the hit area and focus ring hug the text. */
+.closing__link {
+  width: fit-content;
+  margin-top: var(--space-6);
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-body);
+  line-height: 48px;
+  color: var(--slide-accent);
+}
+.closing__wordmark {
+  margin-top: var(--space-7);
+}
+.qr {
+  align-self: end;
+  box-sizing: border-box;
+  width: 544px;
+  padding: var(--space-5);
+  background: var(--deck-plate);
+  color: var(--deck-ink);
+}
+/* The QR keeps its own size: the largest whole module size that fits, so modules land on whole
+   stage px (lib/qr.ts). */
+.qr__frame {
+  display: grid;
+  place-items: center;
+  width: 496px;
+  height: 496px;
+}
+.qr__code {
+  display: block;
+}
+.qr__caption {
+  margin-top: var(--space-3);
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-small);
+  line-height: 30px;
+  text-align: center;
+}
+/* The plate is always white, so its ring is always the light field's accent. */
+.qr a:focus-visible {
+  outline-color: var(--deck-accent);
+}

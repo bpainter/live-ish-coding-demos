@@ -25,6 +25,8 @@ function baseManifest(demo: Demo, page: FramePage): BuildManifest {
     scrollers: terminal ? ["[data-terminal]"] : [],
     runtimeSelectors: [],
     background: Boolean(demo.background),
+    chrome: page.chrome,
+    base: page.frame.base,
   };
 }
 

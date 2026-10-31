@@ -3,15 +3,11 @@
    server-rendered hidden; the runtime's `terminal` action reveals a range and the command text
    types in. Authored for the 640 by 628 frame. */
 .term {
-  --fg: #ffffff;
-  --fg-body: #d6dcec;
-  --fg-dim: #b8c0d9;
-  --cyan: #3cc4d6;
   box-sizing: border-box;
   block-size: 100%;
-  color: var(--fg-body);
-  font: 15px/22px var(--glass-font-mono);
-  color-scheme: dark;
+  color: var(--term-ink);
+  /* 28 px, so a spotlight's 9 px band on one line never covers the glyphs of the next. */
+  font: 15px/28px var(--frame-font-mono);
 }
 
 /* The scroller the runtime keeps at its latest line */
@@ -25,7 +21,7 @@
 
 /* The scroller takes focus, so keyboard users can scroll the output. */
 .term__scroll:focus-visible {
-  outline: 2px solid var(--cyan);
+  outline: 2px solid var(--term-prompt);
   outline-offset: -2px;
 }
 
@@ -36,7 +32,7 @@
 }
 
 .term__lines li {
-  min-height: 22px;
+  min-height: 28px;
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
@@ -46,16 +42,16 @@
 }
 
 .term__lines [data-kind="comment"] {
-  color: var(--fg-dim);
+  color: var(--term-comment);
 }
 
 .term__prompt {
-  color: var(--cyan);
+  color: var(--term-prompt);
 }
 
 .term__lines [data-kind="cmd"] .term__text {
   display: inline-block;
-  color: var(--fg);
+  color: var(--term-ink);
   font-weight: 700;
   animation: type min(calc(var(--n, 1) * 30ms), 350ms) steps(var(--n, 1), end) both;
 }

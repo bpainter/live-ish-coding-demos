@@ -1,0 +1,96 @@
+@import "./palette.generated.css";
+
+/*
+  Copy slide tokens. `theme.tokens` in deck.config.ts overrides any of these, and `theme.extends`
+  names a CSS file of them. The palette itself is in palette.generated.css.
+
+  Intent: a developer at a podium in a dim room; the back row has three seconds to read the point and
+          look back at the speaker. The demos are the loud part, so the copy slides stay quiet.
+  Domain: a galley proof. Crop marks, slug line, folio, a proofreader's stroke in vermilion.
+  Rejecting: navy gradient with glass cards -> paper and hairlines; shadowed equal cards -> ruled
+          columns; a centered hero -> flush-left display type.
+*/
+:root {
+  /* Fields. Any CSS image or color. The stage paints one under each copy slide. */
+  --deck-backdrop: linear-gradient(168deg, var(--deck-paper) 45%, var(--deck-panel));
+  --deck-backdrop-dark: radial-gradient(1500px 1000px at 82% 8%, color-mix(in srgb, var(--deck-on-carbon) 9%, var(--deck-carbon)), var(--deck-carbon) 70%);
+  --deck-backdrop-accent: linear-gradient(135deg, var(--deck-accent), color-mix(in srgb, var(--deck-accent) 78%, var(--deck-carbon)));
+
+  /* Named gradients, for `background: "var(--deck-gradient-ember)"` on a slide. */
+  --deck-gradient-ember: linear-gradient(135deg, var(--deck-carbon) 35%, color-mix(in srgb, var(--deck-accent) 62%, var(--deck-carbon)));
+  --deck-gradient-dusk: radial-gradient(1400px 1000px at 12% 92%, color-mix(in srgb, var(--deck-accent) 34%, var(--deck-carbon)), var(--deck-carbon) 72%);
+
+  /* Grain over the field in the audience window: 0 to 0.16. `theme.grain: false` turns it off. */
+  --deck-grain: 0.07;
+
+  /* Type. `theme.fonts` swaps the two stacks. */
+  --deck-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --deck-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --deck-weight-regular: 400;
+  --deck-weight-bold: 700;
+  --deck-tracking-display: -0.025em;
+
+  /* Margins of the 1920 by 1080 canvas. */
+  --deck-margin: 96px;
+
+  /* Focus, on either field. */
+  --deck-focus: var(--deck-accent);
+
+  /* Type scale for the canvas. Nothing on a copy slide sets under --text-small. */
+  --text-display: 176px;
+  --text-statement: 112px;
+  --text-section: 128px;
+  --text-stat: 208px;
+  --text-title: 84px;
+  --text-lede: 44px;
+  --text-body: 36px;
+  --text-card: 36px;
+  --text-detail: 30px;
+  --text-slug: 26px;
+  --text-small: 22px;
+  --weight-regular: var(--deck-weight-regular);
+  --weight-bold: var(--deck-weight-bold);
+
+  /* Space */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  /* Shape */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* Focus ring */
+  --focus-ring: var(--deck-focus);
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
+
+  /* Stage */
+  --stage-width: 1920px;
+  --stage-height: 1080px;
+  --stage-scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+  }
+}

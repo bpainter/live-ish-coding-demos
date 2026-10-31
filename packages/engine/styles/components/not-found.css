@@ -4,8 +4,8 @@
   max-width: 720px;
   margin: 0 auto;
   padding: var(--space-9) var(--space-5);
-  color: var(--color-white);
-  font-family: var(--font-sans);
+  color: var(--deck-on-carbon);
+  font-family: var(--deck-font-sans);
 }
 .not-found__title {
   margin: 0;
@@ -20,5 +20,5 @@
   line-height: 1.6;
 }
 .not-found__list a {
-  color: var(--color-chartreuse);
+  color: var(--deck-accent-on-carbon);
 }
