@@ -1,0 +1,7 @@
+/* Audience window chrome: nothing visible but the stage; cursor hides when idle. */
+.audience {
+  min-height: 100vh;
+}
+.audience[data-cursor="hidden"] {
+  cursor: none;
+}

@@ -1,0 +1,70 @@
+/* Fixed 1920 x 1080 canvas scaled to fit the viewport, letterboxed on black. */
+.stage {
+  @apply fixed grid place-items-center overflow-hidden;
+  inset: 0;
+  background: var(--color-black);
+  /* The fit scale before Stage measures it: the server's markup paints
+     at its final size in any window, not at 1 and then snapped. tan(atan2(a, b)) is a / b as a
+     number. Stage writes the measured value inline after its first layout effect, and that wins. */
+  --stage-scale: min(tan(atan2(100vw, 1920px)), tan(atan2(100dvh, 1080px)));
+}
+/* A speaker preview fits its own box, 16 by 9 and as wide as its column: container units against it. */
+.stage--embedded {
+  container-type: inline-size;
+  --stage-scale: tan(atan2(100cqw, 1920px));
+}
+/* Centred by its own box, then scaled, so a 1920px canvas never pushes layout wider than the viewport. */
+.stage__canvas {
+  @apply absolute overflow-hidden;
+  top: 50%;
+  left: 50%;
+  width: var(--stage-width);
+  height: var(--stage-height);
+  transform: translate(-50%, -50%) scale(var(--stage-scale));
+  transform-origin: center center;
+  background: var(--color-white);
+}
+.stage__canvas:focus {
+  outline: none;
+}
+.stage[data-blank="true"] .stage__canvas {
+  visibility: hidden;
+}
+
+/* Backgrounds and grain. The stage draws the slide's background
+   and, in the audience window only, the shared grain tile above it and below every slide element.
+   The grain belongs to the stage, not the slide, so nothing doubles it. Nothing between the two
+   layers may set isolation, opacity or a filter, or the overlay blend breaks. */
+.stage__bg {
+  @apply absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--slide-bg-image, none) center / cover no-repeat, var(--glass-frame-fallback);
+}
+.stage__grain {
+  @apply absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: url("/live-ish/grain.png");
+  background-repeat: repeat;
+  /* One tile pixel per device pixel at any stage scale. */
+  background-size: calc(256px / (var(--stage-scale) * var(--dpr)));
+  image-rendering: pixelated;
+  mix-blend-mode: var(--grain-blend);
+  opacity: var(--grain-opacity);
+}
+.stage__slide {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+:root[data-glass="off"] .stage__grain {
+  opacity: 0;
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .stage__grain {
+    opacity: 0;
+  }
+}

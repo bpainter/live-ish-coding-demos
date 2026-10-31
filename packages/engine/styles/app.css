@@ -1,0 +1,58 @@
+@import "./theme.css";
+/* Glass tokens (--chrome-*, --intro-*, --glass-*); its frame rules are scoped to :root[data-build]. */
+@import "../assets/theme.css";
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-black);
+    background: var(--color-black);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+  }
+  :focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .visually-hidden {
+    @apply absolute overflow-hidden;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@import "./components/stage.css";
+@import "./components/slide.css";
+@import "./components/item-list.css";
+@import "./components/code.css";
+@import "./components/slide-image.css";
+@import "./components/stats.css";
+@import "./components/comparison.css";
+@import "./components/timeline.css";
+@import "./components/table.css";
+@import "./components/chart.css";
+@import "./components/quad.css";
+@import "./components/strip.css";
+@import "./components/legend.css";
+@import "./components/image-led.css";
+@import "./components/slides-glass.css";
+@import "./components/glass.css";
+@import "./components/page.css";
+@import "./components/intro.css";
+@import "./components/audience.css";
+@import "./components/speaker.css";
+@import "./components/reader-controls.css";
+@import "./components/nav-drawer.css";
+@import "./components/stage-transition.css";
+@import "./components/keyboard-help.css";
+@import "./components/reading-view.css";
+@import "./components/not-found.css";

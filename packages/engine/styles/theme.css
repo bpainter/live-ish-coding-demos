@@ -1,0 +1,42 @@
+@import "tailwindcss" source(none);
+@import "./tokens.css";
+
+/*
+  Tailwind 4 theme mapped onto the design-system tokens and nothing else.
+  Each namespace is reset with `initial` so a default-palette utility (bg-red-500) does not exist.
+  Utilities are only ever used inside @apply in styles/components/**. 
+*/
+@theme inline {
+  --color-*: initial;
+  --color-accent: var(--color-accent);
+  --color-accent-strong: var(--color-accent-strong);
+  --color-cyan: var(--color-cyan);
+  --color-coral: var(--color-coral);
+  --color-purple: var(--color-purple);
+  --color-chartreuse: var(--color-chartreuse);
+  --color-white: var(--color-white);
+  --color-light-gray: var(--color-light-gray);
+  --color-gray-100: var(--color-gray-100);
+  --color-dark-gray: var(--color-dark-gray);
+  --color-black: var(--color-black);
+  --color-navy: var(--color-navy);
+
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  /* Numeric spacing utilities (p-4, inset-0) are disabled; sizes are written in px from tokens.css. */
+  --spacing-*: initial;
+
+  --radius-*: initial;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-*: initial;
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+
+  --ease-brand: var(--ease-brand);
+}
