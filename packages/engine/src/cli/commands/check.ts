@@ -1,27 +1,14 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { slideHints } from "../../lib/hints";
 import type { Finding } from "../../lib/validate/types";
 import { prepareDeck } from "../../prepare";
-import { DeckError, type AssembledDeck } from "../../schema/assemble";
-import { hasFrame } from "../../schema/demo";
-import { EXIT, environment, printJson, requireDeck, resolveFromDeck, type Ctx, type ExitCode } from "../io";
+import type { AssembledDeck } from "../../schema/assemble";
+import { isDeckError } from "../../schema/errors";
+import { UsageError } from "../args";
+import { EXIT, printJson, requireDeck, resolveFromDeck, type Ctx, type ExitCode } from "../io";
 import { runSelf, watchDeck } from "../process";
 import { shellStatus } from "../shell";
-
-type RunChecks = (options: { root: string; strict: boolean; only?: string }) => Promise<{ findings: Finding[] }>;
-
-/** The validators ship in this package, and a build without them is a broken install. */
-async function loadRunChecks(): Promise<RunChecks> {
-  const file = new URL("../../lib/validate/index.ts", import.meta.url);
-  if (!existsSync(file)) throw environment("This engine has no validators.", "Reinstall @live-ish/engine.");
-  return ((await import(file.href)) as { runChecks: RunChecks }).runChecks;
-}
-
-/** A deck that does not assemble fails the same way as any other finding. */
-function configFinding(error: DeckError): Finding {
-  return { rule: "config", severity: "error", where: "deck.config.ts", message: error.message.replace(/^deck\.config\.ts: /, ""), docs: "https://live-ish.dev/errors/config" };
-}
 
 /** `check` includes the shell, so an edited generated file is caught before `doctor` is. */
 function shellFindings(root: string, strict: boolean): Finding[] {
@@ -37,41 +24,45 @@ function shellFindings(root: string, strict: boolean): Finding[] {
     }));
 }
 
-/** Prepares the deck and runs every rule. Any non-deck failure propagates. */
+/**
+ * Regenerates, then runs every rule and the shell. The rules compare generated files when they exist,
+ * and every `dev` and `build` rebuilds those files, so a stale one would only report work the next
+ * run does anyway: `new` followed by `check` must pass. A deck that cannot prepare still gets its
+ * rules, which say the same thing with a path and a fix.
+ */
 export async function runCheck(root: string, strict: boolean, only?: string): Promise<{ findings: Finding[]; assembled: AssembledDeck | null }> {
-  let assembled: AssembledDeck;
+  let assembled: AssembledDeck | null = null;
+  let failure: unknown;
   try {
     assembled = await prepareDeck(root);
   } catch (error) {
-    if (error instanceof DeckError) return { findings: [configFinding(error)], assembled: null };
-    throw error;
+    failure = error;
   }
-  const runChecks = await loadRunChecks();
-  const { findings } = await runChecks({ root, strict, only });
-  return { findings: [...findings, ...shellFindings(root, strict)], assembled };
+  // Loaded here, not at the top: it pulls in the DOM parser, and most commands never need it.
+  const { runChecks } = await import("../../lib/validate");
+  let found: Finding[];
+  try {
+    found = (await runChecks({ root, strict, only })).findings;
+  } catch (error) {
+    if (only && isDeckError(error)) throw new UsageError(error.message);
+    // A slide or demo that will not even load, such as one with a syntax error.
+    found = [{ rule: "build", severity: "error", where: "slides/ and demos/", message: (error as Error).message.split("\n").slice(0, 4).join("\n  "), docs: "https://live-ish.dev/errors/build" }];
+  }
+  const findings = [...found, ...shellFindings(root, strict)];
+  if (failure && !findings.some((f) => f.severity === "error")) throw failure;
+  return { findings, assembled };
 }
 
-function printFinding(f: Finding, log: Ctx["log"]) {
-  log(`${f.severity === "error" ? "✖" : "▲"} [${f.rule}] ${f.where}`);
-  log(`  ${f.message}`);
-  if (f.fix) log(`  ${f.fix}`);
-  log(`  Docs: ${f.docs}`);
-}
-
-export function printFindings(findings: Finding[], log: Ctx["log"]) {
-  const sorted = [...findings.filter((f) => f.severity === "error"), ...findings.filter((f) => f.severity === "warning")];
-  for (const f of sorted) printFinding(f, log);
-  const errors = findings.filter((f) => f.severity === "error").length;
-  const warnings = findings.length - errors;
-  const count = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
-  log(findings.length ? `check: ${count(errors, "error")}, ${count(warnings, "warning")}` : "check: passed");
+export async function printFindings(findings: Finding[], log: Ctx["log"]) {
+  const { formatFindings } = await import("../../lib/validate");
+  log(findings.length ? formatFindings(findings) : "check: passed");
 }
 
 /** One line for tier 1 not being set up. Having no captures is a normal first state, so it never fails. */
-function captureNote(root: string, deck: AssembledDeck | null): string | null {
-  if (!deck || resolveFromDeck(root, "@live-ish/verify/package.json")) return null;
-  const framed = deck.demos.some((d) => d.pages.some(hasFrame));
-  if (!framed || existsSync(path.join(root, "public", "posters"))) return null;
+function captureNote(root: string): string | null {
+  const demos = path.join(root, "demos");
+  if (!existsSync(demos) || readdirSync(demos).length === 0) return null;
+  if (resolveFromDeck(root, "@live-ish/verify/package.json") || existsSync(path.join(root, "public", "posters"))) return null;
   return "No captures yet, so slides use a loading state. `live-ish add verify` adds them.";
 }
 
@@ -80,13 +71,13 @@ export async function check(ctx: Ctx): Promise<ExitCode> {
   const strict = ctx.flags.strict === true;
   const [only] = ctx.positionals;
   if (ctx.flags.watch === true) return watchChecks(ctx, root);
-  const { findings, assembled } = await runCheck(root, strict, only);
-  const note = captureNote(root, assembled);
+  const { findings } = await runCheck(root, strict, only);
+  const note = captureNote(root);
   const failed = findings.some((f) => f.severity === "error");
   if (ctx.json) {
     printJson({ ok: !failed, strict, findings, notes: note ? [note] : [] });
   } else {
-    printFindings(findings, ctx.log);
+    await printFindings(findings, ctx.log);
     if (note) ctx.log(note);
   }
   return failed ? EXIT.findings : EXIT.ok;
@@ -128,7 +119,7 @@ export const NOT_ASSEMBLED = 4;
 export async function devTick(ctx: Ctx): Promise<number> {
   const root = requireDeck(ctx);
   const { findings, assembled } = await runCheck(root, false);
-  printFindings(findings, ctx.log);
+  await printFindings(findings, ctx.log);
   if (!assembled) return NOT_ASSEMBLED;
   const support = readSupportIds(root);
   for (const slide of assembled.slides) {

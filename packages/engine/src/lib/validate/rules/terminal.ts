@@ -3,9 +3,8 @@ import path from "node:path";
 import { checkRecording, scanTokens } from "../../recording";
 import type { TerminalRecording } from "../../frames/terminal";
 import { hasFrame, type Action } from "../../../schema/demo";
+import { docsUrl } from "../catalog";
 import type { Finding, Rule } from "../types";
-
-const docs = (rule: string) => `https://live-ish.dev/errors/${rule}`;
 
 type Read = { rec: TerminalRecording } | { problem: string };
 
@@ -20,7 +19,7 @@ function read(file: string): Read {
 
 function terminalRange(root: string, deck: Parameters<Rule["run"]>[0]["deck"]): Finding[] {
   const findings: Finding[] = [];
-  const add = (where: string, message: string, fix: string) => findings.push({ rule: "terminal-range", severity: "error", where, message, fix, docs: docs("terminal-range") });
+  const add = (where: string, message: string, fix: string) => findings.push({ rule: "terminal-range", severity: "error", where, message, fix, docs: docsUrl("terminal-range") });
   for (const demo of deck.demos) {
     for (const page of demo.pages) {
       if (!hasFrame(page) || page.frame.kind !== "terminal") continue;
@@ -29,8 +28,8 @@ function terminalRange(root: string, deck: Parameters<Rule["run"]>[0]["deck"]): 
       const rel = `${demo.folder}/recordings/${name}.json`;
       const loaded = read(path.join(root, rel));
       if ("problem" in loaded) {
-        const missing = loaded.problem === "missing";
-        add(`${script}: ${page.beat}`, missing ? `There is no recording at ${rel}.` : `${rel} is not valid JSON: ${loaded.problem}`, `Run \`live-ish record ${demo.id}\`.`);
+        // The `build` rule reports a file that is missing.
+        if (loaded.problem !== "missing") add(`${script}: ${page.beat}`, `${rel} is not valid JSON: ${loaded.problem}`, `Run \`live-ish record ${demo.id}\`.`);
         continue;
       }
       for (const problem of checkRecording(loaded.rec)) add(`${rel}`, problem, `Run \`live-ish record ${demo.id}\`.`);
@@ -69,7 +68,7 @@ function terminalToken(root: string, deck: Parameters<Rule["run"]>[0]["deck"]): 
           where: `${rel}: line ${hit.line}`,
           message: `Line ${hit.line} looks like a credential (${hit.kind}).`,
           fix: `Revoke it if it is real, take it out of the session, then run \`live-ish record ${demo.id}\`.`,
-          docs: docs("terminal-token"),
+          docs: docsUrl("terminal-token"),
         });
       }
     }

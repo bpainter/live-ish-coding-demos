@@ -1,37 +1,21 @@
-import { existsSync, readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { nearest, UsageError } from "../args";
 import { EXIT, printJson, type Ctx, type ExitCode } from "../io";
-import type { Rule } from "../../lib/validate/types";
-import { rules as terminalRules } from "../../lib/validate/rules/terminal";
 import type { Action } from "../../schema/demo";
-
-/** Every rule the engine ships. The list of groups lands with the runner, so its export is read loosely. */
-async function allRules(): Promise<Rule[]> {
-  const file = new URL("../../lib/validate/rules/index.ts", import.meta.url);
-  const groups: unknown[] = [terminalRules];
-  if (existsSync(file)) groups.push(...Object.values((await import(file.href)) as Record<string, unknown>));
-  const flat = groups.flat(2).filter((r): r is Rule => typeof r === "object" && r !== null && "id" in r && "run" in r);
-  return [...new Map(flat.map((r) => [r.id, r])).values()];
-}
 
 export async function explain(ctx: Ctx): Promise<ExitCode> {
   const [id] = ctx.positionals;
   if (!id) throw new UsageError("Name a rule: live-ish explain terminal-range.");
-  const rules = await allRules();
-  const rule = rules.find((r) => r.id === id);
+  const { allRules, rulePage } = await import("../../lib/validate");
+  const rule = allRules.find((r) => r.id === id);
   if (!rule) {
-    const hint = nearest(id, rules.map((r) => r.id));
+    const hint = nearest(id, allRules.map((r) => r.id));
     throw new UsageError(`No rule "${id}".${hint ? ` Did you mean "${hint}"?` : ""}`);
   }
-  const page = new URL(`../../lib/validate/docs/${id}.md`, import.meta.url);
-  const docs = existsSync(page) ? readFileSync(fileURLToPath(page), "utf8").trim() : null;
+  const page = rulePage(id)?.trim() ?? null;
   const url = `https://live-ish.dev/errors/${id}`;
-  if (ctx.json) printJson({ id, tier: rule.tier, summary: rule.summary, docs: url, text: docs });
+  if (ctx.json) printJson({ id, tier: rule.tier, summary: rule.summary, docs: url, text: page });
   else {
-    ctx.log(`${rule.id} (${rule.tier})`);
-    ctx.log(rule.summary);
-    if (docs) ctx.log(`\n${docs}`);
+    ctx.log(page ?? `${rule.id} (${rule.tier})\n\n${rule.summary}`);
     ctx.log(`\n${url}`);
   }
   return EXIT.ok;

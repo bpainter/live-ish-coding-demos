@@ -2,28 +2,18 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { requiredCodePoints, scanCharacters } from "../../lib/validate/fonts";
 import { CliError, EXIT, environment, printJson, requireDeck, resolveFromDeck, type Ctx, type ExitCode } from "../io";
 
 /**
  * Subsets each master in public/fonts/ to a Latin WOFF2 under public/fonts/v<n>/. The subset keeps the
- * ranges below plus every character the deck's text uses. The folder is write-once: fonts are served
+ * ranges the `fonts` rule reads, plus every character the deck's text uses. The folder is write-once: fonts are served
  * as immutable, so a file that would change is refused, and the fix is a new folder with `--next`.
  *
  *   live-ish fonts            write the subsets that are missing, then check every one
  *   live-ish fonts --check    check only
  *   live-ish fonts --next     start the next folder
  */
-
-/** Code point ranges every subset keeps, inclusive. */
-const SUBSET_RANGES: [number, number][] = [
-  [0x20, 0x7e], // Basic Latin
-  [0xa0, 0xff], // Latin-1 Supplement
-  [0x2000, 0x206f], // General Punctuation: curly quotes, dashes, ellipsis, bullet, thin spaces
-  [0x2190, 0x21ff], // Arrows
-  [0x20ac, 0x20ac], // euro
-  [0x2122, 0x2122], // trade mark
-  [0x2212, 0x2212], // minus
-];
 
 /**
  * OpenType features kept: the ones browsers turn on by default, plus tnum for tabular numbers.
@@ -33,36 +23,12 @@ const SUBSET_RANGES: [number, number][] = [
 const FEATURES = ["kern", "mark", "mkmk", "ccmp", "locl", "liga", "clig", "calt", "rlig", "tnum"];
 
 const MASTER = /\.(otf|ttf|woff2)$/i;
-const SCAN = /\.(tsx?|m?js|json|html|css|md|txt|svg)$/i;
 /** Not a dependency: a deck on system fonts should not carry a font shaper. */
 const SUBSET_VERSION = "2.9.0";
 
 type Subset = (font: Buffer, text: string, options: { targetFormat: "woff2"; keepFeatures: string[] }) => Promise<Uint8Array>;
 
-function scanCharacters(root: string): Set<number> {
-  const found = new Set<number>();
-  const read = (file: string) => {
-    for (const ch of readFileSync(file, "utf8")) {
-      const cp = ch.codePointAt(0)!;
-      if (cp >= 0x20 && !(cp >= 0x7f && cp < 0xa0)) found.add(cp);
-    }
-  };
-  for (const dir of ["slides", "demos"]) {
-    const abs = path.join(root, dir);
-    if (!existsSync(abs)) continue;
-    for (const e of readdirSync(abs, { withFileTypes: true, recursive: true })) {
-      if (e.isFile() && SCAN.test(e.name) && !e.parentPath.includes("node_modules")) read(path.join(e.parentPath, e.name));
-    }
-  }
-  read(path.join(root, "deck.config.ts"));
-  return found;
-}
-
-function subsetText(root: string): string {
-  const points = scanCharacters(root);
-  for (const [a, b] of SUBSET_RANGES) for (let c = a; c <= b; c++) points.add(c);
-  return String.fromCodePoint(...[...points].sort((a, b) => a - b));
-}
+const subsetText = (root: string) => String.fromCodePoint(...[...requiredCodePoints(scanCharacters(root).keys())].sort((a, b) => a - b));
 
 const folderNumbers = (dir: string) =>
   readdirSync(dir)

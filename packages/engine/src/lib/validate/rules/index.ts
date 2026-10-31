@@ -10,6 +10,7 @@ import { rules as frames } from "./frames";
 import { rules as seo } from "./seo";
 import { rules as shape } from "./shape";
 import { rules as support } from "./support";
+import { rules as terminal } from "./terminal";
 import { rules as wrappers } from "./wrappers";
 import { rules as writing } from "./writing";
 
@@ -24,7 +25,7 @@ const config: Rule[] = [
   }),
 ];
 
-/** Every group. `rules/chrome.ts` and `rules/terminal.ts` join this list as their workstreams land. */
-export const groups: Rule[][] = [config, shape, code, frames, support, writing, seo, assets, deck, wrappers, backgrounds];
+/** Every group. `rules/chrome.ts` joins this list as its workstream lands. */
+export const groups: Rule[][] = [config, shape, code, frames, support, writing, seo, assets, deck, wrappers, backgrounds, terminal];
 
 export const allRules: Rule[] = groups.flat();
