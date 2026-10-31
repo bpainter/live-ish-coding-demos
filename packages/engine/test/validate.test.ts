@@ -457,7 +457,7 @@ test("the lint still catches what it exists for", () => {
   assert.match(lintTheme("@layer frame-layout { .frame-menu { position-area: block-end; } }")[0].message, /never allowed/);
   assert.match(lintTheme("@layer frame-theme { @container (width > 1px) { .x { color: red; } } }")[0].message, /@container/);
   assert.match(lintTheme("@layer frame-theme { @scope (.x) { p { color: red; } } }")[0].message, /@scope/);
-  assert.deepEqual(lintTheme("@layer frame-theme { dialog { padding: 4px; color: red; } [popover] > button { cursor: pointer; } } @layer frame-layout { .app-shell__nav { display: grid; } .glass-card::before { position: absolute; } }"), []);
+  assert.deepEqual(lintTheme("@layer frame-theme { dialog { padding: 4px; color: red; } [popover] > button { cursor: pointer; } } @layer frame-layout { .app-shell__nav { display: grid; } .frame-card::before { position: absolute; } }"), []);
   assert.match(lintShellCss("@layer wrapper { .wrap p { color: red; } }")[0].message, /\.wrap\* classes/);
   assert.match(lintShellCss("@layer wrapper { .wrap-bar { color: #f00; } }")[0].message, /raw color/);
 });
