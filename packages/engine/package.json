@@ -29,6 +29,7 @@
     "assets",
     "bin",
     "dist",
+    "rules",
     "shell",
     "src"
   ],
@@ -41,7 +42,9 @@
   },
   "dependencies": {
     "hast-util-to-jsx-runtime": "2.3.6",
+    "linkedom": "0.18.12",
     "lucide-react": "1.61.0",
+    "postcss": "8.5.31",
     "qrcode": "1.5.4",
     "server-only": "0.0.1",
     "shiki": "4.5.0",
