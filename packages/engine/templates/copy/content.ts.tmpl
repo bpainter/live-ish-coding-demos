@@ -1,0 +1,15 @@
+import { defineSlide } from "@live-ish/engine/config";
+
+export default defineSlide({
+  id: "{{id}}",
+  layout: "content",
+  title: "{{title}}",
+  body: ["One or two short sentences."],
+  items: [
+    { label: "First point", detail: "One line about it.", icon: "presentation" },
+    { label: "Second point", detail: "One line about it.", icon: "play" },
+    { label: "Third point", detail: "One line about it.", icon: "square-terminal" },
+  ],
+  notes: "What you say on this slide.",
+  minutes: 1,
+});

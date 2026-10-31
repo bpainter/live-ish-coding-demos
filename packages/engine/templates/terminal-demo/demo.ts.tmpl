@@ -1,0 +1,36 @@
+import { defineDemo, shown } from "@live-ish/engine/config";
+
+export default defineDemo({
+  id: "{{id}}",
+  kind: "terminal",
+  title: "{{title}}",
+  scenario: "One sentence for the speaker window.",
+  beats: "single",
+
+  single: {
+    recording: "session",
+    window: { title: "{{id}}", cwd: "~/demo" },
+    files: [shown("count.mjs"), shown("items.txt")],
+    notes: "Here is a small script and a small file.\n\nEach press runs the next command.",
+    minutes: 1,
+    steps: [
+      {
+        id: "s0",
+        label: "Read the file",
+        actions: [{ type: "hook", name: "reset" }, { type: "terminal", lines: [1, 4] }],
+        code: { file: "items.txt", lines: [] },
+        notes: [],
+      },
+      {
+        id: "s1",
+        label: "Count the lines",
+        key: true,
+        actions: [{ type: "terminal", lines: [5, 6] }],
+        code: { file: "count.mjs", lines: [[3, 7]] },
+        spotlight: ['[data-line="6"]'],
+        ifKeyboard: "Press l to hide the recording, then run the command yourself.",
+        notes: ["The code on the right ran to produce the output on the left."],
+      },
+    ],
+  },
+});

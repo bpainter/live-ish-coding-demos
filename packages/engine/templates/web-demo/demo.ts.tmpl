@@ -1,0 +1,94 @@
+import { defineDemo, shown } from "@live-ish/engine/config";
+
+export default defineDemo({
+  id: "{{id}}",
+  title: "{{title}}",
+  scenario: "One sentence for the speaker window.",
+  support: { kind: "web-features", id: "details" },
+
+  intro: {
+    description: "One sentence that says what this demo shows.",
+    visual: { alt: "The panel, open.", capture: { beat: "after", step: "s1" } },
+    notes: "Say why this matters.\n\nThen show the old way and the new way.",
+    minutes: 0.25,
+  },
+
+  before: {
+    notes: "Here is the old way.\n\nEach press of the arrow key plays one step.",
+    files: [shown("index.html"), shown("panel.js")],
+    hooks: ["reset"],
+    minutes: 1,
+    steps: [
+      { id: "s0", label: "The closed panel", actions: [], code: { file: "index.html", lines: [] }, notes: [] },
+      {
+        id: "s1",
+        label: "Open the panel",
+        key: true,
+        actions: [
+          { type: "pointer", to: "#toggle" },
+          { type: "click", target: "#toggle" },
+          { type: "assert", target: "#answer", expect: "visible" },
+          { type: "reveal", target: "#note" },
+        ],
+        code: { file: "panel.js", lines: [[14, 19]] },
+        spotlight: ["#toggle", "#answer"],
+        notes: ["The click handler reads the state and flips it by hand."],
+      },
+    ],
+  },
+
+  after: {
+    notes: "Same panel, same task. This time the markup does the work.",
+    files: [shown("index.html"), shown("panel.css")],
+    flags: { "enhance-css": true },
+    hooks: ["reset"],
+    minutes: 1,
+    steps: [
+      {
+        id: "s0",
+        label: "Same panel",
+        actions: [{ type: "hook", name: "reset" }],
+        code: { file: "index.html", lines: [] },
+        notes: [],
+      },
+      {
+        id: "s1",
+        label: "Open with no script",
+        key: true,
+        actions: [
+          { type: "pointer", to: "#toggle summary" },
+          { type: "click", target: "#toggle summary" },
+          { type: "assert", target: "#toggle", expect: "attr:open" },
+        ],
+        code: { file: "index.html", lines: [[4, 7]] },
+        spotlight: ["#toggle"],
+        callouts: [{ target: "#toggle", text: "No handler", side: "bottom" }],
+        notes: ["The details element opens by itself. No handler runs."],
+      },
+      {
+        id: "s2",
+        label: "Turn the CSS off",
+        actions: [
+          { type: "toggle", flag: "enhance-css", on: false },
+          { type: "assert", target: "#toggle", expect: "attr:open" },
+        ],
+        code: { file: "panel.css", lines: [], off: true },
+        spotlight: ["#toggle"],
+        notes: ["With the styles off it still works, because the behavior lives in the HTML."],
+      },
+      {
+        id: "s3",
+        label: "Back to the styles",
+        actions: [
+          { type: "toggle", flag: "enhance-css", on: true },
+          { type: "reveal", target: "#note" },
+        ],
+        code: { file: "panel.css", lines: [[11, 13]] },
+        spotlight: ["#note"],
+        notes: ["Press s for the speaker window, and d for the rehearsal overlay."],
+      },
+    ],
+  },
+
+  citations: [{ text: "MDN: the details element", url: "https://developer.mozilla.org/docs/Web/HTML/Element/details" }],
+});

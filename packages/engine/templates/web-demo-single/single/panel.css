@@ -1,0 +1,9 @@
+.panel summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding-block: 12px;
+}
+
+.panel details[open] summary {
+  color: #0b57d0;
+}

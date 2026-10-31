@@ -11,7 +11,7 @@ const config = [
   // A package has no pages directory for this rule to read.
   { rules: { "@next/next/no-html-link-for-pages": "off" } },
   { files: ["src/next/*.cjs", "scripts/**"], rules: { "@typescript-eslint/no-require-imports": "off" } },
-  { ignores: ["dist/**", "assets/**", "tools/**", "shell/**"] },
+  { ignores: ["dist/**", "assets/**", "tools/**", "shell/**", "templates/**"] },
 ];
 
 export default config;

@@ -1,0 +1,62 @@
+import { defineDemo, shown } from "@live-ish/engine/config";
+
+export default defineDemo({
+  id: "{{id}}",
+  kind: "static",
+  title: "{{title}}",
+  scenario: "One sentence for the speaker window.",
+
+  before: {
+    notes: "A static page: no script runs. Each step reveals a row.",
+    files: [shown("index.html")],
+    hooks: ["reset"],
+    minutes: 1,
+    steps: [
+      { id: "s0", label: "The empty table", actions: [], code: { file: "index.html", lines: [] }, notes: [] },
+      {
+        id: "s1",
+        label: "Reveal the first row",
+        key: true,
+        actions: [{ type: "reveal", target: "#row-1" }],
+        code: { file: "index.html", lines: [[3, 6]] },
+        spotlight: ["#row-1"],
+        notes: ["Say what this row means."],
+      },
+      {
+        id: "s2",
+        label: "Reveal the second row",
+        actions: [{ type: "reveal", target: "#row-2" }],
+        code: { file: "index.html", lines: [[7, 10]] },
+        spotlight: ["#row-2"],
+        notes: ["Say what this row means."],
+      },
+    ],
+  },
+
+  after: {
+    notes: "A static page: no script runs. Each step reveals a row.",
+    files: [shown("index.html")],
+    hooks: ["reset"],
+    minutes: 1,
+    steps: [
+      { id: "s0", label: "The empty table", actions: [], code: { file: "index.html", lines: [] }, notes: [] },
+      {
+        id: "s1",
+        label: "Reveal the first row",
+        key: true,
+        actions: [{ type: "reveal", target: "#row-1" }],
+        code: { file: "index.html", lines: [[3, 6]] },
+        spotlight: ["#row-1"],
+        notes: ["Say what this row means."],
+      },
+      {
+        id: "s2",
+        label: "Reveal the second row",
+        actions: [{ type: "reveal", target: "#row-2" }],
+        code: { file: "index.html", lines: [[7, 10]] },
+        spotlight: ["#row-2"],
+        notes: ["Say what this row means."],
+      },
+    ],
+  },
+});

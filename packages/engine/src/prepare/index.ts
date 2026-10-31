@@ -145,7 +145,7 @@ function writeFileLists(root: string) {
 function writeSummary(root: string, input: DeckInput, assembled: AssembledDeck) {
   const addresses = assembled.demos.flatMap((d) => d.routes ?? []).map((r) => (typeof r.path === "string" ? { path: r.path } : { regex: r.path.source }));
   const { hosts } = assembled.deck;
-  write(path.join(root, OUT, "deck.json"), JSON.stringify({ firstSlide: assembled.slides[0].id, hosts, addresses, demos: input.demos.map((d) => d.demo.id) }, null, 2) + "\n");
+  write(path.join(root, OUT, "deck.json"), JSON.stringify({ firstSlide: assembled.slides[0].id, hosts, addresses, demos: input.demos.map((d) => d.demo.id), servers: input.config.servers ?? [] }, null, 2) + "\n");
 }
 
 /** Inside this repo, rebuilds the engine's CSS when a source file is newer. A published engine ships it built. */

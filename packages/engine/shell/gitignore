@@ -4,7 +4,6 @@ node_modules/
 .next-*/
 .live-ish/
 public/live-ish/
+public/opt/
 next-env.d.ts
 *.tsbuildinfo
-# `next dev` writes and re-adds this file.
-AGENTS.md

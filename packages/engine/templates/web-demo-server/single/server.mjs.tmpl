@@ -1,0 +1,40 @@
+import { readFile } from "node:fs/promises";
+import { createServer } from "node:http";
+
+const read = (name) =>
+  readFile(new URL(name, import.meta.url));
+const engine = "../../../public/live-ish";
+const deck =
+  process.env.LIVE_ISH_PRESENTER_ORIGIN ??
+  "http://localhost:3000";
+const csp =
+  "frame-ancestors http://localhost:* " +
+  "http://127.0.0.1:*";
+const routes = {
+  "/hello": async () => [
+    "application/json",
+    JSON.stringify({ message: "Hello" }),
+  ],
+  "/index.html": async () => [
+    "text/html",
+    String(await read("page.html"))
+      .replace("DECK_ORIGIN", deck),
+  ],
+  "/runtime.js": async () => [
+    "text/javascript",
+    await read(`${engine}/demo-runtime.js`),
+  ],
+};
+
+createServer(async (req, res) => {
+  const path = req.url.split("?")[0];
+  if (!routes[path]) {
+    return res.writeHead(404).end();
+  }
+  const [type, body] = await routes[path]();
+  res.writeHead(200, {
+    "Content-Type": type,
+    "Content-Security-Policy": csp,
+  });
+  res.end(body);
+}).listen(process.env.PORT ?? {{port}});
