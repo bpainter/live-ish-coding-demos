@@ -1,0 +1,24 @@
+/* Thin calendar strip beneath a grid (slide 34). */
+.strip {
+  @apply flex list-none;
+  gap: var(--space-8);
+  margin: 0;
+  padding: var(--space-4) 0 0;
+  border-top: 2px solid var(--color-accent);
+}
+.strip__item {
+  @apply flex flex-col;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.strip__value {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  color: var(--slide-accent-fg);
+}
+.strip__label {
+  font-size: var(--text-footnote);
+  line-height: var(--leading-tight);
+  color: var(--slide-muted-fg);
+}

@@ -1,0 +1,194 @@
+/* The reader's text view. The stage is a fixed canvas
+   scaled to the window: on a phone its text is 4 px, and zoom cancels itself out. The text view is
+   the slide as normal HTML at real sizes, so it reflows and zooms. It replaces the stage below
+   900 px wide or 500 px tall (which also keeps the pill off the demo in phone landscape, L6), or
+   when the reader turns on "Text view" (`html[data-text-view="on"]`, ReaderControls). Only the
+   reader routes render it; the audience and speaker windows never do, and the stage keeps its
+   fixed canvas everywhere else. */
+.reading-view {
+  display: none;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* Clear of the reader pill, fixed 8 px from the bottom (reader-controls.css). */
+  padding: 24px 20px 96px;
+  background: var(--white);
+  color: var(--glass-ink);
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 900px), (max-height: 500px) {
+  .reading-view {
+    display: block;
+  }
+  .reading-view ~ .stage[data-mode="reader"] {
+    display: none;
+  }
+  :root:has(.reading-view) {
+    background: var(--white);
+  }
+  /* Automatic here, so the switch would do nothing; no frame shows, so no hands-on either. */
+  .reading-view ~ .reader-controls [data-control="text"],
+  .reading-view ~ .reader-controls [data-control="demo"] {
+    display: none;
+  }
+  /* The pill stays shown over the text: a tap is not a pointer move, so it would never wake. */
+  .reading-view ~ .stage[data-mode="reader"][data-idle] + .reader-controls.reader-controls {
+    opacity: 1;
+  }
+}
+:root[data-text-view="on"] {
+  background: var(--white);
+}
+:root[data-text-view="on"] .reading-view {
+  display: block;
+}
+:root[data-text-view="on"] .reading-view ~ .stage[data-mode="reader"] {
+  display: none;
+}
+:root[data-text-view="on"] .reading-view ~ .reader-controls [data-control="demo"] {
+  display: none;
+}
+:root[data-text-view="on"] .reading-view ~ .stage[data-mode="reader"][data-idle] + .reader-controls {
+  opacity: 1;
+}
+
+.reading-view__slide {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+.reading-view h1,
+.reading-view h2,
+.reading-view h3 {
+  margin: 1.5em 0 0.5em;
+  color: var(--navy);
+  font-weight: var(--weight-bold);
+  line-height: 1.25;
+}
+.reading-view h1 {
+  margin-top: 0.25em;
+  font-size: 1.75rem;
+}
+.reading-view h2 {
+  font-size: 1.375rem;
+}
+.reading-view h3 {
+  font-size: 1.125rem;
+}
+.reading-view p,
+.reading-view ul,
+.reading-view ol,
+.reading-view figure,
+.reading-view blockquote {
+  margin: 0 0 1em;
+}
+.reading-view ul,
+.reading-view ol {
+  padding-inline-start: 1.5em;
+}
+.reading-view li + li {
+  margin-top: 0.5em;
+}
+.reading-view a {
+  color: var(--glass-link);
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+.reading-view__position {
+  margin: 0;
+  color: var(--glass-ink-soft);
+  font-size: 1rem;
+}
+.reading-view__eyebrow {
+  color: var(--dark-blue);
+  font-weight: var(--weight-bold);
+}
+.reading-view__eyebrow--title {
+  display: block;
+  font-size: 1.125rem;
+}
+.reading-view__lede {
+  font-size: 1.25rem;
+}
+.reading-view .reading-view__cards,
+.reading-view .reading-view__people,
+.reading-view .reading-view__steps {
+  padding-inline-start: 0;
+  list-style: none;
+}
+.reading-view .reading-view__card,
+.reading-view .reading-view__step {
+  margin: 0;
+  padding: 1em 0 0.25em;
+  border-top: 1px solid var(--light-gray);
+}
+.reading-view .reading-view__step > h3,
+.reading-view .reading-view__file > h3 {
+  margin-top: 0;
+}
+.reading-view__card-title {
+  margin-bottom: 0.25em;
+  font-weight: var(--weight-bold);
+}
+.reading-view__num {
+  color: var(--dark-blue);
+}
+.reading-view__question {
+  font-style: italic;
+}
+.reading-view__quote blockquote {
+  padding-inline-start: 1em;
+  border-inline-start: 4px solid var(--accent);
+  font-size: 1.25rem;
+}
+.reading-view__quote figcaption {
+  color: var(--glass-ink-soft);
+}
+.reading-view__meter strong {
+  font-variant-numeric: tabular-nums;
+}
+.reading-view__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 0 1em;
+  border: 1px solid var(--light-gray);
+  border-radius: 12px;
+}
+.reading-view__image--portrait {
+  max-width: min(100%, 320px);
+}
+/* Code keeps its 44 columns: the only place the text view scrolls sideways. */
+.reading-view__code {
+  margin: 0 0 1em;
+  padding: 12px 16px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: #f1f3f8;
+  color: var(--navy);
+  font-family: var(--glass-font-mono);
+  font-size: 1rem;
+  line-height: 1.5;
+  white-space: pre;
+  tab-size: 2;
+}
+.reading-view__code code {
+  font: inherit;
+}
+.reading-view__gap {
+  color: var(--glass-ink-soft);
+}
+.reading-view__notes {
+  margin-top: 2em;
+  padding-top: 0.5em;
+  border-top: 2px solid var(--navy);
+}
+
+@media (forced-colors: active) {
+  .reading-view__code {
+    border: 1px solid CanvasText;
+  }
+}

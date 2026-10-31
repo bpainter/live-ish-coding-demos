@@ -1,0 +1,39 @@
+/* 2x2 of short labels (framework-grid). Short labels render as large figures. */
+.quad {
+  @apply grid list-none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5) var(--space-8);
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+}
+.quad__cell {
+  @apply flex flex-col;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-5) 0 0;
+  border-top: 2px solid var(--color-light-gray);
+}
+.quad__label {
+  margin: 0;
+  font-size: var(--text-subtitle);
+  font-weight: var(--weight-bold);
+  line-height: 1.15;
+}
+.quad__label[data-figure="true"] {
+  font-size: var(--text-display-xl);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--slide-accent-fg);
+}
+.quad__detail {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: var(--leading-tight);
+  color: var(--slide-muted-fg);
+}
+.quad[data-dense="false"] .quad__detail {
+  font-size: var(--text-subtitle);
+  max-width: 36ch;
+}

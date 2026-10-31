@@ -1,0 +1,26 @@
+/* A slide's image: a plain file under public/. */
+.slide-image {
+  @apply absolute block;
+  object-fit: cover;
+  pointer-events: none;
+}
+.slide-image[data-variant="full-bleed"],
+.slide-image[data-variant="background"] {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.slide-image[data-variant="right-half"] {
+  top: var(--space-8);
+  right: var(--stage-gutter);
+  bottom: var(--space-9);
+  width: calc(50% - var(--stage-gutter));
+  height: auto;
+  max-height: calc(100% - var(--space-8) - var(--space-9));
+  object-fit: contain;
+}
+/* The text keeps the left half beside a right-half image. */
+.slide[data-image="right-half"] > .slide__header,
+.slide[data-image="right-half"] > .slide__body {
+  max-width: calc(50% - var(--space-8));
+}

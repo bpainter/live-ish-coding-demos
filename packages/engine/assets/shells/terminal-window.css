@@ -1,0 +1,86 @@
+/* The terminal-window shell: a dark glass window filling the frame. A near-opaque surface hides
+   the background, so there is no blur. Nothing blinks or reads as live. */
+@layer wrapper {
+  .wrap-window {
+    display: grid;
+    grid-template-rows: 40px 32px minmax(0, 1fr) 36px;
+    min-block-size: 0;
+    border: 1px solid var(--wrap-dark-edge);
+    border-radius: 12px;
+    background: var(--wrap-surface-dark);
+    box-shadow: var(--glass-dark-highlight), var(--glass-shadow-float);
+    color: var(--wrap-dark-ink-body);
+    overflow: hidden;
+  }
+  .wrap-window__bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+  }
+  .wrap-window__dots {
+    display: inline-flex;
+    gap: 8px;
+  }
+  .wrap-window__dot {
+    inline-size: 12px;
+    block-size: 12px;
+    border-radius: 50%;
+    background: var(--wrap-dark-dot);
+  }
+  .wrap-window__title {
+    margin: 0;
+    color: var(--wrap-dark-ink);
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wrap-window__chip {
+    display: inline-flex;
+    align-items: center;
+    block-size: 22px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--wrap-dark-chip);
+    color: var(--wrap-dark-ink-body);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .wrap-window__tabs {
+    display: flex;
+    align-items: stretch;
+    padding: 0 12px;
+    border-block-end: 1px solid var(--wrap-dark-edge);
+  }
+  .wrap-window__tab {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: var(--wrap-dark-ink);
+    font: 14px/18px var(--glass-font-mono);
+    box-shadow: inset 0 -2px 0 var(--cyan);
+  }
+  .wrap-window__body {
+    min-block-size: 0;
+    padding-block-start: 8px;
+  }
+  .wrap-window__status {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 16px;
+    border-block-start: 1px solid var(--wrap-dark-edge);
+    font: 14px/18px var(--glass-font-mono);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .wrap-window__key {
+    color: var(--wrap-dark-ink-soft);
+  }
+  .wrap-window__value {
+    color: var(--wrap-dark-ink);
+  }
+}

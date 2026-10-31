@@ -1,0 +1,1450 @@
+/*
+  The glass look for demo slides: tokens for the slide chrome and the theme inside every frame.
+
+  Delivery: frames load a copy of this file as /live-ish/theme.css. The presenter imports it for the
+  tokens: every frame-only rule is scoped to :root[data-build], which lib/frames/compose.ts writes
+  on each frame document and the presenter never has.
+
+  Layers. frame-theme holds paint only. frame-layout holds layout for .app-shell* and .glass-* class
+  selectors only, never for element selectors, so the enhancement-off proofs stay honest. Shown CSS
+  stays unlayered and always wins.
+*/
+
+@layer frame-theme, frame-layout;
+
+@layer frame-theme {
+  /* ------------------------------------------------------------------ */
+  /* Tokens                                                              */
+  /* ------------------------------------------------------------------ */
+
+  :root {
+    /* Palette */
+    --accent: #3f5bd9;
+    --accent-hover: #3249b5;
+    --dark-blue: #2a3a9e;
+    --navy: #14192e;
+    --cyan: #3cc4d6;
+    --purple: #bcb0ee;
+    --chartreuse: #e6ee7a;
+    --coral: #ef5f6e;
+    --white: #ffffff;
+    --light-gray: #e6e6e6;
+    --dark-gray: #666666;
+
+    /* Text on light glass (ratios in the spec, section "Legibility") */
+    --glass-ink: #14192e;
+    --glass-ink-soft: #454e68;
+    --glass-link: #2a3a9e;
+    --glass-on-accent: #ffffff;
+
+    /* Surfaces, from most to least transparent */
+    --glass-pane: rgb(255 255 255 / 0.32);
+    --glass-surface: rgb(255 255 255 / 0.55);
+    --glass-surface-strong: rgb(255 255 255 / 0.72);
+    --glass-surface-float: rgb(255 255 255 / 0.78);
+    --glass-surface-field: rgb(255 255 255 / 0.85);
+    --glass-surface-solid: #ffffff;
+    --glass-pane-solid: #eef1f8;
+    --glass-surface-hover: rgb(20 25 46 / 0.06);
+    --glass-surface-selected: rgb(63 91 217 / 0.1);
+    --glass-surface-selected-strong: rgb(63 91 217 / 0.16);
+    --glass-scrim: rgb(20 25 46 / 0.36);
+
+    /* Blur. Only the pane and floating layers blur; cards never do. */
+    --glass-blur: blur(24px);
+    --glass-filter-pane: blur(24px) saturate(140%);
+    --glass-filter-float: blur(16px) saturate(140%);
+    --glass-filter-dialog: blur(24px) saturate(140%);
+
+    /* Edges and depth */
+    --glass-border-color: rgb(255 255 255 / 0.6);
+    --glass-border-float-color: rgb(255 255 255 / 0.7);
+    --glass-border: 1px solid var(--glass-border-color);
+    --glass-rule: rgb(20 25 46 / 0.08);
+    --glass-control-border: rgb(20 25 46 / 0.14);
+    --glass-field-border: rgb(20 25 46 / 0.5);
+    --glass-field-border-hover: rgb(20 25 46 / 0.7);
+    --glass-highlight: inset 0 1px 0 rgb(255 255 255 / 0.7);
+    --glass-shadow-card: 0 1px 2px rgb(20 25 46 / 0.06);
+    --glass-shadow: 0 8px 32px rgb(20 25 46 / 0.12);
+    --glass-shadow-float: 0 12px 32px rgb(20 25 46 / 0.18);
+    --glass-shadow-dialog: 0 24px 64px rgb(20 25 46 / 0.24);
+
+    /* Radii (frame CSS px) */
+    --glass-radius-pane: 16px;
+    --glass-radius-dialog: 16px;
+    --glass-radius-card: 12px;
+    --glass-radius-float: 10px;
+    --glass-radius-control: 8px;
+    --glass-radius-item: 6px;
+    --glass-radius-pill: 999px;
+    --glass-radius: var(--glass-radius-card);
+
+    /* Spacing (frame CSS px) */
+    --glass-space-1: 2px;
+    --glass-space-2: 4px;
+    --glass-space-3: 6px;
+    --glass-space-4: 8px;
+    --glass-space-5: 12px;
+    --glass-space-6: 16px;
+    --glass-space-7: 20px;
+    --glass-space-8: 24px;
+    --glass-space-9: 32px;
+    --glass-frame-pad: clamp(12px, 1.5vw, 20px);
+
+    /* Type (frame CSS px; the walk-page frame is scaled by 1.375 on stage) */
+    --glass-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --glass-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --glass-text-xs: 12px;
+    --glass-text-sm: 13px;
+    --glass-text-md: 15px;
+    --glass-text-lg: 18px;
+    --glass-text-xl: 22px;
+    --glass-text-2xl: 26px;
+    --glass-leading-xs: 16px;
+    --glass-leading-sm: 18px;
+    --glass-leading-md: 20px;
+    --glass-leading-prose: 22px;
+    --glass-leading-lg: 24px;
+    --glass-leading-xl: 28px;
+    --glass-leading-2xl: 32px;
+
+    /* Focus */
+    --glass-focus: #3f5bd9;
+    --glass-focus-width: 3px;
+    --glass-focus-offset: 2px;
+
+    /* Status chips: fill, edge, dot */
+    --glass-chip-neutral-bg: rgb(20 25 46 / 0.06);
+    --glass-chip-neutral-edge: rgb(20 25 46 / 0.16);
+    --glass-chip-neutral-dot: #454e68;
+    --glass-chip-info-bg: rgb(63 91 217 / 0.12);
+    --glass-chip-info-edge: rgb(63 91 217 / 0.36);
+    --glass-chip-info-dot: #3f5bd9;
+    --glass-chip-success-bg: rgb(60 196 214 / 0.28);
+    --glass-chip-success-edge: rgb(0 127 140 / 0.4);
+    --glass-chip-success-dot: #007f8c;
+    --glass-chip-pending-bg: rgb(188 176 238 / 0.4);
+    --glass-chip-pending-edge: rgb(107 79 216 / 0.36);
+    --glass-chip-pending-dot: #6b4fd8;
+    --glass-chip-error-bg: rgb(239 95 110 / 0.22);
+    --glass-chip-error-edge: rgb(239 95 110 / 0.7);
+    --glass-chip-error-dot: #ef5f6e;
+    --glass-chip-new-bg: #e6ee7a;
+    --glass-chip-new-edge: rgb(20 25 46 / 0.16);
+    --glass-chip-new-dot: #14192e;
+
+    /* Motion (used by build CSS; the theme itself never animates) */
+    --glass-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --glass-dur-press: 100ms;
+    --glass-dur-menu-in: 160ms;
+    --glass-dur-menu-out: 120ms;
+    --glass-dur-dialog-in: 200ms;
+    --glass-dur-dialog-out: 140ms;
+    --glass-dur-toast-in: 200ms;
+    --glass-dur-toast-out: 160ms;
+    --glass-dur-crossfade: 160ms;
+    --glass-shift-menu: -4px;
+    --glass-shift-toast: 8px;
+    --glass-shift-tile: 8px;
+    --glass-scale-menu: 0.98;
+    --glass-scale-dialog: 0.97;
+    --glass-stagger-tile: 80ms;
+    --glass-dur-tile: 200ms;
+
+    /* Frame backgrounds: the section's file comes from /live-ish/backgrounds.css on
+       data-section-bg; frames show it at the slide's alignment under the wash. */
+    --glass-frame-image: none;
+    --glass-frame-wash: linear-gradient(rgb(255 255 255 / 0.4), rgb(255 255 255 / 0.4));
+    --glass-frame-fallback: linear-gradient(135deg, #c9d8fb 0%, #e9eefb 45%, #d3f4f8 100%);
+
+    /* Dark glass for navy slides (intro slides, dark chrome) */
+    --glass-dark-surface: rgb(20 25 46 / 0.56);
+    --glass-dark-surface-strong: rgb(20 25 46 / 0.72);
+    --glass-dark-surface-float: rgb(20 25 46 / 0.82);
+    --glass-dark-border-color: rgb(255 255 255 / 0.16);
+    --glass-dark-highlight: inset 0 1px 0 rgb(255 255 255 / 0.12);
+    --glass-dark-shadow: 0 24px 64px rgb(0 10 37 / 0.4);
+    --glass-dark-ink: #ffffff;
+    --glass-dark-ink-soft: #b8c0d9;
+    --glass-dark-ink-body: #d6dcec;
+    --glass-dark-focus: #3cc4d6;
+    --glass-dark-solid: #16234d;
+
+    /* Demo wrappers: two tiers. The context
+       tier is quiet glass with no shadow; the shown block is the one raised, strongest surface. */
+    --wrap-surface-quiet: var(--glass-surface);
+    --wrap-surface-focus: var(--glass-surface-strong);
+    --wrap-shadow-focus: 0 8px 24px rgb(20 25 46 / 0.14), 0 1px 2px rgb(20 25 46 / 0.06);
+    --wrap-surface-dark: var(--glass-dark-surface-float);
+    --wrap-surface-dark-strong: rgb(20 25 46 / 0.94);
+    --wrap-text-sm: 14px;
+    --wrap-leading-sm: 18px;
+    --wrap-bar-height: 48px;
+    --wrap-site-height: 52px;
+    --wrap-row-height: 72px;
+    --wrap-pad: 16px;
+    --wrap-clear: 16px;
+    --wrap-chip-fill: rgb(20 25 46 / 0.06);
+    --wrap-chip-edge: rgb(20 25 46 / 0.12);
+    --wrap-skeleton: rgb(20 25 46 / 0.08);
+    --wrap-search-fill: rgb(20 25 46 / 0.06);
+    --wrap-dark-ink: #ffffff;
+    --wrap-dark-ink-body: #d6dcec;
+    --wrap-dark-ink-soft: #b8c0d9;
+    --wrap-dark-edge: rgb(255 255 255 / 0.16);
+    --wrap-dark-rule: rgb(255 255 255 / 0.1);
+    --wrap-dark-dot: rgb(255 255 255 / 0.24);
+    --wrap-dark-chip: rgb(255 255 255 / 0.12);
+    /* Editor tiles alias the shown swatch colors without using their selectors. */
+    --wrap-swatch-black: #000a25;
+    --wrap-swatch-moss: #5b6b2e;
+    --wrap-swatch-sand: #d8c7a0;
+
+    /* Grain overlay on audience slides: tune 0 to 0.16 at the projector check. */
+    --grain-opacity: 0.1;
+    --grain-blend: overlay;
+
+    /* Slide chrome on the 1920 by 1080 canvas (stage px); the stage sets --slide-bg-image. */
+    --chrome-image: var(--slide-bg-image, none);
+    --chrome-wash: linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.78) 0,
+      rgb(255 255 255 / 0.78) 168px,
+      rgb(255 255 255 / 0.45) 320px,
+      rgb(255 255 255 / 0.45) 100%
+    );
+    --chrome-gutter: 64px;
+    --chrome-gap: 32px;
+    --chrome-eyebrow-size: 28px;
+    --chrome-eyebrow-leading: 36px;
+    --chrome-title-size: 64px;
+    --chrome-title-leading: 72px;
+    --chrome-card-radius: 24px;
+    --chrome-card-border: 1px solid rgb(255 255 255 / 0.7);
+    --chrome-card-highlight: inset 0 1px 0 rgb(255 255 255 / 0.8);
+    --chrome-card-shadow: 0 24px 64px rgb(20 25 46 / 0.16), 0 2px 6px rgb(20 25 46 / 0.06);
+    --chrome-code-surface: rgb(255 255 255 / 0.96);
+    --chrome-code-surface-solid: #ffffff;
+    --chrome-code-size: 24px;
+    --chrome-code-leading: 36px;
+    --chrome-code-tabs-height: 56px;
+    --chrome-code-pad-inline: 32px;
+    --chrome-code-pad-block: 24px;
+    --chrome-code-ink: #14192e;
+    --chrome-code-keyword: #2a3a9e;
+    --chrome-code-string: #6b2c91;
+    --chrome-code-comment: #4a5470;
+    --chrome-code-number: #8a1f2e;
+    --chrome-code-property: #005a73;
+    --chrome-code-highlight-bg: rgb(63 91 217 / 0.12);
+    --chrome-code-highlight-bar: #3f5bd9;
+    /* The lowest opacity that keeps the lightest token (comment) at 4.5:1 over the code card on
+       every section background. 0.81 gives 4.48:1. */
+    --chrome-code-dim-opacity: 0.82;
+    --chrome-callout-bg: #14192e;
+    --chrome-callout-ink: #ffffff;
+    --chrome-callout-leader: #3f5bd9;
+
+    /* Intro slide: the section background, a light visual card and a dark
+       glass text panel. */
+    --intro-title-size: 88px;
+    --intro-title-leading: 96px;
+    --intro-body-size: 36px;
+    --intro-body-leading: 50px;
+    --intro-tile-size: 184px;
+    --intro-tile-gap: 16px;
+    --intro-tile-radius: 20px;
+    --intro-logo-size: 64px;
+    --intro-version-size: 48px;
+    --intro-name-size: 24px;
+    --intro-also-size: 24px;
+
+    accent-color: var(--accent);
+  }
+
+  /* Used-to frames: a quieter, lavender-gray world so old reads differently from new. */
+  :root[data-build="before"] {
+    --glass-frame-wash: linear-gradient(rgb(240 238 250 / 0.55), rgb(240 238 250 / 0.55));
+    --glass-frame-fallback: linear-gradient(135deg, #d9d3f5 0%, #eceaf6 50%, #d6dcef 100%);
+  }
+
+  /* Dark variant: remaps the light tokens so every .glass-* class works on navy. */
+  .glass-dark {
+    --glass-ink: var(--glass-dark-ink);
+    --glass-ink-soft: var(--glass-dark-ink-soft);
+    --glass-link: var(--cyan);
+    --glass-pane: var(--glass-dark-surface);
+    --glass-surface: var(--glass-dark-surface);
+    --glass-surface-strong: var(--glass-dark-surface-strong);
+    --glass-surface-float: var(--glass-dark-surface-float);
+    --glass-surface-field: var(--glass-dark-surface-strong);
+    --glass-surface-solid: var(--glass-dark-solid);
+    --glass-surface-hover: rgb(255 255 255 / 0.08);
+    --glass-surface-selected: rgb(60 196 214 / 0.16);
+    --glass-border-color: var(--glass-dark-border-color);
+    --glass-border-float-color: rgb(255 255 255 / 0.2);
+    --glass-rule: rgb(255 255 255 / 0.12);
+    --glass-control-border: rgb(255 255 255 / 0.2);
+    --glass-field-border: rgb(255 255 255 / 0.5);
+    --glass-field-border-hover: rgb(255 255 255 / 0.7);
+    --glass-highlight: var(--glass-dark-highlight);
+    --glass-shadow: var(--glass-dark-shadow);
+    --glass-focus: var(--glass-dark-focus);
+    color: var(--glass-ink);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Frame document                                                      */
+  /* ------------------------------------------------------------------ */
+
+  :root[data-build] body {
+    margin: 0;
+    padding: var(--glass-frame-pad);
+    color: var(--glass-ink);
+    font: 400 var(--glass-text-md) / var(--glass-leading-md) var(--glass-font);
+    /* The section image at the slide's alignment: both slots start at stage x 65,
+       y 177 inside the card border and frames are scaled 1.375, so the 1920 by 1080 slide is
+       1396.36 by 785.45 frame px, offset -47.27 and -128.73. Fixed, so a scrolling frame keeps it. */
+    background:
+      var(--glass-frame-wash),
+      var(--glass-frame-image) -47.27px -128.73px / 1396.36px 785.45px no-repeat,
+      var(--glass-frame-fallback);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Under a frame shell the shell carries the frame padding. */
+  :root[data-wrapper] body {
+    padding: 0;
+  }
+
+  :where(:root[data-build]) :where(h1) {
+    margin: 0;
+    font-size: var(--glass-text-lg);
+    line-height: var(--glass-leading-lg);
+    font-weight: 700;
+  }
+
+  :where(:root[data-build]) :where(h2) {
+    margin: 0;
+    font-size: var(--glass-text-md);
+    line-height: var(--glass-leading-md);
+    font-weight: 700;
+  }
+
+  :where(:root[data-build]) :where(h3) {
+    margin: 0;
+    font-size: var(--glass-text-sm);
+    line-height: var(--glass-leading-sm);
+    font-weight: 700;
+  }
+
+  :where(:root[data-build]) :where(a) {
+    color: var(--glass-link);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  :where(:root[data-build]) :where(code, kbd, samp) {
+    font-family: var(--glass-font-mono);
+    font-size: 0.93em;
+  }
+
+  :where(:root[data-build]) :focus-visible {
+    outline: var(--glass-focus-width) solid var(--glass-focus);
+    outline-offset: var(--glass-focus-offset);
+  }
+
+  :where(:root[data-build]) ::selection {
+    background: rgb(63 91 217 / 0.2);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Shell paint (layout is in frame-layout)                            */
+  /* ------------------------------------------------------------------ */
+
+  .app-shell {
+    color: var(--glass-ink);
+    border: var(--glass-border);
+    border-radius: var(--glass-radius-pane);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .app-shell__brand {
+    font-size: var(--glass-text-md);
+    line-height: var(--glass-leading-md);
+    font-weight: 700;
+    color: var(--glass-ink);
+    text-decoration: none;
+  }
+
+  .app-shell__brand-mark {
+    border-radius: var(--glass-radius-control);
+    background: var(--navy);
+    color: var(--white);
+    font-size: var(--glass-text-md);
+    font-weight: 700;
+  }
+
+  .app-shell__nav {
+    border-inline-end: 1px solid var(--glass-rule);
+  }
+
+  .app-shell__nav-heading {
+    margin: 0;
+    padding: var(--glass-space-5) var(--glass-space-4) var(--glass-space-2);
+    color: var(--glass-ink);
+    font-size: var(--glass-text-xs);
+    line-height: var(--glass-leading-xs);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .app-shell__nav-link {
+    padding: 0 var(--glass-space-4);
+    border: 1px solid transparent;
+    border-radius: var(--glass-radius-control);
+    color: var(--glass-ink);
+    font-size: var(--glass-text-md);
+    line-height: var(--glass-leading-md);
+    text-decoration: none;
+  }
+
+  .app-shell__nav-link:hover {
+    background: rgb(255 255 255 / 0.4);
+  }
+
+  .app-shell__nav-link[aria-current="page"],
+  .app-shell__nav-link.is-current {
+    background: var(--glass-surface-strong);
+    border-color: var(--glass-border-color);
+    box-shadow: var(--glass-highlight), var(--glass-shadow-card);
+    font-weight: 700;
+  }
+
+  .app-shell__top {
+    border-block-end: 1px solid var(--glass-rule);
+  }
+
+  .app-shell__title {
+    margin: 0;
+    font-size: var(--glass-text-lg);
+    line-height: var(--glass-leading-lg);
+    font-weight: 700;
+  }
+
+  .app-shell__avatar {
+    border-radius: 50%;
+    background: var(--purple);
+    color: var(--navy);
+    font-size: var(--glass-text-sm);
+    font-weight: 700;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Card, stat, prose                                                   */
+  /* ------------------------------------------------------------------ */
+
+  .glass-card {
+    padding: var(--glass-space-6);
+    color: var(--glass-ink);
+    background: var(--glass-surface);
+    border: var(--glass-border);
+    border-radius: var(--glass-radius-card);
+    box-shadow: var(--glass-highlight), var(--glass-shadow-card);
+  }
+
+  .glass-card--flush {
+    padding: 0;
+  }
+
+  .glass-card--inset {
+    background: rgb(20 25 46 / 0.03);
+    border-color: var(--glass-rule);
+    box-shadow: none;
+  }
+
+  .glass-card--selected {
+    background: var(--glass-surface-strong);
+    border-color: rgb(63 91 217 / 0.5);
+    box-shadow:
+      inset 0 0 0 1px rgb(63 91 217 / 0.5),
+      var(--glass-shadow-card);
+  }
+
+  .glass-card__title {
+    margin: 0;
+    font-size: var(--glass-text-md);
+    line-height: var(--glass-leading-md);
+    font-weight: 700;
+  }
+
+  .glass-card__meta {
+    margin: 0;
+    color: var(--glass-ink-soft);
+    font-size: var(--glass-text-sm);
+    line-height: var(--glass-leading-sm);
+  }
+
+  .glass-card__media {
+    border-radius: var(--glass-radius-control);
+    background: rgb(20 25 46 / 0.06);
+  }
+
+  .glass-card__footer {
+    padding-block-start: var(--glass-space-5);
+    border-block-start: 1px solid var(--glass-rule);
+  }
+
+  .glass-stat__label {
+    margin: 0;
+    color: var(--glass-ink-soft);
+    font-size: var(--glass-text-sm);
+    line-height: var(--glass-leading-sm);
+  }
+
+  .glass-stat__value {
+    margin: 0;
+    font-size: var(--glass-text-2xl);
+    line-height: var(--glass-leading-2xl);
+    font-weight: 700;
+  }
+
+  .glass-prose {
+    font-size: var(--glass-text-md);
+    line-height: var(--glass-leading-prose);
+  }
+
+  .glass-prose :where(p, ul, ol, blockquote, figure) {
+    margin: 0 0 var(--glass-space-5);
+  }
+
+  .glass-prose :where(h2, h3) {
+    margin: var(--glass-space-6) 0 var(--glass-space-3);
+  }
+
+  .glass-prose :where(blockquote) {
+    padding-inline-start: var(--glass-space-5);
+    border-inline-start: 3px solid var(--purple);
+  }
+
+  .glass-skeleton {
+    border-radius: var(--glass-radius-item);
+    background: rgb(20 25 46 / 0.08);
+  }
+
+  .glass-empty {
+    padding: var(--glass-space-8);
+    color: var(--glass-ink-soft);
+    text-align: center;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Table                                                               */
+  /* ------------------------------------------------------------------ */
+
+  .glass-table,
+  :where(:root[data-build]) :where(table) {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--glass-text-md);
+    line-height: var(--glass-leading-md);
+  }
+
+  .glass-table :where(caption) {
+    padding-block-end: var(--glass-space-4);
+    font-weight: 700;
+    text-align: start;
+  }
+
+  .glass-table :where(th),
+  :where(:root[data-build]) :where(th) {
+    padding: var(--glass-space-4) var(--glass-space-5);
+    border-block-end: 1px solid var(--glass-rule);
+    color: var(--glass-ink-soft);
+    font-size: var(--glass-text-sm);
+    line-height: var(--glass-leading-sm);
+    font-weight: 700;
+    text-align: start;
+  }
+
+  .glass-table :where(td),
+  :where(:root[data-build]) :where(td) {
+    padding: 10px var(--glass-space-5);
+    border-block-end: 1px solid var(--glass-rule);
+  }
+
+  .glass-table :where(tr:last-child > td) {
+    border-block-end: 0;
+  }
+
+  .glass-table :where(tbody tr:hover > td) {
+    background: rgb(255 255 255 / 0.35);
+  }
+
+  .glass-table__row--selected > td,
+  .glass-table :where(tr[aria-selected="true"] > td) {
+    background: var(--glass-surface-selected);
+  }
+
+  .glass-table__row--selected > td:first-child,
+  .glass-table :where(tr[aria-selected="true"] > td:first-child) {
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+
+  .glass-table__num {
+    text-align: end;
+  }
+
+  .glass-table__primary {
+    font-weight: 700;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Buttons. Bare <button> in a frame gets the secondary look.          */
+  /* ------------------------------------------------------------------ */
+
+  .glass-btn,
+  :where(:root[data-build]) :where(button) {
+    padding: 7px 14px;
+    color: var(--glass-ink);
+    font: 700 var(--glass-text-md) / var(--glass-leading-md) var(--glass-font);
+    background: var(--glass-surface-strong);
+    border: 1px solid var(--glass-control-border);
+    border-radius: var(--glass-radius-control);
+    box-shadow: var(--glass-highlight), var(--glass-shadow-card);
+    cursor: pointer;
+  }
+
+  .glass-btn:hover,
+  :where(:root[data-build]) :where(button:hover) {
+    background: rgb(255 255 255 / 0.9);
+  }
+
+  .glass-btn:active,
+  :where(:root[data-build]) :where(button:active) {
+    background: rgb(255 255 255 / 0.6);
+    box-shadow: inset 0 1px 2px rgb(20 25 46 / 0.12);
+  }
+
+  .glass-btn--primary {
+    color: var(--glass-on-accent);
+    background: var(--accent);
+    border-color: var(--dark-blue);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.24),
+      var(--glass-shadow-card);
+  }
+
+  .glass-btn--primary:hover {
+    background: var(--accent-hover);
+  }
+
+  .glass-btn--primary:active {
+    background: var(--dark-blue);
+  }
+
+  .glass-btn--danger {
+    color: var(--navy);
+    background: var(--coral);
+    border-color: rgb(20 25 46 / 0.16);
+  }
+
+  .glass-btn--danger:hover {
+    background: var(--coral);
+    box-shadow:
+      inset 0 0 0 999px rgb(255 255 255 / 0.16),
+      var(--glass-shadow-card);
+  }
+
+  .glass-btn--danger:active {
+    background: var(--coral);
+    box-shadow: inset 0 1px 2px rgb(20 25 46 / 0.24);
+  }
+
+  .glass-btn--quiet {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .glass-btn--quiet:hover {
+    background: var(--glass-surface-hover);
+  }
+
+  .glass-btn--icon {
+    padding: 7px;
+  }
+
+  .glass-btn--sm {
+    padding: 4px 10px;
+    font-size: var(--glass-text-sm);
+    line-height: var(--glass-leading-sm);
+  }
+
+  .glass-btn:disabled,
+  .glass-btn[aria-disabled="true"],
+  :where(:root[data-build]) :where(button:disabled) {
+    color: var(--glass-ink-soft);
+    background: rgb(255 255 255 / 0.4);
+    border-color: var(--glass-rule);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Fields                                                              */
+  /* ------------------------------------------------------------------ */
+
+  .glass-field__label {
+    color: var(--glass-ink);
+    font-size: var(--glass-text-sm);
+    line-height: var(--glass-leading-sm);
+    font-weight: 700;
+  }
+
+  .glass-field__hint,
+  .glass-field__error {
+    margin: 0;
+    font-size: var(--glass-text-sm);
+    line-height: var(--glass-leading-sm);
+  }
+
+  .glass-field__hint {
+    color: var(--glass-ink-soft);
+  }
+
+  .glass-field__error {
+    color: var(--glass-ink);
+  }
+
+  .glass-input,
+  :where(:root[data-build])
+    :where(
+      input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"]),
+      select,
+      textarea
+    ) {
+    padding: 7px 12px;
+    color: var(--glass-ink);
+    font: 400 var(--glass-text-md) / var(--glass-leading-md) var(--glass-font);
+    background: var(--glass-surface-field);
+    border: 1px solid var(--glass-field-border);
+    border-radius: var(--glass-radius-control);
+    box-shadow: inset 0 1px 2px rgb(20 25 46 / 0.06);
+  }
+
+  .glass-input:hover,
+  :where(:root[data-build]) :where(input:hover, select:hover, textarea:hover) {
+    border-color: var(--glass-field-border-hover);
+  }
+
+  .glass-input:focus,
+  :where(:root[data-build]) :where(input:focus, select:focus, textarea:focus) {
+    border-color: var(--accent);
+  }
+
+  .glass-input[aria-invalid="true"],
+  :where(:root[data-build])
+    :where(input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"]) {
+    border-color: var(--coral);
+    box-shadow: inset 0 0 0 1px var(--coral);
+  }
+
+  .glass-input:disabled,
+  :where(:root[data-build]) :where(input:disabled, select:disabled, textarea:disabled) {
+    color: var(--glass-ink-soft);
+    background: rgb(255 255 255 / 0.4);
+    border-color: rgb(20 25 46 / 0.24);
+    box-shadow: none;
+  }
+
+  /* Native single selects draw the theme's chevron, so every engine shows one arrow, 20 px from
+     the right edge and on the text's center. 7 + 20 + 7 + 2 = 36 px, the button height.
+     A customizable select has a <button> child and keeps its shown CSS. After the disabled
+     rule, so its background shorthand does not drop the chevron. */
+  :where(:root[data-build]) :where(select:not([multiple], [size]):not(:has(> button))) {
+    appearance: none;
+    padding-inline-end: 36px;
+    line-height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2314192e' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    /* 1 px border + 11 + 8 (half the glyph box) puts the center 20 px from the border edge. */
+    background-position: right 11px center;
+    background-size: 16px 16px;
+  }
+
+  :where(:root[data-build]) :where(select:not([multiple], [size]):not(:has(> button)):disabled) {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23454e68' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  .glass-input::placeholder,
+  :where(:root[data-build]) :where(input, textarea)::placeholder {
+    color: var(--glass-ink-soft);
+  }
+
+  .glass-input--search {
+    padding-inline-start: 34px;
+    border-radius: var(--glass-radius-pill);
+  }
+
+  /* Customizable select. Separate rules: browsers without ::picker drop them alone. */
+  :where(:root[data-build]) ::picker(select) {
+    padding: var(--glass-space-3);
+    color: var(--glass-ink);
+    background: var(--glass-surface-float);
+    border: 1px solid var(--glass-border-float-color);
+    border-radius: var(--glass-radius-float);
+    box-shadow: var(--glass-shadow-float);
+    backdrop-filter: var(--glass-filter-float);
+  }
+
+  @supports (appearance: base-select) {
+    :where(:root[data-build]) :where(option) {
+      padding: var(--glass-space-4) 10px;
+      border-radius: var(--glass-radius-item);
+    }
+
+    :where(:root[data-build]) :where(option:hover, option:focus-visible) {
+      background: var(--glass-surface-selected);
+    }
+
+    :where(:root[data-build]) :where(option:checked) {
+      background: var(--glass-surface-selected-strong);
+      font-weight: 700;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Menus and popovers (floating layer: frosted)                        */
+  /* ------------------------------------------------------------------ */
+
+  .glass-menu,
+  :where(:root[data-build]) :where([popover]) {
+    padding: var(--glass-space-3);
+    color: var(--glass-ink);
+    font: 400 var(--glass-text-md) / var(--glass-leading-md) var(--glass-font);
+    background: var(--glass-surface-float);
+    border: 1px solid var(--glass-border-float-color);
+    border-radius: var(--glass-radius-float);
+    box-shadow: var(--glass-shadow-float);
+    -webkit-backdrop-filter: var(--glass-filter-float);
+    backdrop-filter: var(--glass-filter-float);
+  }
+
+  .glass-menu__item,
+  :where(.glass-menu, [popover]:not(.glass-toast))
+    > :where(button, a, [role="menuitem"], [role="menuitemradio"]) {
+    padding: var(--glass-space-4) 10px;
+    color: var(--glass-ink);
+    font: 400 var(--glass-text-md) / var(--glass-leading-md) var(--glass-font);
+    text-align: start;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-radius: var(--glass-radius-item);
+    box-shadow: none;
+    cursor: pointer;
+  }
+
+  .glass-menu__item:hover,
+  .glass-menu__item.is-active,
+  :where(.glass-menu, [popover]:not(.glass-toast))
+    > :where(button:hover, a:hover, [role="menuitem"]:hover, [role="menuitem"].is-active) {
+    background: var(--glass-surface-selected);
+  }
+
+  .glass-menu__item:focus-visible,
+  :where(.glass-menu, [popover]:not(.glass-toast))
+    > :where(button:focus-visible, a:focus-visible, [role="menuitem"]:focus-visible) {
+    background: var(--glass-surface-selected);
+    outline-width: 2px;
+    outline-offset: -2px;
+  }
+
+  .glass-menu__icon--danger {
+    color: var(--coral);
+  }
+
+  .glass-menu__label {
+    margin: 0;
+    padding: var(--glass-space-3) 10px var(--glass-space-2);
+    color: var(--glass-ink-soft);
+    font-size: var(--glass-text-xs);
+    line-height: var(--glass-leading-xs);
+    font-weight: 700;
+  }
+
+  .glass-menu__separator {
+    margin: var(--glass-space-3) calc(-1 * var(--glass-space-3));
+    border: 0;
+    border-block-start: 1px solid var(--glass-rule);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Dialog                                                              */
+  /* ------------------------------------------------------------------ */
+
+  .glass-dialog,
+  :where(:root[data-build]) :where(dialog) {
+    padding: var(--glass-space-8);
+    color: var(--glass-ink);
+    font: 400 var(--glass-text-md) / var(--glass-leading-md) var(--glass-font);
+    background: var(--glass-surface-float);
+    border: 1px solid var(--glass-border-float-color);
+    border-radius: var(--glass-radius-dialog);
+    box-shadow: var(--glass-highlight), var(--glass-shadow-dialog);
+    -webkit-backdrop-filter: var(--glass-filter-dialog);
+    backdrop-filter: var(--glass-filter-dialog);
+  }
+
+  :where(:root[data-build]) :where(dialog)::backdrop,
+  .glass-backdrop {
+    background: var(--glass-scrim);
+  }
+
+  .glass-dialog__title {
+    margin: 0 0 var(--glass-space-4);
+    font-size: var(--glass-text-lg);
+    line-height: var(--glass-leading-lg);
+    font-weight: 700;
+  }
+
+  .glass-dialog__body {
+    margin: 0;
+    line-height: var(--glass-leading-prose);
+  }
+
+  .glass-dialog__actions {
+    margin-block-start: var(--glass-space-7);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Badge, chip, toast, tabs                                            */
+  /* ------------------------------------------------------------------ */
+
+  .glass-badge {
+    padding: 0 var(--glass-space-3);
+    border-radius: var(--glass-radius-pill);
+    background: var(--accent);
+    color: var(--glass-on-accent);
+    font-size: var(--glass-text-xs);
+    line-height: 20px;
+    font-weight: 700;
+  }
+
+  .glass-chip {
+    --chip-bg: var(--glass-chip-neutral-bg);
+    --chip-edge: var(--glass-chip-neutral-edge);
+    --chip-dot: var(--glass-chip-neutral-dot);
+    padding: 1px var(--glass-space-4);
+    color: var(--glass-ink);
+    font-size: var(--glass-text-sm);
+    line-height: var(--glass-leading-sm);
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-edge);
+    border-radius: var(--glass-radius-pill);
+  }
+
+  .glass-chip::before {
+    border-radius: 50%;
+    background: var(--chip-dot);
+  }
+
+  .glass-chip--info {
+    --chip-bg: var(--glass-chip-info-bg);
+    --chip-edge: var(--glass-chip-info-edge);
+    --chip-dot: var(--glass-chip-info-dot);
+  }
+
+  .glass-chip--success {
+    --chip-bg: var(--glass-chip-success-bg);
+    --chip-edge: var(--glass-chip-success-edge);
+    --chip-dot: var(--glass-chip-success-dot);
+  }
+
+  .glass-chip--pending {
+    --chip-bg: var(--glass-chip-pending-bg);
+    --chip-edge: var(--glass-chip-pending-edge);
+    --chip-dot: var(--glass-chip-pending-dot);
+  }
+
+  .glass-chip--error {
+    --chip-bg: var(--glass-chip-error-bg);
+    --chip-edge: var(--glass-chip-error-edge);
+    --chip-dot: var(--glass-chip-error-dot);
+  }
+
+  .glass-chip--new {
+    --chip-bg: var(--glass-chip-new-bg);
+    --chip-edge: var(--glass-chip-new-edge);
+    --chip-dot: var(--glass-chip-new-dot);
+  }
+
+  .glass-toast {
+    padding: var(--glass-space-5) 14px;
+    color: var(--glass-ink);
+    font: 400 var(--glass-text-md) / var(--glass-leading-md) var(--glass-font);
+    background: var(--glass-surface-float);
+    border: 1px solid var(--glass-border-float-color);
+    border-radius: var(--glass-radius-card);
+    box-shadow: var(--glass-shadow-float);
+    -webkit-backdrop-filter: var(--glass-filter-float);
+    backdrop-filter: var(--glass-filter-float);
+  }
+
+  .glass-toast--success {
+    box-shadow:
+      inset 3px 0 0 #007f8c,
+      var(--glass-shadow-float);
+  }
+
+  .glass-toast--error {
+    box-shadow:
+      inset 3px 0 0 var(--coral),
+      var(--glass-shadow-float);
+  }
+
+  .glass-toast__title {
+    font-weight: 700;
+  }
+
+  .glass-toast__icon--success {
+    color: #007f8c;
+  }
+
+  .glass-toast__icon--error {
+    color: var(--coral);
+  }
+
+  .glass-tabs {
+    border-block-end: 1px solid var(--glass-rule);
+  }
+
+  .glass-tabs__tab {
+    padding: var(--glass-space-4) var(--glass-space-2);
+    color: var(--glass-ink-soft);
+    font: 400 var(--glass-text-md) / var(--glass-leading-md) var(--glass-font);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .glass-tabs__tab:hover {
+    color: var(--glass-ink);
+    background: transparent;
+  }
+
+  .glass-tabs__tab[aria-selected="true"],
+  .glass-tabs__tab[aria-current="page"] {
+    color: var(--glass-ink);
+    font-weight: 700;
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Fallbacks: no blur support, reduced transparency, ?glass=off        */
+  /* ------------------------------------------------------------------ */
+
+  @supports not (backdrop-filter: blur(1px)) {
+    :root {
+      --glass-pane: var(--glass-pane-solid);
+      --glass-surface: var(--glass-surface-solid);
+      --glass-surface-strong: var(--glass-surface-solid);
+      --glass-surface-float: var(--glass-surface-solid);
+      --glass-surface-field: var(--glass-surface-solid);
+      --glass-border-color: rgb(20 25 46 / 0.14);
+      --glass-border-float-color: rgb(20 25 46 / 0.18);
+      --glass-filter-pane: none;
+      --glass-filter-float: none;
+      --glass-filter-dialog: none;
+      --glass-highlight: inset 0 0 0 0 transparent;
+      --glass-dark-surface: var(--glass-dark-solid);
+      --glass-dark-surface-strong: var(--glass-dark-solid);
+      --glass-dark-surface-float: var(--glass-dark-solid);
+      --chrome-code-surface: var(--chrome-code-surface-solid);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    :root {
+      --glass-pane: var(--glass-pane-solid);
+      --glass-surface: var(--glass-surface-solid);
+      --glass-surface-strong: var(--glass-surface-solid);
+      --glass-surface-float: var(--glass-surface-solid);
+      --glass-surface-field: var(--glass-surface-solid);
+      --glass-border-color: rgb(20 25 46 / 0.14);
+      --glass-border-float-color: rgb(20 25 46 / 0.18);
+      --glass-filter-pane: none;
+      --glass-filter-float: none;
+      --glass-filter-dialog: none;
+      --glass-highlight: inset 0 0 0 0 transparent;
+      --glass-dark-surface: var(--glass-dark-solid);
+      --glass-dark-surface-strong: var(--glass-dark-solid);
+      --glass-dark-surface-float: var(--glass-dark-solid);
+      --chrome-code-surface: var(--chrome-code-surface-solid);
+    }
+  }
+
+  :root[data-flags*="glass:0"],
+  :root[data-glass="off"] {
+    --glass-pane: var(--glass-pane-solid);
+    --glass-surface: var(--glass-surface-solid);
+    --glass-surface-strong: var(--glass-surface-solid);
+    --glass-surface-float: var(--glass-surface-solid);
+    --glass-surface-field: var(--glass-surface-solid);
+    --glass-border-color: rgb(20 25 46 / 0.14);
+    --glass-border-float-color: rgb(20 25 46 / 0.18);
+    --glass-filter-pane: none;
+    --glass-filter-float: none;
+    --glass-filter-dialog: none;
+    --glass-highlight: inset 0 0 0 0 transparent;
+    --glass-dark-surface: var(--glass-dark-solid);
+    --glass-dark-surface-strong: var(--glass-dark-solid);
+    --glass-dark-surface-float: var(--glass-dark-solid);
+    --chrome-code-surface: var(--chrome-code-surface-solid);
+  }
+
+  @media (forced-colors: active) {
+    :root {
+      --glass-filter-pane: none;
+      --glass-filter-float: none;
+      --glass-filter-dialog: none;
+    }
+
+    .glass-chip::before {
+      background: CanvasText;
+    }
+  }
+
+  /* Reduced motion: no travel, no scale, opacity crossfades of 160ms or less. */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --glass-dur-menu-in: 120ms;
+      --glass-dur-menu-out: 100ms;
+      --glass-dur-dialog-in: 160ms;
+      --glass-dur-dialog-out: 120ms;
+      --glass-dur-toast-in: 160ms;
+      --glass-dur-toast-out: 120ms;
+      --glass-dur-tile: 0ms;
+      --glass-stagger-tile: 0ms;
+      --glass-shift-menu: 0px;
+      --glass-shift-toast: 0px;
+      --glass-shift-tile: 0px;
+      --glass-scale-menu: 1;
+      --glass-scale-dialog: 1;
+    }
+  }
+}
+
+@layer frame-layout {
+  /* Class selectors only. Never an element, [popover], dialog or form-control selector. */
+
+  .app-shell {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: var(--app-shell-nav-width, 200px) minmax(0, 1fr);
+    grid-template-rows: 56px minmax(0, 1fr);
+    grid-template-areas:
+      "nav top"
+      "nav main";
+    min-block-size: calc(100dvh - 2 * var(--glass-frame-pad));
+    box-sizing: border-box;
+  }
+
+  /* The frosted fill lives on a pseudo-element so the pane is never the containing block
+     or backdrop root for anything a demo positions. */
+  .app-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--glass-pane);
+    box-shadow: var(--glass-highlight);
+    -webkit-backdrop-filter: var(--glass-filter-pane);
+    backdrop-filter: var(--glass-filter-pane);
+  }
+
+  .app-shell__nav {
+    grid-area: nav;
+    display: flex;
+    flex-direction: column;
+    gap: var(--glass-space-2);
+    padding: var(--glass-space-5) var(--glass-space-4);
+    min-inline-size: 0;
+  }
+
+  .app-shell__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-block-size: 32px;
+    margin-block-end: var(--glass-space-5);
+    padding-inline: var(--glass-space-2);
+  }
+
+  .app-shell__brand-mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 32px;
+    block-size: 32px;
+  }
+
+  .app-shell__nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-block-size: 40px;
+  }
+
+  .app-shell__nav-icon {
+    flex: none;
+    inline-size: 20px;
+    block-size: 20px;
+  }
+
+  .app-shell__nav-link .glass-badge {
+    margin-inline-start: auto;
+  }
+
+  .app-shell__top {
+    grid-area: top;
+    display: flex;
+    align-items: center;
+    gap: var(--glass-space-5);
+    padding: 0 var(--glass-space-6);
+    min-inline-size: 0;
+  }
+
+  .app-shell__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--glass-space-4);
+    margin-inline-start: auto;
+  }
+
+  .app-shell__avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 32px;
+    block-size: 32px;
+  }
+
+  .app-shell__main {
+    grid-area: main;
+    display: grid;
+    align-content: start;
+    gap: var(--glass-space-5);
+    padding: var(--glass-space-6);
+    min-inline-size: 0;
+    overflow: auto;
+  }
+
+  /* Walk-page frames (640 px viewport): the nav becomes a 56 px icon rail. */
+  @media (max-width: 899px) {
+    .app-shell {
+      --app-shell-nav-width: 56px;
+    }
+
+    .app-shell__nav {
+      align-items: center;
+      padding-inline: var(--glass-space-2);
+    }
+
+    .app-shell__nav-link {
+      justify-content: center;
+      inline-size: 40px;
+      padding: 0;
+      position: relative;
+    }
+
+    .app-shell__nav-link .glass-badge {
+      position: absolute;
+      inset-block-start: -4px;
+      inset-inline-end: -6px;
+      margin: 0;
+    }
+
+    .app-shell__brand {
+      padding-inline: 0;
+    }
+
+    .app-shell__nav-label,
+    .app-shell__nav-heading,
+    .app-shell__brand-name {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .app-shell__title {
+      font-size: var(--glass-text-xl);
+      line-height: var(--glass-leading-xl);
+    }
+  }
+
+  .glass-card__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--glass-space-5);
+    margin-block-end: var(--glass-space-5);
+  }
+
+  .glass-card__footer,
+  .glass-dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--glass-space-4);
+  }
+
+  .glass-card__footer {
+    margin-block-start: var(--glass-space-6);
+  }
+
+  .glass-card__media {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .glass-stat {
+    display: grid;
+    gap: var(--glass-space-2);
+  }
+
+  .glass-table {
+    inline-size: 100%;
+  }
+
+  .glass-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--glass-space-3);
+  }
+
+  .glass-btn--icon {
+    inline-size: 36px;
+    block-size: 36px;
+  }
+
+  .glass-field {
+    display: grid;
+    gap: var(--glass-space-3);
+  }
+
+  .glass-field__error {
+    display: flex;
+    align-items: center;
+    gap: var(--glass-space-3);
+  }
+
+  .glass-input {
+    box-sizing: border-box;
+    inline-size: 100%;
+  }
+
+  .glass-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    inline-size: 100%;
+    min-block-size: 36px;
+    box-sizing: border-box;
+  }
+
+  .glass-badge {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 20px;
+    block-size: 20px;
+    box-sizing: border-box;
+  }
+
+  .glass-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--glass-space-3);
+  }
+
+  .glass-chip::before {
+    content: "";
+    flex: none;
+    inline-size: 6px;
+    block-size: 6px;
+  }
+
+  .glass-toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .glass-tabs {
+    display: flex;
+    gap: var(--glass-space-6);
+  }
+}
+
+/* Additions to the theme. Paint only,
+   inside the paint layer, so the lint and the enhancement-off proofs still hold. */
+@layer frame-theme {
+  /* A dialog's title at 18/24 with room below it; its actions sit at the end, 8 apart, and
+     the confirm choice reads as the destructive one (coral fill, navy text). */
+  :where(:root[data-build]) :where(dialog) :where(h2) {
+    margin: 0 0 var(--glass-space-7);
+    font-size: var(--glass-text-lg);
+    line-height: var(--glass-leading-lg);
+    text-align: start;
+  }
+  :where(:root[data-build]) :where(dialog) :where(form) {
+    text-align: end;
+  }
+  :where(:root[data-build]) :where(dialog) :where(form > button + button) {
+    margin-inline-start: var(--glass-space-4);
+  }
+  :where(:root[data-build]) :where(dialog) :where(button[value="confirm"]) {
+    color: var(--navy);
+    background: var(--coral);
+    border-color: rgb(20 25 46 / 0.24);
+  }
+
+  /* M7: field labels read as labels. */
+  :where(:root[data-build]) :where(label) {
+    font-weight: 700;
+  }
+
+  /* M8: an invalid field adds an icon, so color is never the only signal. */
+  :where(:root[data-build]) :where(input:user-invalid, textarea:user-invalid, [aria-invalid="true"]) {
+    padding-inline-end: 34px;
+    background: var(--glass-surface-field)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1293d' stroke-width='2.25' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='7' x2='12' y2='13'/%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'/%3E%3C/svg%3E")
+      no-repeat right 10px top 9px / 16px;
+  }
+}
+
+/* Intro stills (`live-ish capture` passes the capture flag): a lighter scrim, so a dialog still does not
+   turn the hero image gray. */
+@layer frame-theme {
+  :root[data-flags*="capture:1"] {
+    --glass-scrim: rgb(20 25 46 / 0.24);
+  }
+}

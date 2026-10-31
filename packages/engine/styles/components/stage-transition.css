@@ -1,0 +1,42 @@
+/* Slide crossfade. The Stage names the canvas "deck-slide"
+   with the share class "deck-fade", so React pairs the old and new slides as one same-document
+   view transition. Step changes never fade.
+
+   The new slide fades in over the old one in 200 ms, opacity only. The old slide holds at full
+   opacity underneath (normal blending, not the browser's plus-lighter crossfade), so the mix never
+   dips toward the black letterbox: with a 140 ms fade-out the two summed to about 0.87
+   for the first frames. */
+::view-transition-group(.deck-fade) {
+  animation-duration: 200ms;
+}
+::view-transition-old(.deck-fade) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(.deck-fade) {
+  animation: 200ms var(--glass-ease) both deck-in;
+  mix-blend-mode: normal;
+}
+@keyframes deck-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Only the slide fades. The rest of the window (the letterbox, the reader pill and its counter)
+   swaps at once rather than taking the browser's 250 ms root crossfade, which would also run
+   under reduced motion. The presenter has no other view transitions; frames are separate
+   documents and never load this file. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(.deck-fade),
+  ::view-transition-old(.deck-fade),
+  ::view-transition-new(.deck-fade) {
+    animation: none;
+  }
+}
