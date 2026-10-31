@@ -158,6 +158,7 @@ const CASES: Case[] = [
     f.write("public/page.css", ".x { color: red; }\n");
     f.demo.after!.styles = ["/page.css"];
   }),
+  c("theme-contrast", "a deck token that fails its floor", (f) => (f.config.theme = { tokens: { "--deck-ink": "#c8c8c8" } })),
   c("wrapper-lint", "shell CSS outside its layer", (f) => {
     f.write("public/test-shell.css", ".wrap-bar { color: #f00; }\n");
     SHELLS["test-shell"] = { id: "test-shell", banned: [], render: () => ({ before: "", after: "", styles: ["/test-shell.css"], scripts: [] }) };

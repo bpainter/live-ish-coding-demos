@@ -1,0 +1,1265 @@
+/*
+  The neutral base inside every frame: default type, buttons, tables, fields, dialogs and menus, on
+  white. It is the same under every audience theme, because a theme never restyles what an author
+  built. Frames load it as /live-ish/frame-base.css, and `frame: { base: false }` on a demo or a beat
+  leaves it out. To show a demo's `background` through the frame, set the page's own panes translucent.
+
+  Layers. frame-theme holds paint only. frame-layout holds layout for .app-shell* and .frame-* class
+  selectors only, never for element selectors, so an author's enhancement-off proofs stay honest.
+  Shown CSS stays unlayered and always wins.
+*/
+
+@layer frame-theme, frame-layout;
+
+@layer frame-theme {
+  /* ------------------------------------------------------------------ */
+  /* Tokens                                                              */
+  /* ------------------------------------------------------------------ */
+
+  :root {
+    /* Palette */
+    --frame-accent: #0b57d0;
+    --frame-accent-hover: #0a4ab3;
+    --frame-accent-strong: #083c91;
+    --frame-info: #0e7490;
+    --frame-muted: #d0d7de;
+    --frame-new: #fff3bf;
+    --frame-danger: #e5484d;
+    --frame-rule-solid: #d8dee4;
+    --frame-gray: #57606a;
+
+    /* Text */
+    --frame-ink: #1f2328;
+    --frame-ink-soft: #57606a;
+    --frame-link: #083c91;
+    --frame-on-accent: #ffffff;
+
+    /* Surfaces */
+    --frame-pane: #f6f7f8;
+    --frame-surface: #ffffff;
+    --frame-surface-strong: #ffffff;
+    --frame-surface-float: #ffffff;
+    --frame-surface-field: #ffffff;
+    --frame-surface-solid: #ffffff;
+    --frame-pane-solid: #f6f7f8;
+    --frame-surface-hover: rgb(31 35 40 / 0.06);
+    --frame-surface-selected: rgb(11 87 208 / 0.1);
+    --frame-surface-selected-strong: rgb(11 87 208 / 0.16);
+    --frame-scrim: rgb(31 35 40 / 0.36);
+
+    /* Blur: none here. An author's own panes can set these. */
+    --frame-blur: none;
+    --frame-filter-pane: none;
+    --frame-filter-float: none;
+    --frame-filter-dialog: none;
+
+    /* Edges and depth */
+    --frame-border-color: #d0d7de;
+    --frame-border-float-color: #d0d7de;
+    --frame-border: 1px solid var(--frame-border-color);
+    --frame-rule: rgb(31 35 40 / 0.08);
+    --frame-control-border: rgb(31 35 40 / 0.14);
+    --frame-field-border: rgb(31 35 40 / 0.5);
+    --frame-field-border-hover: rgb(31 35 40 / 0.7);
+    --frame-highlight: inset 0 0 0 0 transparent;
+    --frame-shadow-card: 0 1px 2px rgb(31 35 40 / 0.06);
+    --frame-shadow: 0 8px 32px rgb(31 35 40 / 0.12);
+    --frame-shadow-float: 0 12px 32px rgb(31 35 40 / 0.18);
+    --frame-shadow-dialog: 0 24px 64px rgb(31 35 40 / 0.24);
+
+    /* Radii (frame CSS px) */
+    --frame-radius-pane: 16px;
+    --frame-radius-dialog: 16px;
+    --frame-radius-card: 12px;
+    --frame-radius-float: 10px;
+    --frame-radius-control: 8px;
+    --frame-radius-item: 6px;
+    --frame-radius-pill: 999px;
+    --frame-radius: var(--frame-radius-card);
+
+    /* Spacing (frame CSS px) */
+    --frame-space-1: 2px;
+    --frame-space-2: 4px;
+    --frame-space-3: 6px;
+    --frame-space-4: 8px;
+    --frame-space-5: 12px;
+    --frame-space-6: 16px;
+    --frame-space-7: 20px;
+    --frame-space-8: 24px;
+    --frame-space-9: 32px;
+    --frame-pad: clamp(12px, 1.5vw, 20px);
+
+    /* Type (frame CSS px; the walk-page frame is scaled by 1.375 on stage) */
+    --frame-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --frame-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --frame-text-xs: 12px;
+    --frame-text-sm: 13px;
+    --frame-text-md: 15px;
+    --frame-text-lg: 18px;
+    --frame-text-xl: 22px;
+    --frame-text-2xl: 26px;
+    --frame-leading-xs: 16px;
+    --frame-leading-sm: 18px;
+    --frame-leading-md: 20px;
+    --frame-leading-prose: 22px;
+    --frame-leading-lg: 24px;
+    --frame-leading-xl: 28px;
+    --frame-leading-2xl: 32px;
+
+    /* Focus */
+    --frame-focus: #0b57d0;
+    --frame-focus-width: 3px;
+    --frame-focus-offset: 2px;
+
+    /* Status chips: fill, edge, dot */
+    --frame-chip-neutral-bg: rgb(31 35 40 / 0.06);
+    --frame-chip-neutral-edge: rgb(31 35 40 / 0.16);
+    --frame-chip-neutral-dot: #57606a;
+    --frame-chip-info-bg: rgb(11 87 208 / 0.12);
+    --frame-chip-info-edge: rgb(11 87 208 / 0.36);
+    --frame-chip-info-dot: #0b57d0;
+    --frame-chip-success-bg: rgb(14 116 144 / 0.14);
+    --frame-chip-success-edge: rgb(14 116 144 / 0.4);
+    --frame-chip-success-dot: #0e7490;
+    --frame-chip-pending-bg: rgb(102 57 186 / 0.14);
+    --frame-chip-pending-edge: rgb(102 57 186 / 0.36);
+    --frame-chip-pending-dot: #6639ba;
+    --frame-chip-error-bg: rgb(229 72 77 / 0.14);
+    --frame-chip-error-edge: rgb(229 72 77 / 0.6);
+    --frame-chip-error-dot: #e5484d;
+    --frame-chip-new-bg: #fff3bf;
+    --frame-chip-new-edge: rgb(31 35 40 / 0.16);
+    --frame-chip-new-dot: #1f2328;
+
+    /* Motion (used by build CSS; the theme itself never animates) */
+    --frame-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --frame-dur-press: 100ms;
+    --frame-dur-menu-in: 160ms;
+    --frame-dur-menu-out: 120ms;
+    --frame-dur-dialog-in: 200ms;
+    --frame-dur-dialog-out: 140ms;
+    --frame-dur-toast-in: 200ms;
+    --frame-dur-toast-out: 160ms;
+    --frame-dur-crossfade: 160ms;
+    --frame-shift-menu: -4px;
+    --frame-shift-toast: 8px;
+    --frame-shift-tile: 8px;
+    --frame-scale-menu: 0.98;
+    --frame-scale-dialog: 0.97;
+    --frame-stagger-tile: 80ms;
+    --frame-dur-tile: 200ms;
+
+    /* A demo's `background` comes from /live-ish/backgrounds.css on data-section-bg; frames show it at
+       the slide's alignment under the wash. */
+    --frame-image: none;
+    --frame-wash: linear-gradient(transparent, transparent);
+    --frame-fallback: #ffffff;
+
+    /* Frame shells: two tiers. The context tier is quiet, with no shadow; the shown block is the one
+       raised surface. */
+    --wrap-surface-quiet: var(--frame-surface);
+    --wrap-surface-focus: var(--frame-surface-strong);
+    --wrap-shadow-focus: 0 8px 24px rgb(31 35 40 / 0.14), 0 1px 2px rgb(31 35 40 / 0.06);
+    --wrap-text-sm: 14px;
+    --wrap-leading-sm: 18px;
+    --wrap-bar-height: 48px;
+    --wrap-row-height: 72px;
+    --wrap-pad: 16px;
+    --wrap-clear: 16px;
+    --wrap-chip-fill: rgb(31 35 40 / 0.06);
+    --wrap-chip-edge: rgb(31 35 40 / 0.12);
+    --wrap-skeleton: rgb(31 35 40 / 0.08);
+
+    accent-color: var(--frame-accent);
+  }
+
+  /* Before frames sit a shade off white, so old reads differently from new. */
+  :root[data-build="before"] {
+    --frame-fallback: #f5f5f4;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Frame document                                                      */
+  /* ------------------------------------------------------------------ */
+
+  :root[data-build] body {
+    margin: 0;
+    padding: var(--frame-pad);
+    color: var(--frame-ink);
+    font: 400 var(--frame-text-md) / var(--frame-leading-md) var(--frame-font);
+    /* A demo's background at the slide's alignment: both slots start at stage x 65, y 177 inside the
+       card border and frames are scaled 1.375, so the 1920 by 1080 slide is 1396.36 by 785.45 frame
+       px, offset -47.27 and -128.73. Fixed, so a scrolling frame keeps it. */
+    background:
+      var(--frame-wash),
+      var(--frame-image) -47.27px -128.73px / 1396.36px 785.45px no-repeat,
+      var(--frame-fallback);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Under a frame shell the shell carries the frame padding. */
+  :root[data-wrapper] body {
+    padding: 0;
+  }
+
+  /* Headings keep a little room below, so a spotlight's 9 px band on the next block never covers them. */
+  :where(:root[data-build]) :where(h1) {
+    margin: 0 0 var(--frame-space-5);
+    font-size: var(--frame-text-lg);
+    line-height: var(--frame-leading-lg);
+    font-weight: 700;
+  }
+
+  :where(:root[data-build]) :where(h2) {
+    margin: 0 0 var(--frame-space-5);
+    font-size: var(--frame-text-md);
+    line-height: var(--frame-leading-md);
+    font-weight: 700;
+  }
+
+  :where(:root[data-build]) :where(h3) {
+    margin: 0 0 var(--frame-space-4);
+    font-size: var(--frame-text-sm);
+    line-height: var(--frame-leading-sm);
+    font-weight: 700;
+  }
+
+  :where(:root[data-build]) :where(a) {
+    color: var(--frame-link);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  :where(:root[data-build]) :where(code, kbd, samp) {
+    font-family: var(--frame-font-mono);
+    font-size: 0.93em;
+  }
+
+  :where(:root[data-build]) :focus-visible {
+    outline: var(--frame-focus-width) solid var(--frame-focus);
+    outline-offset: var(--frame-focus-offset);
+  }
+
+  :where(:root[data-build]) ::selection {
+    background: rgb(11 87 208 / 0.2);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Shell paint (layout is in frame-layout)                            */
+  /* ------------------------------------------------------------------ */
+
+  .app-shell {
+    color: var(--frame-ink);
+    border: var(--frame-border);
+    border-radius: var(--frame-radius-pane);
+    box-shadow: var(--frame-shadow);
+  }
+
+  .app-shell__brand {
+    font-size: var(--frame-text-md);
+    line-height: var(--frame-leading-md);
+    font-weight: 700;
+    color: var(--frame-ink);
+    text-decoration: none;
+  }
+
+  .app-shell__brand-mark {
+    border-radius: var(--frame-radius-control);
+    background: var(--frame-ink);
+    color: var(--frame-on-accent);
+    font-size: var(--frame-text-md);
+    font-weight: 700;
+  }
+
+  .app-shell__nav {
+    border-inline-end: 1px solid var(--frame-rule);
+  }
+
+  .app-shell__nav-heading {
+    margin: 0;
+    padding: var(--frame-space-5) var(--frame-space-4) var(--frame-space-2);
+    color: var(--frame-ink);
+    font-size: var(--frame-text-xs);
+    line-height: var(--frame-leading-xs);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .app-shell__nav-link {
+    padding: 0 var(--frame-space-4);
+    border: 1px solid transparent;
+    border-radius: var(--frame-radius-control);
+    color: var(--frame-ink);
+    font-size: var(--frame-text-md);
+    line-height: var(--frame-leading-md);
+    text-decoration: none;
+  }
+
+  .app-shell__nav-link:hover {
+    background: rgb(255 255 255 / 0.4);
+  }
+
+  .app-shell__nav-link[aria-current="page"],
+  .app-shell__nav-link.is-current {
+    background: var(--frame-surface-strong);
+    border-color: var(--frame-border-color);
+    box-shadow: var(--frame-highlight), var(--frame-shadow-card);
+    font-weight: 700;
+  }
+
+  .app-shell__top {
+    border-block-end: 1px solid var(--frame-rule);
+  }
+
+  .app-shell__title {
+    margin: 0;
+    font-size: var(--frame-text-lg);
+    line-height: var(--frame-leading-lg);
+    font-weight: 700;
+  }
+
+  .app-shell__avatar {
+    border-radius: 50%;
+    background: var(--frame-muted);
+    color: var(--frame-ink);
+    font-size: var(--frame-text-sm);
+    font-weight: 700;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Card, stat, prose                                                   */
+  /* ------------------------------------------------------------------ */
+
+  .frame-card {
+    padding: var(--frame-space-6);
+    color: var(--frame-ink);
+    background: var(--frame-surface);
+    border: var(--frame-border);
+    border-radius: var(--frame-radius-card);
+    box-shadow: var(--frame-highlight), var(--frame-shadow-card);
+  }
+
+  .frame-card--flush {
+    padding: 0;
+  }
+
+  .frame-card--inset {
+    background: rgb(31 35 40 / 0.03);
+    border-color: var(--frame-rule);
+    box-shadow: none;
+  }
+
+  .frame-card--selected {
+    background: var(--frame-surface-strong);
+    border-color: rgb(11 87 208 / 0.5);
+    box-shadow:
+      inset 0 0 0 1px rgb(11 87 208 / 0.5),
+      var(--frame-shadow-card);
+  }
+
+  .frame-card__title {
+    margin: 0;
+    font-size: var(--frame-text-md);
+    line-height: var(--frame-leading-md);
+    font-weight: 700;
+  }
+
+  .frame-card__meta {
+    margin: 0;
+    color: var(--frame-ink-soft);
+    font-size: var(--frame-text-sm);
+    line-height: var(--frame-leading-sm);
+  }
+
+  .frame-card__media {
+    border-radius: var(--frame-radius-control);
+    background: rgb(31 35 40 / 0.06);
+  }
+
+  .frame-card__footer {
+    padding-block-start: var(--frame-space-5);
+    border-block-start: 1px solid var(--frame-rule);
+  }
+
+  .frame-stat__label {
+    margin: 0;
+    color: var(--frame-ink-soft);
+    font-size: var(--frame-text-sm);
+    line-height: var(--frame-leading-sm);
+  }
+
+  .frame-stat__value {
+    margin: 0;
+    font-size: var(--frame-text-2xl);
+    line-height: var(--frame-leading-2xl);
+    font-weight: 700;
+  }
+
+  .frame-prose {
+    font-size: var(--frame-text-md);
+    line-height: var(--frame-leading-prose);
+  }
+
+  .frame-prose :where(p, ul, ol, blockquote, figure) {
+    margin: 0 0 var(--frame-space-5);
+  }
+
+  .frame-prose :where(h2, h3) {
+    margin: var(--frame-space-6) 0 var(--frame-space-3);
+  }
+
+  .frame-prose :where(blockquote) {
+    padding-inline-start: var(--frame-space-5);
+    border-inline-start: 3px solid var(--frame-muted);
+  }
+
+  .frame-skeleton {
+    border-radius: var(--frame-radius-item);
+    background: rgb(31 35 40 / 0.08);
+  }
+
+  .frame-empty {
+    padding: var(--frame-space-8);
+    color: var(--frame-ink-soft);
+    text-align: center;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Table                                                               */
+  /* ------------------------------------------------------------------ */
+
+  .frame-table,
+  :where(:root[data-build]) :where(table) {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--frame-text-md);
+    line-height: var(--frame-leading-md);
+  }
+
+  .frame-table :where(caption) {
+    padding-block-end: var(--frame-space-4);
+    font-weight: 700;
+    text-align: start;
+  }
+
+  .frame-table :where(th),
+  :where(:root[data-build]) :where(th) {
+    padding: var(--frame-space-4) var(--frame-space-5);
+    border-block-end: 1px solid var(--frame-rule);
+    color: var(--frame-ink-soft);
+    font-size: var(--frame-text-sm);
+    line-height: var(--frame-leading-sm);
+    font-weight: 700;
+    text-align: start;
+  }
+
+  .frame-table :where(td),
+  :where(:root[data-build]) :where(td) {
+    padding: 10px var(--frame-space-5);
+    border-block-end: 1px solid var(--frame-rule);
+  }
+
+  .frame-table :where(tr:last-child > td) {
+    border-block-end: 0;
+  }
+
+  .frame-table :where(tbody tr:hover > td) {
+    background: rgb(255 255 255 / 0.35);
+  }
+
+  .frame-table__row--selected > td,
+  .frame-table :where(tr[aria-selected="true"] > td) {
+    background: var(--frame-surface-selected);
+  }
+
+  .frame-table__row--selected > td:first-child,
+  .frame-table :where(tr[aria-selected="true"] > td:first-child) {
+    box-shadow: inset 3px 0 0 var(--frame-accent);
+  }
+
+  .frame-table__num {
+    text-align: end;
+  }
+
+  .frame-table__primary {
+    font-weight: 700;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Buttons. Bare <button> in a frame gets the secondary look.          */
+  /* ------------------------------------------------------------------ */
+
+  .frame-btn,
+  :where(:root[data-build]) :where(button) {
+    padding: 7px 14px;
+    color: var(--frame-ink);
+    font: 700 var(--frame-text-md) / var(--frame-leading-md) var(--frame-font);
+    background: var(--frame-surface-strong);
+    border: 1px solid var(--frame-control-border);
+    border-radius: var(--frame-radius-control);
+    box-shadow: var(--frame-highlight), var(--frame-shadow-card);
+    cursor: pointer;
+  }
+
+  .frame-btn:hover,
+  :where(:root[data-build]) :where(button:hover) {
+    background: rgb(255 255 255 / 0.9);
+  }
+
+  .frame-btn:active,
+  :where(:root[data-build]) :where(button:active) {
+    background: rgb(255 255 255 / 0.6);
+    box-shadow: inset 0 1px 2px rgb(31 35 40 / 0.12);
+  }
+
+  .frame-btn--primary {
+    color: var(--frame-on-accent);
+    background: var(--frame-accent);
+    border-color: var(--frame-accent-strong);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.24),
+      var(--frame-shadow-card);
+  }
+
+  .frame-btn--primary:hover {
+    background: var(--frame-accent-hover);
+  }
+
+  .frame-btn--primary:active {
+    background: var(--frame-accent-strong);
+  }
+
+  .frame-btn--danger {
+    color: var(--frame-ink);
+    background: var(--frame-danger);
+    border-color: rgb(31 35 40 / 0.16);
+  }
+
+  .frame-btn--danger:hover {
+    background: var(--frame-danger);
+    box-shadow:
+      inset 0 0 0 999px rgb(255 255 255 / 0.16),
+      var(--frame-shadow-card);
+  }
+
+  .frame-btn--danger:active {
+    background: var(--frame-danger);
+    box-shadow: inset 0 1px 2px rgb(31 35 40 / 0.24);
+  }
+
+  .frame-btn--quiet {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .frame-btn--quiet:hover {
+    background: var(--frame-surface-hover);
+  }
+
+  .frame-btn--icon {
+    padding: 7px;
+  }
+
+  .frame-btn--sm {
+    padding: 4px 10px;
+    font-size: var(--frame-text-sm);
+    line-height: var(--frame-leading-sm);
+  }
+
+  .frame-btn:disabled,
+  .frame-btn[aria-disabled="true"],
+  :where(:root[data-build]) :where(button:disabled) {
+    color: var(--frame-ink-soft);
+    background: rgb(255 255 255 / 0.4);
+    border-color: var(--frame-rule);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Fields                                                              */
+  /* ------------------------------------------------------------------ */
+
+  .frame-field__label {
+    color: var(--frame-ink);
+    font-size: var(--frame-text-sm);
+    line-height: var(--frame-leading-sm);
+    font-weight: 700;
+  }
+
+  .frame-field__hint,
+  .frame-field__error {
+    margin: 0;
+    font-size: var(--frame-text-sm);
+    line-height: var(--frame-leading-sm);
+  }
+
+  .frame-field__hint {
+    color: var(--frame-ink-soft);
+  }
+
+  .frame-field__error {
+    color: var(--frame-ink);
+  }
+
+  .frame-input,
+  :where(:root[data-build])
+    :where(
+      input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"]),
+      select,
+      textarea
+    ) {
+    padding: 7px 12px;
+    color: var(--frame-ink);
+    font: 400 var(--frame-text-md) / var(--frame-leading-md) var(--frame-font);
+    background: var(--frame-surface-field);
+    border: 1px solid var(--frame-field-border);
+    border-radius: var(--frame-radius-control);
+    box-shadow: inset 0 1px 2px rgb(31 35 40 / 0.06);
+  }
+
+  .frame-input:hover,
+  :where(:root[data-build]) :where(input:hover, select:hover, textarea:hover) {
+    border-color: var(--frame-field-border-hover);
+  }
+
+  .frame-input:focus,
+  :where(:root[data-build]) :where(input:focus, select:focus, textarea:focus) {
+    border-color: var(--frame-accent);
+  }
+
+  .frame-input[aria-invalid="true"],
+  :where(:root[data-build])
+    :where(input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"]) {
+    border-color: var(--frame-danger);
+    box-shadow: inset 0 0 0 1px var(--frame-danger);
+  }
+
+  .frame-input:disabled,
+  :where(:root[data-build]) :where(input:disabled, select:disabled, textarea:disabled) {
+    color: var(--frame-ink-soft);
+    background: rgb(255 255 255 / 0.4);
+    border-color: rgb(31 35 40 / 0.24);
+    box-shadow: none;
+  }
+
+  /* Native single selects draw the theme's chevron, so every engine shows one arrow, 20 px from
+     the right edge and on the text's center. 7 + 20 + 7 + 2 = 36 px, the button height.
+     A customizable select has a <button> child and keeps its shown CSS. After the disabled
+     rule, so its background shorthand does not drop the chevron. */
+  :where(:root[data-build]) :where(select:not([multiple], [size]):not(:has(> button))) {
+    appearance: none;
+    padding-inline-end: 36px;
+    line-height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f2328' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    /* 1 px border + 11 + 8 (half the glyph box) puts the center 20 px from the border edge. */
+    background-position: right 11px center;
+    background-size: 16px 16px;
+  }
+
+  :where(:root[data-build]) :where(select:not([multiple], [size]):not(:has(> button)):disabled) {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2357606a' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  .frame-input::placeholder,
+  :where(:root[data-build]) :where(input, textarea)::placeholder {
+    color: var(--frame-ink-soft);
+  }
+
+  .frame-input--search {
+    padding-inline-start: 34px;
+    border-radius: var(--frame-radius-pill);
+  }
+
+  /* Customizable select. Separate rules: browsers without ::picker drop them alone. */
+  :where(:root[data-build]) ::picker(select) {
+    padding: var(--frame-space-3);
+    color: var(--frame-ink);
+    background: var(--frame-surface-float);
+    border: 1px solid var(--frame-border-float-color);
+    border-radius: var(--frame-radius-float);
+    box-shadow: var(--frame-shadow-float);
+    backdrop-filter: var(--frame-filter-float);
+  }
+
+  @supports (appearance: base-select) {
+    :where(:root[data-build]) :where(option) {
+      padding: var(--frame-space-4) 10px;
+      border-radius: var(--frame-radius-item);
+    }
+
+    :where(:root[data-build]) :where(option:hover, option:focus-visible) {
+      background: var(--frame-surface-selected);
+    }
+
+    :where(:root[data-build]) :where(option:checked) {
+      background: var(--frame-surface-selected-strong);
+      font-weight: 700;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Menus and popovers (floating layer: frosted)                        */
+  /* ------------------------------------------------------------------ */
+
+  .frame-menu,
+  :where(:root[data-build]) :where([popover]) {
+    padding: var(--frame-space-3);
+    color: var(--frame-ink);
+    font: 400 var(--frame-text-md) / var(--frame-leading-md) var(--frame-font);
+    background: var(--frame-surface-float);
+    border: 1px solid var(--frame-border-float-color);
+    border-radius: var(--frame-radius-float);
+    box-shadow: var(--frame-shadow-float);
+    -webkit-backdrop-filter: var(--frame-filter-float);
+    backdrop-filter: var(--frame-filter-float);
+  }
+
+  .frame-menu__item,
+  :where(.frame-menu, [popover]:not(.frame-toast))
+    > :where(button, a, [role="menuitem"], [role="menuitemradio"]) {
+    padding: var(--frame-space-4) 10px;
+    color: var(--frame-ink);
+    font: 400 var(--frame-text-md) / var(--frame-leading-md) var(--frame-font);
+    text-align: start;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-radius: var(--frame-radius-item);
+    box-shadow: none;
+    cursor: pointer;
+  }
+
+  .frame-menu__item:hover,
+  .frame-menu__item.is-active,
+  :where(.frame-menu, [popover]:not(.frame-toast))
+    > :where(button:hover, a:hover, [role="menuitem"]:hover, [role="menuitem"].is-active) {
+    background: var(--frame-surface-selected);
+  }
+
+  .frame-menu__item:focus-visible,
+  :where(.frame-menu, [popover]:not(.frame-toast))
+    > :where(button:focus-visible, a:focus-visible, [role="menuitem"]:focus-visible) {
+    background: var(--frame-surface-selected);
+    outline-width: 2px;
+    outline-offset: -2px;
+  }
+
+  .frame-menu__icon--danger {
+    color: var(--frame-danger);
+  }
+
+  .frame-menu__label {
+    margin: 0;
+    padding: var(--frame-space-3) 10px var(--frame-space-2);
+    color: var(--frame-ink-soft);
+    font-size: var(--frame-text-xs);
+    line-height: var(--frame-leading-xs);
+    font-weight: 700;
+  }
+
+  .frame-menu__separator {
+    margin: var(--frame-space-3) calc(-1 * var(--frame-space-3));
+    border: 0;
+    border-block-start: 1px solid var(--frame-rule);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Dialog                                                              */
+  /* ------------------------------------------------------------------ */
+
+  .frame-dialog,
+  :where(:root[data-build]) :where(dialog) {
+    padding: var(--frame-space-8);
+    color: var(--frame-ink);
+    font: 400 var(--frame-text-md) / var(--frame-leading-md) var(--frame-font);
+    background: var(--frame-surface-float);
+    border: 1px solid var(--frame-border-float-color);
+    border-radius: var(--frame-radius-dialog);
+    box-shadow: var(--frame-highlight), var(--frame-shadow-dialog);
+    -webkit-backdrop-filter: var(--frame-filter-dialog);
+    backdrop-filter: var(--frame-filter-dialog);
+  }
+
+  :where(:root[data-build]) :where(dialog)::backdrop,
+  .frame-backdrop {
+    background: var(--frame-scrim);
+  }
+
+  .frame-dialog__title {
+    margin: 0 0 var(--frame-space-4);
+    font-size: var(--frame-text-lg);
+    line-height: var(--frame-leading-lg);
+    font-weight: 700;
+  }
+
+  .frame-dialog__body {
+    margin: 0;
+    line-height: var(--frame-leading-prose);
+  }
+
+  .frame-dialog__actions {
+    margin-block-start: var(--frame-space-7);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Badge, chip, toast, tabs                                            */
+  /* ------------------------------------------------------------------ */
+
+  .frame-badge {
+    padding: 0 var(--frame-space-3);
+    border-radius: var(--frame-radius-pill);
+    background: var(--frame-accent);
+    color: var(--frame-on-accent);
+    font-size: var(--frame-text-xs);
+    line-height: 20px;
+    font-weight: 700;
+  }
+
+  .frame-chip {
+    --chip-bg: var(--frame-chip-neutral-bg);
+    --chip-edge: var(--frame-chip-neutral-edge);
+    --chip-dot: var(--frame-chip-neutral-dot);
+    padding: 1px var(--frame-space-4);
+    color: var(--frame-ink);
+    font-size: var(--frame-text-sm);
+    line-height: var(--frame-leading-sm);
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-edge);
+    border-radius: var(--frame-radius-pill);
+  }
+
+  .frame-chip::before {
+    border-radius: 50%;
+    background: var(--chip-dot);
+  }
+
+  .frame-chip--info {
+    --chip-bg: var(--frame-chip-info-bg);
+    --chip-edge: var(--frame-chip-info-edge);
+    --chip-dot: var(--frame-chip-info-dot);
+  }
+
+  .frame-chip--success {
+    --chip-bg: var(--frame-chip-success-bg);
+    --chip-edge: var(--frame-chip-success-edge);
+    --chip-dot: var(--frame-chip-success-dot);
+  }
+
+  .frame-chip--pending {
+    --chip-bg: var(--frame-chip-pending-bg);
+    --chip-edge: var(--frame-chip-pending-edge);
+    --chip-dot: var(--frame-chip-pending-dot);
+  }
+
+  .frame-chip--error {
+    --chip-bg: var(--frame-chip-error-bg);
+    --chip-edge: var(--frame-chip-error-edge);
+    --chip-dot: var(--frame-chip-error-dot);
+  }
+
+  .frame-chip--new {
+    --chip-bg: var(--frame-chip-new-bg);
+    --chip-edge: var(--frame-chip-new-edge);
+    --chip-dot: var(--frame-chip-new-dot);
+  }
+
+  .frame-toast {
+    padding: var(--frame-space-5) 14px;
+    color: var(--frame-ink);
+    font: 400 var(--frame-text-md) / var(--frame-leading-md) var(--frame-font);
+    background: var(--frame-surface-float);
+    border: 1px solid var(--frame-border-float-color);
+    border-radius: var(--frame-radius-card);
+    box-shadow: var(--frame-shadow-float);
+    -webkit-backdrop-filter: var(--frame-filter-float);
+    backdrop-filter: var(--frame-filter-float);
+  }
+
+  .frame-toast--success {
+    box-shadow:
+      inset 3px 0 0 #0e7490,
+      var(--frame-shadow-float);
+  }
+
+  .frame-toast--error {
+    box-shadow:
+      inset 3px 0 0 var(--frame-danger),
+      var(--frame-shadow-float);
+  }
+
+  .frame-toast__title {
+    font-weight: 700;
+  }
+
+  .frame-toast__icon--success {
+    color: #0e7490;
+  }
+
+  .frame-toast__icon--error {
+    color: var(--frame-danger);
+  }
+
+  .frame-tabs {
+    border-block-end: 1px solid var(--frame-rule);
+  }
+
+  .frame-tabs__tab {
+    padding: var(--frame-space-4) var(--frame-space-2);
+    color: var(--frame-ink-soft);
+    font: 400 var(--frame-text-md) / var(--frame-leading-md) var(--frame-font);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .frame-tabs__tab:hover {
+    color: var(--frame-ink);
+    background: transparent;
+  }
+
+  .frame-tabs__tab[aria-selected="true"],
+  .frame-tabs__tab[aria-current="page"] {
+    color: var(--frame-ink);
+    font-weight: 700;
+    box-shadow: inset 0 -2px 0 var(--frame-accent);
+  }
+
+  @media (forced-colors: active) {
+    .frame-chip::before {
+      background: CanvasText;
+    }
+  }
+
+  /* Reduced motion: no travel, no scale, opacity crossfades of 160ms or less. */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --frame-dur-menu-in: 120ms;
+      --frame-dur-menu-out: 100ms;
+      --frame-dur-dialog-in: 160ms;
+      --frame-dur-dialog-out: 120ms;
+      --frame-dur-toast-in: 160ms;
+      --frame-dur-toast-out: 120ms;
+      --frame-dur-tile: 0ms;
+      --frame-stagger-tile: 0ms;
+      --frame-shift-menu: 0px;
+      --frame-shift-toast: 0px;
+      --frame-shift-tile: 0px;
+      --frame-scale-menu: 1;
+      --frame-scale-dialog: 1;
+    }
+  }
+}
+
+@layer frame-layout {
+  /* Class selectors only. Never an element, [popover], dialog or form-control selector. */
+
+  .app-shell {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: var(--app-shell-nav-width, 200px) minmax(0, 1fr);
+    grid-template-rows: 56px minmax(0, 1fr);
+    grid-template-areas:
+      "nav top"
+      "nav main";
+    min-block-size: calc(100dvh - 2 * var(--frame-pad));
+    box-sizing: border-box;
+  }
+
+  /* The frosted fill lives on a pseudo-element so the pane is never the containing block
+     or backdrop root for anything a demo positions. */
+  .app-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--frame-pane);
+    box-shadow: var(--frame-highlight);
+    -webkit-backdrop-filter: var(--frame-filter-pane);
+    backdrop-filter: var(--frame-filter-pane);
+  }
+
+  .app-shell__nav {
+    grid-area: nav;
+    display: flex;
+    flex-direction: column;
+    gap: var(--frame-space-2);
+    padding: var(--frame-space-5) var(--frame-space-4);
+    min-inline-size: 0;
+  }
+
+  .app-shell__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-block-size: 32px;
+    margin-block-end: var(--frame-space-5);
+    padding-inline: var(--frame-space-2);
+  }
+
+  .app-shell__brand-mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 32px;
+    block-size: 32px;
+  }
+
+  .app-shell__nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-block-size: 40px;
+  }
+
+  .app-shell__nav-icon {
+    flex: none;
+    inline-size: 20px;
+    block-size: 20px;
+  }
+
+  .app-shell__nav-link .frame-badge {
+    margin-inline-start: auto;
+  }
+
+  .app-shell__top {
+    grid-area: top;
+    display: flex;
+    align-items: center;
+    gap: var(--frame-space-5);
+    padding: 0 var(--frame-space-6);
+    min-inline-size: 0;
+  }
+
+  .app-shell__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--frame-space-4);
+    margin-inline-start: auto;
+  }
+
+  .app-shell__avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    inline-size: 32px;
+    block-size: 32px;
+  }
+
+  .app-shell__main {
+    grid-area: main;
+    display: grid;
+    align-content: start;
+    gap: var(--frame-space-5);
+    padding: var(--frame-space-6);
+    min-inline-size: 0;
+    overflow: auto;
+  }
+
+  /* Walk-page frames (640 px viewport): the nav becomes a 56 px icon rail. */
+  @media (max-width: 899px) {
+    .app-shell {
+      --app-shell-nav-width: 56px;
+    }
+
+    .app-shell__nav {
+      align-items: center;
+      padding-inline: var(--frame-space-2);
+    }
+
+    .app-shell__nav-link {
+      justify-content: center;
+      inline-size: 40px;
+      padding: 0;
+      position: relative;
+    }
+
+    .app-shell__nav-link .frame-badge {
+      position: absolute;
+      inset-block-start: -4px;
+      inset-inline-end: -6px;
+      margin: 0;
+    }
+
+    .app-shell__brand {
+      padding-inline: 0;
+    }
+
+    .app-shell__nav-label,
+    .app-shell__nav-heading,
+    .app-shell__brand-name {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .app-shell__title {
+      font-size: var(--frame-text-xl);
+      line-height: var(--frame-leading-xl);
+    }
+  }
+
+  .frame-card__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--frame-space-5);
+    margin-block-end: var(--frame-space-5);
+  }
+
+  .frame-card__footer,
+  .frame-dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--frame-space-4);
+  }
+
+  .frame-card__footer {
+    margin-block-start: var(--frame-space-6);
+  }
+
+  .frame-card__media {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .frame-stat {
+    display: grid;
+    gap: var(--frame-space-2);
+  }
+
+  .frame-table {
+    inline-size: 100%;
+  }
+
+  .frame-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--frame-space-3);
+  }
+
+  .frame-btn--icon {
+    inline-size: 36px;
+    block-size: 36px;
+  }
+
+  .frame-field {
+    display: grid;
+    gap: var(--frame-space-3);
+  }
+
+  .frame-field__error {
+    display: flex;
+    align-items: center;
+    gap: var(--frame-space-3);
+  }
+
+  .frame-input {
+    box-sizing: border-box;
+    inline-size: 100%;
+  }
+
+  .frame-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    inline-size: 100%;
+    min-block-size: 36px;
+    box-sizing: border-box;
+  }
+
+  .frame-badge {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 20px;
+    block-size: 20px;
+    box-sizing: border-box;
+  }
+
+  .frame-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--frame-space-3);
+  }
+
+  .frame-chip::before {
+    content: "";
+    flex: none;
+    inline-size: 6px;
+    block-size: 6px;
+  }
+
+  .frame-toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .frame-tabs {
+    display: flex;
+    gap: var(--frame-space-6);
+  }
+}
+
+/* Paint only, inside the paint layer, so the lint and the enhancement-off proofs still hold. */
+@layer frame-theme {
+  /* A dialog's title at 18/24 with room below it; its actions sit at the end, 8 apart, and
+     the confirm choice reads as the destructive one (a red fill, dark text). */
+  :where(:root[data-build]) :where(dialog) :where(h2) {
+    margin: 0 0 var(--frame-space-7);
+    font-size: var(--frame-text-lg);
+    line-height: var(--frame-leading-lg);
+    text-align: start;
+  }
+  :where(:root[data-build]) :where(dialog) :where(form) {
+    text-align: end;
+  }
+  :where(:root[data-build]) :where(dialog) :where(form > button + button) {
+    margin-inline-start: var(--frame-space-4);
+  }
+  :where(:root[data-build]) :where(dialog) :where(button[value="confirm"]) {
+    color: var(--frame-ink);
+    background: var(--frame-danger);
+    border-color: rgb(31 35 40 / 0.24);
+  }
+
+  /* Field labels read as labels. */
+  :where(:root[data-build]) :where(label) {
+    font-weight: 700;
+  }
+
+  /* An invalid field adds an icon, so color is never the only signal. */
+  :where(:root[data-build]) :where(input:user-invalid, textarea:user-invalid, [aria-invalid="true"]) {
+    padding-inline-end: 34px;
+    background: var(--frame-surface-field)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1293d' stroke-width='2.25' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='7' x2='12' y2='13'/%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'/%3E%3C/svg%3E")
+      no-repeat right 10px top 9px / 16px;
+  }
+}
+
+/* Intro stills (`live-ish capture` passes the capture flag): a lighter scrim, so a dialog still does
+   not turn the image gray. */
+@layer frame-theme {
+  :root[data-flags*="capture:1"] {
+    --frame-scrim: rgb(31 35 40 / 0.24);
+  }
+}

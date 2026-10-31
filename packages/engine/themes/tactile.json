@@ -1,0 +1,66 @@
+{
+  "$schema": "./chrome-theme.schema.json",
+  "schemaVersion": 1,
+  "id": "tactile",
+  "name": "Tactile",
+  "traits": [
+    "Skeuomorphic, CSS only",
+    "Warm gradients",
+    "Embossed edges",
+    "Paper code panel"
+  ],
+  "tokens": {
+    "--chrome-backdrop": "linear-gradient(180deg, #d9cbb2, #c4b295)",
+    "--chrome-backdrop-light": "#d9cbb2",
+    "--chrome-backdrop-dark": "#c4b295",
+    "--chrome-grain": "0.12",
+    "--chrome-ink": "#21190f",
+    "--chrome-ink-soft": "#3f3224",
+    "--chrome-accent": "#6e3410",
+    "--chrome-title-weight": "700",
+    "--chrome-card-surface": "linear-gradient(180deg, #f3ecdd, #e6dbc4)",
+    "--chrome-card-border": "1px solid #8c7a5e",
+    "--chrome-card-radius": "14px",
+    "--chrome-card-shadow": "inset 0 1px 0 rgb(255 255 255 / 0.7), 0 1px 2px rgb(0 0 0 / 0.25), 0 4px 10px rgb(0 0 0 / 0.18)",
+    "--chrome-blur": "none",
+    "--chrome-code-surface": "#fbf6ea",
+    "--chrome-code-highlight-bg": "rgb(110 52 16 / 0.08)",
+    "--chrome-code-highlight-bar": "#6e3410",
+    "--chrome-code-dim-opacity": "0.84",
+    "--chrome-step-done": "#21190f",
+    "--chrome-step-current": "#6e3410",
+    "--chrome-step-future": "#6d5e47",
+    "--chrome-spot-ring": "#6e3410",
+    "--chrome-spot-halo": "#fff8e8",
+    "--chrome-spot-width": "3px",
+    "--chrome-spot-style": "solid",
+    "--chrome-callout-bg": "#2a2118",
+    "--chrome-callout-ink": "#fbf6ea",
+    "--chrome-callout-leader": "#6e3410",
+    "--chrome-keycap-bg": "#2a2118",
+    "--chrome-keycap-ink": "#fbf6ea",
+    "--chrome-keycap-edge": "#6e3410",
+    "--chrome-cursor": "#2a2118",
+    "--term-bg": "#1e1812",
+    "--term-ink": "#efe6d2",
+    "--term-prompt": "#f0b37a",
+    "--term-comment": "#b9a98f",
+    "--term-chrome": "#2f261c"
+  },
+  "code": {
+    "ink": "#2a2118",
+    "keyword": "#6e3410",
+    "string": "#365318",
+    "comment": "#55463a",
+    "number": "#7a1f2e",
+    "property": "#1f4f66"
+  },
+  "fonts": {
+    "sans": "Nunito",
+    "mono": "JetBrains Mono"
+  },
+  "motion": {
+    "fade": 160,
+    "effect": "press"
+  }
+}

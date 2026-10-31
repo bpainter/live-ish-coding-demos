@@ -1,0 +1,67 @@
+{
+  "$schema": "./chrome-theme.schema.json",
+  "schemaVersion": 1,
+  "id": "high-contrast",
+  "name": "High contrast",
+  "traits": [
+    "Black field",
+    "White and yellow ink",
+    "Thick rings",
+    "No blur",
+    "No motion"
+  ],
+  "tokens": {
+    "--chrome-backdrop": "#000000",
+    "--chrome-backdrop-light": "#000000",
+    "--chrome-backdrop-dark": "#000000",
+    "--chrome-grain": "0",
+    "--chrome-ink": "#ffffff",
+    "--chrome-ink-soft": "#ffff00",
+    "--chrome-accent": "#ffff00",
+    "--chrome-title-weight": "700",
+    "--chrome-card-surface": "#000000",
+    "--chrome-card-border": "3px solid #ffffff",
+    "--chrome-card-radius": "0",
+    "--chrome-card-shadow": "none",
+    "--chrome-blur": "none",
+    "--chrome-code-surface": "#000000",
+    "--chrome-code-highlight-bg": "rgb(0 0 200 / 0.9)",
+    "--chrome-code-highlight-bar": "#ffff00",
+    "--chrome-code-dim-opacity": "0.9",
+    "--chrome-step-done": "#ffffff",
+    "--chrome-step-current": "#ffff00",
+    "--chrome-step-future": "#a0a0a0",
+    "--chrome-spot-ring": "#ffff00",
+    "--chrome-spot-halo": "#000000",
+    "--chrome-spot-width": "5px",
+    "--chrome-spot-style": "solid",
+    "--chrome-callout-bg": "#ffff00",
+    "--chrome-callout-ink": "#000000",
+    "--chrome-callout-leader": "#ffff00",
+    "--chrome-keycap-bg": "#000000",
+    "--chrome-keycap-ink": "#ffffff",
+    "--chrome-keycap-edge": "#ffff00",
+    "--chrome-cursor": "#ffff00",
+    "--term-bg": "#000000",
+    "--term-ink": "#ffffff",
+    "--term-prompt": "#ffff00",
+    "--term-comment": "#e0e0e0",
+    "--term-chrome": "#000000"
+  },
+  "code": {
+    "ink": "#ffffff",
+    "keyword": "#ffff00",
+    "string": "#7df9ff",
+    "comment": "#e0e0e0",
+    "number": "#ffb3ff",
+    "property": "#9dffb0"
+  },
+  "fonts": {
+    "sans": "Atkinson Hyperlegible",
+    "mono": "JetBrains Mono"
+  },
+  "motion": {
+    "fade": 0,
+    "effect": "none"
+  }
+}

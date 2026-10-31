@@ -2,9 +2,13 @@ import { preload } from "react-dom";
 import { hasFrame } from "../../schema/demo";
 import type { Slide } from "../../schema/slide";
 import type { Mode } from "../../lib/mode";
-import { slides, neighbours } from "../../lib/content";
+import { deck, slides, neighbours } from "../../lib/content";
 import { navCurrent, navGroups } from "../../lib/nav";
 import { backgroundCss, backgroundImage, firstPoster, introImage } from "../../lib/assets";
+import { CHROME_THEME_FONTS, type ChromeThemeId } from "../../lib/chrome-themes.generated";
+import { fieldFor } from "../../lib/field";
+import { demoFaces } from "../../lib/fonts";
+import { posterUrl } from "../../lib/posters";
 import { Stage } from "./Stage";
 import { SlideRouter } from "./SlideRouter";
 
@@ -35,12 +39,18 @@ function slideImages(slide: Slide | undefined, stepIds?: string[]): string[] {
   const ids = stepIds ?? [page.steps[0]?.id].filter(Boolean);
   return ids.flatMap((id) => {
     const step = page.steps.find((s) => s.id === id);
-    const poster = firstPoster(step?.poster, `/posters/${page.id}/${id}.jpg`, page.frame.poster);
+    const poster = firstPoster(step?.poster, posterUrl(page, id, page.chrome), page.frame.poster);
     return poster ? [poster] : [];
   });
 }
 
 const groups = navGroups();
+
+/** The faces a slide's theme draws first. Custom themes bring their own files. */
+const themeFaces = (slide: Slide | undefined) => {
+  const fonts = slide?.chrome ? CHROME_THEME_FONTS[slide.chrome as ChromeThemeId] : undefined;
+  return fonts ? demoFaces(fonts) : [];
+};
 
 export function SlidePage({ slide, mode, canonicalPath, embedded, passive }: Props) {
   const { prev, next, position } = neighbours(slide.id);
@@ -55,6 +65,10 @@ export function SlidePage({ slide, mode, canonicalPath, embedded, passive }: Pro
   // page's step posters, and the next two slides' first images.
   const audienceAssets = [...slideImages(next), ...(prev?.page && prev.page.steps.length > 1 ? slideImages(prev, [prev.page.steps.at(-1)!.id]) : [])];
   const speakerAssets = [...new Set([...slideImages(slide, slide.page?.steps.map((s) => s.id)), ...slideImages(next), ...slideImages(afterNext)])];
+  // The theme's faces in the head at parse, and a neighbour's fetched ahead, like its images, so a
+  // slide change between themes fetches nothing.
+  if (!passive) for (const face of themeFaces(slide)) preload(face.url, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  const neighbourFonts = passive ? [] : [...new Set([prev, next].flatMap((n) => themeFaces(n).map((f) => f.shorthand)))];
   return (
     <Stage
       key={slide.id}
@@ -70,6 +84,10 @@ export function SlidePage({ slide, mode, canonicalPath, embedded, passive }: Pro
       slideSteps={slides.map((s) => s.page?.steps.length ?? 0)}
       background={background?.url}
       backgroundCss={backgroundCss(slide.background)}
+      field={fieldFor(slide)}
+      chrome={slide.chrome}
+      grain={deck.theme.grain}
+      neighbourFonts={neighbourFonts}
       neighbourBackgrounds={[prev, next].flatMap((n) => {
         const image = backgroundImage(n?.background);
         return image ? [image.decodeUrl] : [];

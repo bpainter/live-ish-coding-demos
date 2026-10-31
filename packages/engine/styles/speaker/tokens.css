@@ -1,0 +1,52 @@
+@import "./palette.generated.css";
+
+/*
+  Presenter chrome: the speaker window, the section drawer, keyboard help, the go-to dialog, the
+  rehearsal overlay and the reader pill. Fixed dark glass, the same under every audience theme. These
+  sit on :root and every audience theme is scoped to `[data-chrome]` on .stage__canvas, which none of
+  those surfaces is inside, so no theme can reach them. theme-lint refuses --speaker-* in a theme file.
+*/
+:root {
+  --speaker-bg-glow: radial-gradient(1200px 800px at 15% 0%, var(--speaker-glow-warm), transparent 70%), radial-gradient(900px 700px at 90% 100%, var(--speaker-glow-green), transparent 70%);
+  --speaker-highlight: inset 0 1px 0 rgb(255 255 255 / 0.1);
+  --speaker-shadow: 0 24px 64px var(--speaker-shadow-color);
+  --speaker-focus: var(--speaker-here);
+  --speaker-link: var(--speaker-here);
+  --speaker-filter: blur(24px) saturate(140%);
+  --speaker-panel-filter: var(--speaker-filter);
+  --speaker-clear-filter: blur(16px) saturate(170%) brightness(0.58);
+  --speaker-ease: var(--ease-out);
+  /* System faces: presenter chrome loads no font file, so it never adds to a demo page's budget, and
+     it reads the same whichever fonts a deck resolves to. */
+  --speaker-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --speaker-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --speaker-panel: var(--speaker-solid);
+    --speaker-panel-strong: var(--speaker-solid);
+    --speaker-pill: var(--speaker-solid);
+    --speaker-filter: none;
+    --speaker-clear-filter: none;
+    --speaker-highlight: inset 0 0 0 0 transparent;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --speaker-panel: var(--speaker-solid);
+    --speaker-panel-strong: var(--speaker-solid);
+    --speaker-pill: var(--speaker-solid);
+    --speaker-filter: none;
+    --speaker-clear-filter: none;
+    --speaker-highlight: inset 0 0 0 0 transparent;
+  }
+}
+:root[data-glass="off"] {
+  --speaker-panel: var(--speaker-solid);
+  --speaker-panel-strong: var(--speaker-solid);
+  --speaker-pill: var(--speaker-solid);
+  --speaker-filter: none;
+  --speaker-clear-filter: none;
+  --speaker-highlight: inset 0 0 0 0 transparent;
+}

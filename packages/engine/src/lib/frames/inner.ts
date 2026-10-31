@@ -1,6 +1,6 @@
 import "server-only";
 import { readFileSync } from "node:fs";
-import { BASE_CSP, THEME_HREF, versioned } from "./compose";
+import { BASE_CSP, BASE_HREF, versioned } from "./compose";
 import { presenterOriginFor } from "./origins";
 
 /**
@@ -16,7 +16,7 @@ export function innerDocument(file: string, title: string, styles: string[] = []
     "<!doctype html>",
     '<html lang="en">',
     "<head>",
-    `<link rel="stylesheet" href="${versioned(THEME_HREF)}">`,
+    `<link rel="stylesheet" href="${versioned(BASE_HREF)}">`,
     ...styles.map((href) => `<link rel="stylesheet" href="${versioned(href)}">`),
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',

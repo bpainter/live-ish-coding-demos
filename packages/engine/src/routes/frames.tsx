@@ -14,6 +14,7 @@ import type { BuildBeat } from "../lib/frames/types";
  *   /demos/<demo>/<beat>/<anything>   a route the demo folder registered
  * Flags arrive on the request as ?flags=enhance-css:0,enhance-js:1, on every page of a build, so no
  * instance needs to remember them. The runtime carries them across a multi-page build's own links.
+ * A terminal frame also takes ?chrome=<id>, which picks the theme its window links.
  */
 type Ctx = { params: Promise<{ demo: string; build: string; path?: string[] }> };
 
@@ -38,7 +39,9 @@ async function handle(req: Request, ctx: Ctx): Promise<Response> {
     if (def.terminal) {
       const rec = readRecording(def.terminal.file);
       if (!rec) return notFound("Recording");
-      return frameResponse(composeFrame(def, { flags, origin, body: terminalBody(rec), title: `${def.title}: ${rec.id}`, window: terminalWindow(def, rec) }), def, origin, flags);
+      const asked = url.searchParams.get("chrome");
+      const chrome = asked && /^[a-z][a-z0-9-]*$/.test(asked) ? asked : def.manifest.chrome;
+      return frameResponse(composeFrame(def, { flags, origin, body: terminalBody(rec), title: `${def.title}: ${rec.id}`, window: terminalWindow(def, rec), chrome }), def, origin, flags);
     }
     let body: string | undefined;
     if (page !== "index.html" || def.render) {

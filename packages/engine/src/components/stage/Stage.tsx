@@ -4,8 +4,11 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, Vie
 import { useRouter } from "next/navigation";
 import type { PrefetchOptions } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { PRESENTER_ONLY, actionForKey, isCharacterKey, isEditableTarget, isInteractiveTarget, type KeyAction } from "../../lib/keys";
+import { chromePreview } from "../../lib/chrome-preview";
+import { CHROME_THEME_IDS } from "../../lib/chrome-themes.generated";
 import type { Mode } from "../../lib/mode";
 import type { NavGroup } from "../../lib/nav";
+import type { Field } from "../../schema/slide";
 import { usePresenter } from "../../lib/presenter/context";
 import { readerHref, slideHref } from "../../lib/presenter/url";
 import { frameLive, frameUrl } from "../../lib/frames/origins";
@@ -57,6 +60,9 @@ function fadeAllowed(): boolean {
  * at the CSS estimate in stage.css, and it measures before paint.
  */
 const lastScale = new Map<string, number>();
+
+/** The `?chrome=` preview this window found, so a stage that mounts on a slide change starts with it. */
+let lastPreview: string | null = null;
 
 /** Keys the page keeps for scrolling while the reader's text view replaces the stage. */
 const TEXT_VIEW_SCROLL_KEYS = new Set([" ", "PageUp", "PageDown", "Home", "End"]);
@@ -118,6 +124,14 @@ interface Props {
   background?: string;
   /** The background as a CSS image (lib/assets.ts); `background` is the file the walk and the decode read. */
   backgroundCss?: string;
+  /** A copy slide's field: the surfaces and ink its layout reads. */
+  field?: Field;
+  /** A demo slide's audience theme. Copy slides have none, and read --deck-* instead. */
+  chrome?: string;
+  /** `theme.grain`. The audience window draws it; other windows never do. */
+  grain?: boolean;
+  /** Font shorthands the neighbouring slides' themes use, fetched ahead so a slide change fetches nothing. */
+  neighbourFonts?: string[];
   /** The previous and next slides' backgrounds, decoded ahead so no slide arrives without one. */
   neighbourBackgrounds: string[];
   /** Intro stills and posters the window shows after the next press. */
@@ -158,7 +172,7 @@ function stepFromUrl(stepCount: number): number {
  * here. Remounted per slide (keyed on slide id).
  */
 export function Stage(props: Props) {
-  const { slideId, slideIndex, total, prevId, nextId, prevHasSteps, firstId, lastId, slideIds, slideSteps = [], background, backgroundCss, neighbourBackgrounds, neighbourAssets = [], nav, steps, frameRoute, mode, canonicalPath, embedded, passive, children } = props;
+  const { slideId, slideIndex, total, prevId, nextId, prevHasSteps, firstId, lastId, slideIds, slideSteps = [], background, backgroundCss, field, chrome, grain: grainOn = true, neighbourFonts = [], neighbourBackgrounds, neighbourAssets = [], nav, steps, frameRoute, mode, canonicalPath, embedded, passive, children } = props;
   const router = useRouter();
   const presenter = usePresenter();
   const shared = Boolean(presenter) && !passive;
@@ -178,6 +192,15 @@ export function Stage(props: Props) {
   const [helpOpen, setHelpOpen] = useState(false);
   const [gotoOpen, setGotoOpen] = useState(false);
   const [idle, setIdle] = useState(false);
+  // `?chrome=<id>`. Pages are prerendered, so the query is read here, before paint on a client move.
+  const [preview, setPreview] = useState<string | null>(lastPreview);
+  useLayoutEffect(() => {
+    const asked = chromePreview();
+    lastPreview = asked && (CHROME_THEME_IDS as readonly string[]).includes(asked) ? asked : null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPreview(lastPreview);
+  }, []);
+  const theme = chrome ? (preview ?? chrome) : undefined;
   // Stable handles for callbacks the page frame depends on: the presenter object and `perform`
   // change on every store update, and a changed callback would remount the frame.
   const presenterRef = useRef(presenter);
@@ -637,8 +660,8 @@ export function Stage(props: Props) {
   }, [mode, passive]);
 
   const ctx = useMemo<StageState>(
-    () => ({ stepIndex, stepCount, handsOn, live, reloadToken, rehearsal, demoStatus, stepResults, setStepIndex, setDemoStatus, setStepResult, reportPlaying, registerPlayback, dispatchKey, focusStage }),
-    [stepIndex, stepCount, handsOn, live, reloadToken, rehearsal, demoStatus, stepResults, setStepIndex, setDemoStatus, setStepResult, reportPlaying, registerPlayback, dispatchKey, focusStage],
+    () => ({ stepIndex, stepCount, handsOn, live, reloadToken, rehearsal, demoStatus, stepResults, setStepIndex, setDemoStatus, setStepResult, reportPlaying, registerPlayback, dispatchKey, focusStage, chrome: theme }),
+    [stepIndex, stepCount, handsOn, live, reloadToken, rehearsal, demoStatus, stepResults, setStepIndex, setDemoStatus, setStepResult, reportPlaying, registerPlayback, dispatchKey, focusStage, theme],
   );
 
   // Device pixels per CSS pixel, so the grain tile maps one tile pixel to one device pixel.
@@ -675,17 +698,26 @@ export function Stage(props: Props) {
     return () => window.clearTimeout(t);
   }, [assetKey, passive]);
 
+  const fontKey = neighbourFonts.join("|");
+  useEffect(() => {
+    if (passive || !fontKey) return;
+    const t = window.setTimeout(() => {
+      for (const font of fontKey.split("|")) void document.fonts.load(font).catch(() => {});
+    }, 300);
+    return () => window.clearTimeout(t);
+  }, [fontKey, passive]);
+
   // No inline scale until the first measurement: the server's markup paints at stage.css's estimate.
   const style = { ...(scale === null ? {} : { "--stage-scale": scale }), "--dpr": dpr } as CSSProperties;
   const canvasStyle = (backgroundCss ? { "--slide-bg-image": backgroundCss } : {}) as CSSProperties;
   // The grain is the audience window's alone: previews and other modes draw none.
-  const grain = mode === "audience" && !embedded && !passive;
+  const grain = grainOn && mode === "audience" && !embedded && !passive;
   const showBlank = blank && mode === "audience";
   const last = stepResults[slideId]?.result;
   // The crossfade wraps the canvas only, so the pill and dialogs never fade.
   const fade = (mode === "audience" || mode === "reader") && !embedded && !passive && fadeAllowed();
   const canvas = (
-    <div className="stage__canvas" id={passive ? undefined : "stage"} ref={canvasRef} tabIndex={-1} style={canvasStyle} data-background={background} onClick={onCanvasClick}>
+    <div className="stage__canvas" id={passive ? undefined : "stage"} ref={canvasRef} tabIndex={-1} style={canvasStyle} data-background={background} data-field={field} data-chrome={theme} onClick={onCanvasClick}>
       <div className="stage__bg" aria-hidden="true" />
       {grain ? <div className="stage__grain" aria-hidden="true" /> : null}
       {/* The slide is the page's main landmark (axe `region`); a speaker preview sits inside the speaker's own layout. */}
@@ -698,6 +730,8 @@ export function Stage(props: Props) {
   return (
     <StageContext.Provider value={ctx}>
       <div className={embedded ? "stage stage--embedded" : "stage"} ref={wrapperRef} data-blank={showBlank} data-mode={mode} data-idle={idle} data-hands-on={handsOn} style={style}>
+        {/* A preview of a theme the deck does not use: its file is on the host, just not linked. */}
+        {theme && theme !== chrome ? <link rel="stylesheet" href={`/live-ish/chrome/${theme}.css`} precedence="high" /> : null}
         {fade ? (
           <ViewTransition name="deck-slide" share="deck-fade" enter="none" exit="none" update="none" default="none">
             {canvas}

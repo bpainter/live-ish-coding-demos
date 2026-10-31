@@ -4,6 +4,7 @@ import { nearest } from "../lib/validate/nearest";
 import type { DeckConfig, DemoConfig, IntroConfig, ShownFile } from "./config";
 import { FULL_VIEWPORT, SPLITS, type Beat, type Demo, type DemoCodeFile, type DemoPage, type Frame, type FrameKind, type FramePage, type IntroPage, type SplitRatio, type Step } from "./demo";
 import { DeckError } from "./errors";
+import { DEFAULT_CHROME_THEME } from "../lib/chrome-themes.generated";
 import type { Citation, CopyContent, Slide, SlideConfig } from "./slide";
 
 export { DeckError };
@@ -28,7 +29,8 @@ export interface Deck {
   links: { site?: { label: string; url: string }; tag?: Record<string, string> };
   footer: string;
   beats: { before: string; after: string };
-  theme: { grain: boolean; brand?: { text: string; url?: string }; tokens: Record<string, string> };
+  theme: { extends: string; fonts?: { sans?: string[]; mono?: string[] }; grain: boolean; brand?: { text: string; url?: string }; tokens: Record<string, string> };
+  chrome: { theme: string; beats: { before?: string; after?: string }; copySlides: boolean; custom: string[] };
   hosts: { site?: string; frames?: string; external: Record<string, string> };
   presenter: { onHost: boolean };
   reader: { enabled: boolean; notes: boolean; index: boolean };
@@ -62,7 +64,8 @@ function resolveDeck(config: DeckConfig): Deck {
     links: { site: config.links?.site, tag: config.links?.tag },
     footer: config.footer ?? [event?.label, config.speaker.name, config.speaker.org].filter(Boolean).join(", "),
     beats: { ...DEFAULT_BEATS, ...config.beats },
-    theme: { grain: config.theme?.grain ?? true, brand: config.theme?.brand, tokens: config.theme?.tokens ?? {} },
+    theme: { extends: config.theme?.extends ?? "default", fonts: config.theme?.fonts, grain: config.theme?.grain ?? true, brand: config.theme?.brand, tokens: config.theme?.tokens ?? {} },
+    chrome: { theme: config.chrome?.theme ?? DEFAULT_CHROME_THEME, beats: config.chrome?.beats ?? {}, copySlides: config.chrome?.copySlides ?? false, custom: config.chrome?.custom ?? [] },
     hosts: { site: config.hosts?.site, frames: config.hosts?.frames, external: config.hosts?.external ?? {} },
     presenter: { onHost: config.presenter?.onHost ?? false },
     reader: { enabled: config.reader?.enabled ?? true, notes: config.reader?.notes ?? false, index: config.reader?.index ?? true },
@@ -113,7 +116,9 @@ function copyContent(slide: SlideConfig, deck: Deck): CopyContent | undefined {
 function copySlide(config: SlideConfig, deck: Deck): Omit<Slide, "index" | "timing"> & { minutes: number } {
   const { minutes = 1, citations = [], notes = "", layout = "content", ...rest } = config;
   const with_layout = { ...config, layout };
-  return { ...rest, layout, notes, citations, minutes, copy: copyContent(with_layout, deck) };
+  // `label` and `eyebrow` are one slug on a section slide.
+  const eyebrow = layout === "section" ? (config.label ?? config.eyebrow) : config.eyebrow;
+  return { ...rest, eyebrow, layout, notes, citations, minutes, copy: copyContent(with_layout, deck) };
 }
 
 const LANG_BY_EXT: Record<string, DemoCodeFile["lang"]> = { html: "html", htm: "html", css: "css", js: "js", mjs: "js", cjs: "js", ts: "ts", mts: "ts", tsx: "tsx", json: "json", yaml: "yaml", yml: "yaml", sh: "bash", bash: "bash", http: "http" };
@@ -144,13 +149,13 @@ function frameFor(demo: DemoConfig, beat: Exclude<Beat, "intro">, viewport: Fram
   const kind = beatKind(demo, beat);
   const hooks = kind === "terminal" ? [...new Set(["reset", ...(page.hooks ?? [])])] : page.hooks;
   const route = kind === "server" ? serverRoute(demo, beat) : (page.address ?? `/demos/${demo.id}/${beat}`);
-  return { kind, route, viewport, flags: page.flags, hooks, poster: page.poster, spotlightClip: page.spotlightClip, keycap: page.keycap };
+  return { kind, route, viewport, flags: page.flags, hooks, poster: page.poster, spotlightClip: page.spotlightClip, keycap: page.keycap, base: page.frame?.base ?? demo.frame?.base };
 }
 
 /** A server frame's route names its app: `/@shop/products/1`. lib/frames/origins.ts resolves it. */
 function serverRoute(demo: DemoConfig, beat: Exclude<Beat, "intro">): string {
   const frame = demo[beat]?.frame;
-  if (!frame) throw new DeckError(`${demo.id}: ${beat} has kind "server", so it needs frame: { app, path }.`);
+  if (!frame?.app || !frame.path) throw new DeckError(`${demo.id}: ${beat} has kind "server", so it needs frame: { app, path }.`);
   return `/@${frame.app}${frame.path}`;
 }
 
@@ -158,7 +163,14 @@ function steps(demo: DemoConfig, beat: Exclude<Beat, "intro">): Step[] {
   return demo[beat]!.steps.map((s) => ({ ...s, notes: s.notes ?? [] }));
 }
 
-function introPage(demo: DemoConfig, intro: IntroConfig): IntroPage {
+/** Highest first: the page, the beat's default, the demo, the deck. */
+function pageChrome(demo: DemoConfig, beat: Beat, deck: Deck): string {
+  const page = beat === "intro" ? demo.intro : demo[beat];
+  const beatDefault = beat === "before" || beat === "after" ? deck.chrome.beats[beat] : undefined;
+  return page?.chrome ?? beatDefault ?? demo.chrome ?? deck.chrome.theme;
+}
+
+function introPage(demo: DemoConfig, intro: IntroConfig, deck: Deck): IntroPage {
   const visual = intro.visual;
   return {
     id: `${demo.id}-intro`,
@@ -166,6 +178,7 @@ function introPage(demo: DemoConfig, intro: IntroConfig): IntroPage {
     notes: intro.notes ?? "",
     steps: [],
     timing: { minutes: intro.minutes ?? 0.25, cumulative: 0 },
+    chrome: pageChrome(demo, "intro", deck),
     description: intro.description,
     visual: visual
       ? {
@@ -188,6 +201,7 @@ function framePage(demo: DemoConfig, beat: "before" | "after" | "single", folder
     notes: config.notes ?? "",
     steps: steps(demo, beat),
     timing: { minutes: config.minutes ?? 1, cumulative: 0 },
+    chrome: pageChrome(demo, beat, deck),
     split,
     frame: frameFor(demo, beat, viewport),
     files,
@@ -204,7 +218,7 @@ export function expandDemo(input: DeckInput["demos"][number], order: number, dec
     if (!demo.single) throw new DeckError(`${demo.id}: beats is "single", so the demo needs a single page.`);
     pages.push(framePage(demo, "single", folder, deck));
   } else {
-    if (demo.intro) pages.push(introPage(demo, demo.intro));
+    if (demo.intro) pages.push(introPage(demo, demo.intro, deck));
     if (demo.before) pages.push(framePage(demo, "before", folder, deck));
     if (demo.after) pages.push(framePage(demo, "after", folder, deck));
     if (demo.single) pages.push(framePage(demo, "single", folder, deck));
@@ -237,6 +251,7 @@ function demoSlide(page: DemoPage, { routes: _routes, ...demo }: Demo): Omit<Sli
     notes: page.notes,
     citations: demo.citations as Citation[],
     background: demo.background,
+    chrome: page.chrome,
     page,
     demo,
     minutes: page.timing.minutes,

@@ -28,6 +28,7 @@
   "files": [
     "assets",
     "bin",
+    "themes",
     "dist",
     "rules",
     "shell",
@@ -36,9 +37,12 @@
   "scripts": {
     "build": "node scripts/build-css.mjs",
     "prepare": "node scripts/build-css.mjs",
+    "gen:themes": "tsx scripts/gen-themes.mts",
+    "fonts:licenses": "tsx scripts/font-licenses.mts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "node --conditions=react-server --import tsx --test test/*.test.ts"
+    "test": "node --conditions=react-server --import tsx --test test/*.test.ts",
+    "test:contrast": "node --conditions=react-server --import tsx --test test/contrast.test.ts"
   },
   "dependencies": {
     "hast-util-to-jsx-runtime": "2.3.6",

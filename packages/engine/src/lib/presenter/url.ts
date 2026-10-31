@@ -3,12 +3,12 @@
  *
  * The presenter's URL mirror and the neighbour prefetch must build the same string, or Next's
  * segment cache misses: its keys include the search string as written. So one helper builds it,
- * keeps the window's other parameters (`glass`, `capture`, `rehearse`, `fade`, then any others in
+ * keeps the window's other parameters (`glass`, `chrome`, `capture`, `rehearse`, `fade`, then any others in
  * name order) and leaves out `step`, which the mirror adds after the slide has rendered.
  */
 
 /** Parameters kept across slide changes, in the order they are written after `s`. */
-const KEPT = ["glass", "capture", "rehearse", "fade"] as const;
+const KEPT = ["glass", "chrome", "capture", "rehearse", "fade"] as const;
 /** Parameters that belong to one slide, never carried to the next. */
 const DROPPED = new Set(["s", "step"]);
 
@@ -36,6 +36,9 @@ export function slideHrefWithStep(id: string, stepIndex: number, location?: { pa
  * Reader mode's URL for slide `id` (`/s/<id>`, prerendered). `last` lands on the slide's last step;
  * it is only added for slides with more than one step, so the common case matches the prefetch.
  */
-export function readerHref(id: string, opts: { last?: boolean } = {}): string {
-  return opts.last ? `/s/${id}?step=last` : `/s/${id}`;
+export function readerHref(id: string, opts: { last?: boolean } = {}, location: { search: string } = window.location): string {
+  // A theme preview follows the reader, so a whole deck can be read through one.
+  const chrome = new URLSearchParams(location.search).get("chrome");
+  const query = [opts.last ? "step=last" : "", chrome ? `chrome=${encodeURIComponent(chrome)}` : ""].filter(Boolean).join("&");
+  return query ? `/s/${id}?${query}` : `/s/${id}`;
 }

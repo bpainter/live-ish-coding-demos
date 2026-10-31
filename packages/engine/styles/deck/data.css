@@ -1,0 +1,292 @@
+/* Layouts that carry numbers: stat, comparison, table, timeline, chart, and the full-bleed image. */
+
+/* Stat: one or two big numerals, each with a one-line qualifier. Mono, because numbers line up. */
+.stats {
+  @apply grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin: auto 0;
+  align-items: start;
+}
+.stats[data-count="1"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.stats__item {
+  @apply flex flex-col;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 2px solid var(--slide-fg);
+}
+.stats__value {
+  order: -1;
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-stat);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--slide-accent);
+}
+.stats__label {
+  max-width: 800px;
+  font-size: var(--text-lede);
+  line-height: 58px;
+}
+.stats[data-count="1"] .stats__label {
+  max-width: 1320px;
+}
+.stats__source {
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-small);
+  line-height: 30px;
+  color: var(--slide-soft);
+}
+
+/* Comparison: two columns, A and B. */
+.comparison {
+  @apply grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8);
+  align-items: start;
+}
+.comparison__col {
+  min-width: 0;
+}
+.comparison__heading {
+  margin-bottom: var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 2px solid var(--slide-fg);
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-slug);
+  font-weight: var(--weight-regular);
+  line-height: 34px;
+  color: var(--slide-accent);
+}
+.comparison__lines {
+  @apply flex flex-col;
+  gap: var(--space-5);
+}
+.comparison__line {
+  @apply flex flex-col;
+  gap: var(--space-1);
+  font-size: var(--text-card);
+  line-height: 48px;
+  color: var(--slide-soft);
+}
+.comparison__lead {
+  font-size: 64px;
+  font-weight: var(--weight-bold);
+  line-height: 72px;
+  letter-spacing: var(--deck-tracking-display);
+  color: var(--slide-fg);
+}
+.comparison__code {
+  margin: 0;
+  padding: var(--space-5);
+  background: var(--slide-panel);
+  font-family: var(--deck-font-mono);
+  font-size: 24px;
+  line-height: 36px;
+  white-space: pre-wrap;
+  color: var(--slide-fg);
+}
+
+/* Table: a heavy rule, a slug-set head, hairline rows, no fills. */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 2px solid var(--slide-fg);
+  font-size: var(--text-detail);
+  line-height: 40px;
+  text-align: left;
+}
+.data-table th,
+.data-table td {
+  padding: 20px var(--space-5) 20px 0;
+  vertical-align: top;
+  border-bottom: 1px solid var(--slide-rule);
+}
+.data-table__head th {
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-small);
+  font-weight: var(--weight-regular);
+  line-height: 30px;
+  color: var(--slide-accent);
+}
+.data-table tbody th {
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+.data-table td {
+  color: var(--slide-soft);
+}
+.data-table td:first-of-type {
+  color: var(--slide-fg);
+}
+
+/* Timeline: dated markers along one rule. A hollow marker is a date with nothing confirmed. */
+.timeline {
+  @apply grid relative;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+  padding-top: var(--space-7);
+}
+.timeline::before {
+  content: "";
+  @apply absolute;
+  top: 11px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--slide-fg);
+}
+.timeline__item {
+  @apply flex flex-col relative;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.timeline__marker {
+  @apply absolute block;
+  top: calc(-1 * var(--space-7) + 2px);
+  left: 0;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--slide-accent);
+  background: var(--slide-accent);
+}
+.timeline__item[data-hollow="true"] .timeline__marker {
+  background: var(--slide-panel);
+}
+.timeline__date {
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-slug);
+  font-weight: var(--weight-regular);
+  line-height: 34px;
+  color: var(--slide-accent);
+}
+.timeline__name {
+  font-size: var(--text-card);
+  font-weight: var(--weight-bold);
+  line-height: 44px;
+}
+.timeline__detail {
+  font-size: var(--text-detail);
+  line-height: 40px;
+  color: var(--slide-soft);
+}
+.timeline__stat {
+  margin-top: auto;
+  padding-block: var(--space-5);
+  font-size: var(--text-detail);
+  line-height: 40px;
+  color: var(--slide-soft);
+}
+.timeline__stat strong {
+  margin-right: var(--space-2);
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-lede);
+  font-weight: var(--weight-regular);
+  color: var(--slide-accent);
+}
+
+/* Chart: inline SVG, with the same data in a visually hidden table. */
+.chart {
+  @apply grid;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  gap: var(--space-8);
+  align-items: start;
+  min-height: 0;
+}
+.chart[data-notes="false"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.chart__figure {
+  min-width: 0;
+}
+.chart__svg {
+  @apply block;
+  width: 100%;
+  height: auto;
+  max-height: 640px;
+  font-family: var(--deck-font-sans);
+}
+.chart__axes line {
+  stroke: var(--slide-rule);
+  stroke-width: 2;
+}
+.chart__tick {
+  font-family: var(--deck-font-mono);
+  font-size: 22px;
+  fill: var(--slide-soft);
+}
+.chart__axis-label {
+  font-size: 24px;
+  font-weight: var(--weight-bold);
+  fill: var(--slide-soft);
+}
+.chart__note line {
+  stroke: var(--slide-soft);
+  stroke-dasharray: 6 8;
+  stroke-width: 2;
+}
+.chart__note text {
+  font-size: 20px;
+  fill: var(--slide-soft);
+}
+.chart__point circle,
+.chart__bar rect {
+  fill: var(--slide-accent);
+}
+.chart__point text,
+.chart__bar text {
+  font-size: 26px;
+  font-weight: var(--weight-bold);
+  fill: var(--slide-fg);
+}
+.chart__notes {
+  padding-top: var(--space-5);
+}
+.chart__note-list {
+  @apply flex flex-col;
+  gap: var(--space-5);
+}
+.chart__note-item {
+  @apply flex flex-col;
+  gap: var(--space-1);
+  font-size: var(--text-detail);
+  line-height: 40px;
+  color: var(--slide-soft);
+}
+.chart__note-item strong {
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-card);
+  font-weight: var(--weight-regular);
+  color: var(--slide-accent);
+}
+
+/* Image: the file fills the slide, and the headline sits on a carbon plate at its foot. */
+.slide--image {
+  padding: 0;
+}
+.slide--image .slide__body {
+  justify-content: flex-end;
+  padding-bottom: 0;
+}
+.image-plate {
+  @apply flex flex-col;
+  gap: var(--space-3);
+  max-width: 1120px;
+  margin: 0 var(--deck-margin) 72px;
+  padding: var(--space-6) var(--space-7);
+  background: color-mix(in srgb, var(--deck-carbon) 88%, transparent);
+  color: var(--deck-on-carbon);
+}
+.image-plate .slide__eyebrow {
+  color: var(--deck-accent-on-carbon);
+}
+.image-plate__line {
+  font-size: var(--text-body);
+  line-height: 48px;
+  color: var(--deck-on-carbon-soft);
+}
