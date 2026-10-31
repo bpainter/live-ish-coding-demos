@@ -62,7 +62,7 @@ export type FromRuntime =
   | { v: 2; type: "cue"; frameId: string; runId: number; index: number; cue: Cue }
   | { v: 2; type: "unloading"; frameId: string; runId: number; cursor: Cursor }
   | { v: 2; type: "step-done"; frameId: string; runId: number; stepId: string; asserts: AssertResult[]; digest: string; ms: number; finished: boolean }
-  | { v: 2; type: "error"; frameId: string; runId?: number; code: ErrorCode; message: string; action?: number; selector?: string }
+  | { v: 2; type: "error"; frameId: string; runId?: number; code: ErrorCode; message: string; action?: number; selector?: string; ids?: string[] }
   | { v: 2; type: "key"; frameId: string; key: string; shift: boolean; alt: boolean; meta: boolean; ctrl: boolean }
   | { v: 2; type: "resize-viewport"; frameId: string; inlineSize: string; ms: number }
   /** A focus() in the frame did not take during a run. */

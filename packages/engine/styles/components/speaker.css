@@ -871,6 +871,10 @@
   font-size: 12px;
 }
 
+.stage__hint {
+  display: block;
+}
+
 /* Go-to dialog (`g`): clear dark glass, as keyboard help. Markup: components/chrome/GotoDialog.tsx. */
 .goto {
   /* Preflight zeroes the UA dialog margin; auto centers the modal, as keyboard help does. */

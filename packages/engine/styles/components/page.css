@@ -212,6 +212,34 @@
   display: none;
 }
 
+/* The `dev` overlay on a frame. Production builds never render it. */
+.dev-fault {
+  @apply absolute;
+  inset-inline: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 40;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 6px solid #d93025;
+  border-radius: var(--radius-sm);
+  background: rgb(20 25 46 / 0.94);
+  color: var(--color-white);
+  font-size: 20px;
+  line-height: 28px;
+}
+.dev-fault__title {
+  margin: 0;
+  font-weight: 700;
+}
+.dev-fault__detail,
+.dev-fault__fix {
+  margin: var(--space-1) 0 0;
+}
+.dev-fault__detail {
+  font-family: var(--font-mono);
+  font-size: 16px;
+}
+
 /* Speaker preview: a poster or the step label instead of a live frame. */
 .page__poster {
   @apply relative flex items-end;

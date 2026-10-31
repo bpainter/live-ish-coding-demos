@@ -31,9 +31,16 @@ export interface Playback {
 
 export const STORAGE_KEY = "deck:state";
 
-export function channelName(): string {
-  return `deck:${process.env.NEXT_PUBLIC_BUILD_ID ?? "dev"}`;
+export function buildId(): string {
+  return process.env.NEXT_PUBLIC_BUILD_ID ?? "dev";
 }
+
+export function channelName(): string {
+  return `deck:${buildId()}`;
+}
+
+/** One name for every build, so two windows that cannot sync can at least say why. */
+export const BUILDS_CHANNEL = "deck:builds";
 
 export function newWriterId(): string {
   return Math.random().toString(36).slice(2, 10);

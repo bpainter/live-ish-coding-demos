@@ -118,6 +118,8 @@ interface Props {
   background?: string;
   /** The background as a CSS image (lib/assets.ts); `background` is the file the walk and the decode read. */
   backgroundCss?: string;
+  /** Author hints for the rehearsal overlay, in `dev` only. They never reach the stage itself. */
+  hints?: string[];
   /** The previous and next slides' backgrounds, decoded ahead so no slide arrives without one. */
   neighbourBackgrounds: string[];
   /** Intro stills and posters the window shows after the next press. */
@@ -158,7 +160,7 @@ function stepFromUrl(stepCount: number): number {
  * here. Remounted per slide (keyed on slide id).
  */
 export function Stage(props: Props) {
-  const { slideId, slideIndex, total, prevId, nextId, prevHasSteps, firstId, lastId, slideIds, slideSteps = [], background, backgroundCss, neighbourBackgrounds, neighbourAssets = [], nav, steps, frameRoute, mode, canonicalPath, embedded, passive, children } = props;
+  const { slideId, slideIndex, total, prevId, nextId, prevHasSteps, firstId, lastId, slideIds, slideSteps = [], background, backgroundCss, hints, neighbourBackgrounds, neighbourAssets = [], nav, steps, frameRoute, mode, canonicalPath, embedded, passive, children } = props;
   const router = useRouter();
   const presenter = usePresenter();
   const shared = Boolean(presenter) && !passive;
@@ -708,6 +710,11 @@ export function Stage(props: Props) {
         {rehearsal && !passive ? (
           <p className="stage__rehearsal">
             {slideId} · step {stepIndex + 1}/{Math.max(stepCount, 1)} · {last?.digest ?? "no digest"} · {last?.ms ?? 0}ms · {last?.asserts.filter((a) => !a.pass).length ?? 0} failed assert(s) · p95 frame {p95 ?? "…"} ms{p95 !== null && p95 > 20 ? " (over 20)" : ""}
+            {hints?.map((hint) => (
+              <span className="stage__hint" key={hint}>
+                {hint}
+              </span>
+            ))}
           </p>
         ) : null}
       </div>

@@ -128,6 +128,12 @@
     if (!el) throw errorOf("selector-not-found", "No element matches " + sel, sel);
     return el;
   }
+  // The ids in the document, so a selector that matched nothing can name what is there.
+  function documentIds() {
+    return Array.prototype.map.call(document.querySelectorAll("[id]"), function (el) {
+      return el.id;
+    });
+  }
   function errorOf(code, message, selector) {
     var e = new Error(message);
     e.code = code;
@@ -1270,7 +1276,7 @@
       }
       if (refusedFocus && !r.cancelled) await regainFocus();
     } catch (err) {
-      if (!r.cancelled) post({ type: "error", runId: r.runId, code: err.code || "exception", message: err.message || String(err), action: r.cursor.action, selector: err.selector });
+      if (!r.cancelled) post({ type: "error", runId: r.runId, code: err.code || "exception", message: err.message || String(err), action: r.cursor.action, selector: err.selector, ids: err.code === "selector-not-found" ? documentIds() : undefined });
     }
     if (instant && run === r) disableInstant();
     r.playing = false;
@@ -1310,7 +1316,7 @@
       finishAnimations();
       if (refusedFocus && !r.cancelled) await regainFocus();
     } catch (err) {
-      if (!r.cancelled) post({ type: "error", runId: r.runId, code: err.code || "exception", message: err.message || String(err), action: r.cursor.action, selector: err.selector });
+      if (!r.cancelled) post({ type: "error", runId: r.runId, code: err.code || "exception", message: err.message || String(err), action: r.cursor.action, selector: err.selector, ids: err.code === "selector-not-found" ? documentIds() : undefined });
     }
     if (run === r) disableInstant();
     r.playing = false;

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import type { KeyAction } from "../keys";
 import { createSync, type Sync, type Transport } from "./transport";
 import { slideHref, slideHrefWithStep } from "./url";
-import { isNewer, newWriterId, type DemoHealth, type Playback, type PresenterState, type SyncMessage } from "./types";
+import { BUILDS_CHANNEL, buildId, isNewer, newWriterId, type DemoHealth, type Playback, type PresenterState, type SyncMessage } from "./types";
 
 export type PresenterMode = "audience" | "speaker";
 
@@ -21,6 +21,8 @@ export interface Presenter {
    * or under the storage transport, then true if one was heard within 5 s, else false.
    */
   audienceConnected: boolean | null;
+  /** A window on another build, heard in the last 5 s. Windows on two builds cannot sync. */
+  otherBuild: string | null;
   demoHealth: Record<string, DemoHealth>;
   update: (patch: Partial<Omit<PresenterState, "seq" | "writer">>) => void;
   /** The latest state, synchronously (ahead of the render that `state` reflects). */
@@ -95,6 +97,7 @@ export function PresenterProvider({ mode, slideIds, children }: Props) {
   const [demoHealth, setDemoHealth] = useState<Record<string, DemoHealth>>({});
   const [playback, setPlayback] = useState<Playback | null>(null);
   const [audienceConnected, setAudienceConnected] = useState<boolean | null>(null);
+  const [otherBuild, setOtherBuild] = useState<string | null>(null);
   // Last time each window was heard from, and the last time an audience window was (presence, 8.6).
   const peerSeen = useRef<Record<string, number>>({});
   const audienceSeen = useRef(0);
@@ -297,9 +300,32 @@ export function PresenterProvider({ mode, slideIds, children }: Props) {
     return () => window.clearInterval(id);
   }, [transport]);
 
+  // Sync channels are named by build, so windows on two builds never hear each other there. This
+  // one channel carries only the build id, which is enough for the pill's tooltip to say why.
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const channel = new BroadcastChannel(BUILDS_CHANNEL);
+    let heard = 0;
+    channel.onmessage = (e: MessageEvent<{ build?: string }>) => {
+      if (typeof e.data?.build !== "string" || e.data.build === buildId()) return;
+      heard = Date.now();
+      setOtherBuild(e.data.build);
+    };
+    const tick = () => {
+      channel.postMessage({ build: buildId() });
+      if (heard && Date.now() - heard > 5000) setOtherBuild(null);
+    };
+    tick();
+    const id = window.setInterval(tick, 2000);
+    return () => {
+      window.clearInterval(id);
+      channel.close();
+    };
+  }, []);
+
   const value = useMemo<Presenter>(
-    () => ({ mode, state, writer, transport, peers, audienceConnected, demoHealth, update, getState, reportHealth, playback, reportPlayback, registerPerform, perform, setRenderedSlide: setRendered }),
-    [mode, state, writer, transport, peers, audienceConnected, demoHealth, update, getState, reportHealth, playback, reportPlayback, registerPerform, perform],
+    () => ({ mode, state, writer, transport, peers, audienceConnected, otherBuild, demoHealth, update, getState, reportHealth, playback, reportPlayback, registerPerform, perform, setRenderedSlide: setRendered }),
+    [mode, state, writer, transport, peers, audienceConnected, otherBuild, demoHealth, update, getState, reportHealth, playback, reportPlayback, registerPerform, perform],
   );
 
   return <PresenterContext.Provider value={value}>{children}</PresenterContext.Provider>;
