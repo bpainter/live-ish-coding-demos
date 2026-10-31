@@ -1,7 +1,7 @@
 import type { Slide } from "../../schema/slide";
 import type { Mode } from "../../lib/mode";
-import { SlideShell } from "./SlideShell";
 import { SlideImage } from "./SlideImage";
+import { SlideShell, SlideTitle } from "./SlideShell";
 
 interface Props {
   slide: Slide;
@@ -9,17 +9,15 @@ interface Props {
   mode: Mode;
 }
 
-/** Full-bleed image with the headline bottom-left over a navy scrim. */
+/** A full-bleed image, with the headline on a plate at its foot. `alt` is required on every image. */
 export function ImageLedSlide({ slide, total, mode }: Props) {
   return (
     <SlideShell slide={slide} total={total} mode={mode} footer={false} noHeader before={<SlideImage slide={slide} variant="full-bleed" />}>
-      <div className="image-led">
+      <div className="image-plate">
         {slide.eyebrow ? <p className="slide__eyebrow">{slide.eyebrow}</p> : null}
-        <h1 className="slide__title" id="slide-title" tabIndex={-1}>
-          {slide.title}
-        </h1>
+        <SlideTitle>{slide.title}</SlideTitle>
         {slide.body?.map((sentence) => (
-          <p className="image-led__line" key={sentence}>
+          <p className="image-plate__line" key={sentence}>
             {sentence}
           </p>
         ))}

@@ -162,7 +162,7 @@ test("a viewport resize is movement before any rect changes", () => {
 });
 
 test("reduced motion drops the opacity transition, and only opacity transitions", () => {
-  const css = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "styles", "components", "page.css"), "utf8");
+  const css = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "styles", "chrome", "overlay.css"), "utf8");
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.overlay__spotlight,\s*\.overlay__focus,\s*\.overlay__callout\s*\{\s*transition: none;/);
   assert.doesNotMatch(css, /\.overlay__spotlight[^{]*\{[^}]*transition:[^;}]*(left|top|width|height|transform)/);
 });

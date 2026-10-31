@@ -1,46 +1,40 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { nearest, UsageError } from "../args";
-import { EXIT, environment, printJson, requireDeck, type Ctx, type ExitCode } from "../io";
+import { EXIT, findDeck, printJson, readSummary, requireDeck, type Ctx, type ExitCode } from "../io";
 
-interface ThemeSummary {
-  id: string;
-  name?: string;
-  traits?: string[];
-}
-
-interface ThemesModule {
-  listThemes(): ThemeSummary[];
-  resolveTheme(id: string, customPaths: string[]): Record<string, unknown>;
-}
-
-/** Audience themes ship with the engine. */
-async function loadThemes(): Promise<ThemesModule> {
-  const file = new URL("../../lib/chrome-themes.ts", import.meta.url);
-  if (!existsSync(file)) throw environment("This engine has no audience themes.", "Reinstall @live-ish/engine.");
-  return (await import(file.href)) as ThemesModule;
+/** A deck's custom themes, when this runs inside a prepared deck. */
+function customPaths(root: string | null): string[] {
+  if (!root) return [];
+  try {
+    return readSummary(root).customThemes ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function themes(ctx: Ctx): Promise<ExitCode> {
-  const list = (await loadThemes()).listThemes();
+  const { listThemes } = await import("../../lib/chrome-themes");
+  const root = findDeck(ctx.cwd);
+  const list = listThemes(customPaths(root), root ?? ctx.cwd);
   if (ctx.json) {
     printJson({ themes: list });
     return EXIT.ok;
   }
   const width = Math.max(...list.map((t) => t.id.length));
-  for (const t of list) ctx.log(`${t.id.padEnd(width)}  ${t.traits?.join(", ") ?? t.name ?? ""}`);
+  for (const t of list) ctx.log(`${t.id.padEnd(width)}  ${t.traits.join(", ")}`);
   return EXIT.ok;
 }
 
-/** Writes a custom theme file: the base theme's values under a new id, ready to change. */
+/** Writes a custom theme file that takes everything it leaves out from the base theme. */
 export async function themeNew(ctx: Ctx): Promise<ExitCode> {
   const root = requireDeck(ctx);
   const [id] = ctx.positionals;
   if (!id) throw new UsageError("Name the theme: live-ish theme new <id> [--from <theme>].");
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) throw new UsageError(`"${id}" is not a valid theme id. Use lowercase letters, digits and dashes.`);
+  if (!/^[a-z][a-z0-9-]*$/.test(id)) throw new UsageError(`"${id}" is not a valid theme id. Start with a letter, then use lowercase letters, digits and dashes.`);
   const from = typeof ctx.flags.from === "string" ? ctx.flags.from : "glass";
-  const { listThemes, resolveTheme } = await loadThemes();
-  const known = listThemes().map((t) => t.id);
+  const { builtInIds } = await import("../../lib/chrome-themes");
+  const known = builtInIds();
   if (known.includes(id)) throw new UsageError(`"${id}" is a built-in theme. Choose another id.`);
   if (!known.includes(from)) {
     const hint = nearest(from, known);
@@ -48,14 +42,13 @@ export async function themeNew(ctx: Ctx): Promise<ExitCode> {
   }
   const file = path.join(root, "themes", `${id}.json`);
   if (existsSync(file)) throw new UsageError(`themes/${id}.json exists.`);
-  const base = resolveTheme(from, []);
   const name = id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, " ");
-  const theme = { $schema: "../.live-ish/schema/chrome-theme.json", schemaVersion: 1, ...base, id, name, traits: [`Based on ${from}`] };
+  const theme = { $schema: "../.live-ish/schema/chrome-theme.json", schemaVersion: 1, id, name, extends: from, traits: [`Based on ${from}`], tokens: {} };
   mkdirSync(path.dirname(file), { recursive: true });
   writeFileSync(file, `${JSON.stringify(theme, null, 2)}\n`);
   if (ctx.json) printJson({ ok: true, id, file: `themes/${id}.json`, from });
   else {
-    ctx.log(`Wrote themes/${id}.json from ${from}.`);
+    ctx.log(`Wrote themes/${id}.json, which takes what it leaves out from ${from}.`);
     ctx.log(`  Add "./themes/${id}.json" to chrome.custom, set chrome.theme, then run \`live-ish check\`.`);
   }
   return EXIT.ok;

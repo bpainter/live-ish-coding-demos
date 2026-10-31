@@ -23,7 +23,7 @@ export const TIERS: Record<Tier, readonly string[]> = {
 export const REMOVED_RULES: readonly string[] = ["v3-field", "tailwind", "qr", "grain", "theme-hash", "title", "bg-adjacent", "bg-frame", "bg-glass", "bg-leftover"];
 
 /** The rules another module registers: `rules/chrome.ts` and `rules/terminal.ts`. */
-export const EXTERNAL_RULES: readonly string[] = ["theme-contrast", "terminal-range", "terminal-token"];
+export const EXTERNAL_RULES: readonly string[] = ["terminal-range", "terminal-token"];
 
 export const RULE_IDS: readonly string[] = Object.values(TIERS).flat();
 

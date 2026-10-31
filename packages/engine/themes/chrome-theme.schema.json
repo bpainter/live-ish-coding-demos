@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Live-ish chrome theme",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "name"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "extends": {
+      "type": "string",
+      "description": "The theme that supplies what this file leaves out. Default: glass."
+    },
+    "traits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "--chrome-backdrop": {
+          "type": "string"
+        },
+        "--chrome-backdrop-light": {
+          "type": "string"
+        },
+        "--chrome-backdrop-dark": {
+          "type": "string"
+        },
+        "--chrome-grain": {
+          "type": "string"
+        },
+        "--chrome-ink": {
+          "type": "string"
+        },
+        "--chrome-ink-soft": {
+          "type": "string"
+        },
+        "--chrome-accent": {
+          "type": "string"
+        },
+        "--chrome-title-weight": {
+          "type": "string"
+        },
+        "--chrome-card-surface": {
+          "type": "string"
+        },
+        "--chrome-card-border": {
+          "type": "string"
+        },
+        "--chrome-card-radius": {
+          "type": "string"
+        },
+        "--chrome-card-shadow": {
+          "type": "string"
+        },
+        "--chrome-blur": {
+          "type": "string"
+        },
+        "--chrome-code-surface": {
+          "type": "string"
+        },
+        "--chrome-code-highlight-bg": {
+          "type": "string"
+        },
+        "--chrome-code-highlight-bar": {
+          "type": "string"
+        },
+        "--chrome-code-dim-opacity": {
+          "type": "string"
+        },
+        "--chrome-step-done": {
+          "type": "string"
+        },
+        "--chrome-step-current": {
+          "type": "string"
+        },
+        "--chrome-step-future": {
+          "type": "string"
+        },
+        "--chrome-spot-ring": {
+          "type": "string"
+        },
+        "--chrome-spot-halo": {
+          "type": "string"
+        },
+        "--chrome-spot-width": {
+          "type": "string"
+        },
+        "--chrome-spot-style": {
+          "type": "string"
+        },
+        "--chrome-callout-bg": {
+          "type": "string"
+        },
+        "--chrome-callout-ink": {
+          "type": "string"
+        },
+        "--chrome-callout-leader": {
+          "type": "string"
+        },
+        "--chrome-keycap-bg": {
+          "type": "string"
+        },
+        "--chrome-keycap-ink": {
+          "type": "string"
+        },
+        "--chrome-keycap-edge": {
+          "type": "string"
+        },
+        "--chrome-cursor": {
+          "type": "string"
+        },
+        "--term-bg": {
+          "type": "string"
+        },
+        "--term-ink": {
+          "type": "string"
+        },
+        "--term-prompt": {
+          "type": "string"
+        },
+        "--term-comment": {
+          "type": "string"
+        },
+        "--term-chrome": {
+          "type": "string"
+        }
+      }
+    },
+    "code": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ink": {
+          "type": "string"
+        },
+        "keyword": {
+          "type": "string"
+        },
+        "string": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "number": {
+          "type": "string"
+        },
+        "property": {
+          "type": "string"
+        }
+      }
+    },
+    "fonts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sans": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "required": [
+                "family",
+                "files",
+                "license"
+              ],
+              "properties": {
+                "family": {
+                  "type": "string"
+                },
+                "license": {
+                  "type": "string"
+                },
+                "files": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "src": {
+                        "type": "string",
+                        "pattern": "^/fonts/"
+                      },
+                      "weight": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "mono": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "required": [
+                "family",
+                "files",
+                "license"
+              ],
+              "properties": {
+                "family": {
+                  "type": "string"
+                },
+                "license": {
+                  "type": "string"
+                },
+                "files": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "src": {
+                        "type": "string",
+                        "pattern": "^/fonts/"
+                      },
+                      "weight": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "motion": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fade": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 200
+        },
+        "effect": {
+          "type": "string",
+          "description": "\"none\", or any of blink, marquee, scanlines, press, separated by spaces."
+        }
+      }
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "meter": {
+          "enum": [
+            "counter"
+          ]
+        },
+        "title": {
+          "enum": [
+            "glow"
+          ]
+        },
+        "rule": {
+          "enum": [
+            "hairline"
+          ]
+        }
+      }
+    }
+  }
+}

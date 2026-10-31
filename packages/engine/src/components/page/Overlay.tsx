@@ -199,7 +199,7 @@ export function Overlay({ handle, step, ready, handsOn, reducedMotion, rehearsal
       {!handsOn ? (
         <div className="overlay__cursor" data-visible={cursor.visible} style={cursor.at ? aim(cursor.at) : undefined}>
           <svg viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
-            <path d="M4 2 L4 22 L9.5 17.5 L13 26 L17 24.4 L13.6 16 L21 16 Z" fill="#000" stroke="#fff" strokeWidth="2" strokeLinejoin="round" />
+            <path d="M4 2 L4 22 L9.5 17.5 L13 26 L17 24.4 L13.6 16 L21 16 Z" strokeWidth="2" strokeLinejoin="round" />
           </svg>
         </div>
       ) : null}

@@ -1,0 +1,16 @@
+/* Generated from src/lib/palettes.ts by scripts/gen-themes.mts. The copy slide palette. Do not edit. */
+:root {
+  --deck-paper: #f4efe4;
+  --deck-ink: #1d1b17;
+  --deck-ink-soft: #54504a;
+  --deck-accent: #b1321a;
+  --deck-rule: #c9c0ae;
+  --deck-carbon: #1b1a17;
+  --deck-on-carbon: #f4efe4;
+  --deck-on-carbon-soft: #c9c2b4;
+  --deck-accent-on-carbon: #ff9d7e;
+  --deck-rule-on-carbon: #4a463e;
+  --deck-on-accent: #fff8ee;
+  --deck-panel: #ebe4d5;
+  --deck-plate: #ffffff;
+}

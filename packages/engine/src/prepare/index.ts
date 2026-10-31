@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { builtInIds, customThemeFiles, lintThemeFile, resolveTheme, ThemeError, themeCss, themeFrameCss, type ChromeTheme } from "../lib/chrome-themes";
+import { FONT_FAMILIES, fontFaceCss, fontUrl } from "../lib/fonts";
 import { qrSvg } from "../lib/qr";
 import { meterKey } from "../lib/meters";
 import { computeSupport, type SupportFile } from "../lib/support-data";
@@ -47,18 +49,102 @@ export function writeDeckModule(root: string): string {
 /** The engine's own frame files, copied into the deck's public folder. */
 function copyAssets(root: string) {
   const out = path.join(root, PUBLIC_OUT);
-  const files = ["demo-runtime.js", "grain.png", "theme.css", "shells/base.css", "shells/terminal-window.css", "terminal/player.css", "terminal/player.js"];
+  const files = ["demo-runtime.js", "grain.png", "frame-base.css", "shells/base.css", "shells/terminal-window.css", "terminal/player.css", "terminal/player.js"];
   for (const f of files) {
     mkdirSync(path.dirname(path.join(out, f)), { recursive: true });
     copyFileSync(path.join(ASSETS, f), path.join(out, f));
   }
 }
 
+/** Every theme the deck resolves to, by id, or a sentence naming the one it can't find. */
+function resolvedThemes(root: string, { deck, slides }: AssembledDeck): Map<string, ChromeTheme> {
+  // Theme values land in a stylesheet, so a file that fails the lint stops here, not at `live-ish check`.
+  for (const [id, file] of customThemeFiles(deck.chrome.custom, root)) {
+    const problems = lintThemeFile(JSON.parse(readFileSync(file, "utf8")));
+    if (problems.length) throw new DeckError(`theme-lint: ${id}: ${problems.map((p) => `${p.field}: ${p.message}`).join(" ")}`);
+  }
+  const ids = new Set([deck.chrome.theme, ...slides.flatMap((s) => (s.chrome ? [s.chrome] : []))]);
+  const out = new Map<string, ChromeTheme>();
+  try {
+    for (const id of ids) out.set(id, resolveTheme(id, deck.chrome.custom, root));
+  } catch (error) {
+    if (error instanceof ThemeError) throw new DeckError(`deck.config.ts: ${error.message}`);
+    throw error;
+  }
+  return out;
+}
+
+/**
+ * Theme stylesheets. All ten sit in public/live-ish/chrome/, so `?chrome=<id>` previews any of them
+ * with no rebuild; the layout links only the ones the deck resolves to. A custom theme is generated
+ * here, from its file and its base.
+ */
+function writeChrome(root: string, { deck }: AssembledDeck) {
+  const out = path.join(root, PUBLIC_OUT, "chrome");
+  rmSync(out, { recursive: true, force: true });
+  mkdirSync(out, { recursive: true });
+  for (const id of builtInIds()) {
+    copyFileSync(path.join(ASSETS, "chrome", `${id}.css`), path.join(out, `${id}.css`));
+    copyFileSync(path.join(ASSETS, "chrome", `${id}.frame.css`), path.join(out, `${id}.frame.css`));
+  }
+  for (const id of customThemeFiles(deck.chrome.custom, root).keys()) {
+    const theme = resolveTheme(id, deck.chrome.custom, root);
+    write(path.join(out, `${id}.css`), themeCss(theme));
+    write(path.join(out, `${id}.frame.css`), themeFrameCss(theme));
+  }
+}
+
+/**
+ * Only the fonts the deck uses reach public/: the copy slides' pair, and each resolved theme's. A
+ * preview through `?chrome=` of any other theme falls back to the system stack in its theme file, and
+ * asks for no file. `next dev` and LIVE_ISH_ALL_FONTS=1 (the conformance runs) copy every family, so
+ * those previews show the real faces.
+ */
+function writeFonts(root: string, deck: AssembledDeck["deck"], themes: Map<string, ChromeTheme>) {
+  const out = path.join(root, PUBLIC_OUT, "fonts");
+  rmSync(out, { recursive: true, force: true });
+  const names = new Set<string>(deck.theme.fonts ? [] : ["Inter", "JetBrains Mono"]);
+  for (const theme of themes.values()) {
+    for (const font of [theme.fonts.sans, theme.fonts.mono]) if (typeof font === "string" && FONT_FAMILIES[font]) names.add(font);
+  }
+  if (process.env.LIVE_ISH_ALL_FONTS === "1" || process.env.NODE_ENV === "development") for (const name of Object.keys(FONT_FAMILIES)) names.add(name);
+  for (const name of names) {
+    const font = FONT_FAMILIES[name];
+    for (const face of [...font.faces.map((f) => f.file), "OFL.txt"]) {
+      const to = path.join(root, "public", fontUrl(font, face));
+      mkdirSync(path.dirname(to), { recursive: true });
+      copyFileSync(path.join(ASSETS, "fonts", font.id, face), to);
+    }
+  }
+  const custom = [...themes.values()].flatMap((t) => [t.fonts.sans, t.fonts.mono]).flatMap((font) => (typeof font === "string" ? [] : font.files.map((f) => `@font-face { font-family: "${font.family}"; font-weight: ${f.weight}; font-display: swap; src: url("${f.src}") format("woff2"); }`)));
+  const deckFaces = Object.entries(deck.theme.fonts ?? {}).flatMap(([slot, files]) => (files ?? []).map((src) => `@font-face { font-family: "Deck ${slot}"; font-weight: ${/(?:bold|-?700)/i.test(src) ? 700 : 400}; font-display: swap; src: url("${src}") format("woff2"); }`));
+  write(path.join(root, PUBLIC_OUT, "fonts.css"), [fontFaceCss(names), ...custom, ...deckFaces].filter(Boolean).join("\n") + "\n");
+}
+
+/**
+ * `theme.extends`, `theme.fonts` and `theme.tokens`, last in the cascade. `:root:root` outranks the
+ * engine's own :root, whatever order the two stylesheets arrive in.
+ */
+function writeDeckTheme(root: string, { deck }: AssembledDeck) {
+  const parts: string[] = [];
+  if (deck.theme.extends !== "default") {
+    const file = path.resolve(root, deck.theme.extends);
+    if (!existsSync(file)) throw new DeckError(`deck.config.ts: theme.extends names ${deck.theme.extends}, which does not exist.`);
+    parts.push(readFileSync(file, "utf8"));
+  }
+  const tokens = Object.entries(deck.theme.tokens).map(([k, v]) => `  ${k}: ${v};`);
+  const fonts = deck.theme.fonts ?? {};
+  if (fonts.sans?.length) tokens.push(`  --deck-font-sans: "Deck sans", system-ui, sans-serif;`);
+  if (fonts.mono?.length) tokens.push(`  --deck-font-mono: "Deck mono", ui-monospace, monospace;`);
+  if (tokens.length) parts.push(`:root:root {\n${tokens.join("\n")}\n}`);
+  write(path.join(root, PUBLIC_OUT, "deck.css"), parts.join("\n") + "\n");
+}
+
 /** Per-demo frame images, keyed by the `data-section-bg` the composer writes. */
 function writeBackgrounds(root: string, { demos }: AssembledDeck) {
   const rules = demos.filter((d) => d.background).map((d) => {
     const value = d.background!;
-    return `html[data-section-bg="${d.id}"] { --glass-frame-image: ${isBackgroundFile(value) ? `url("${value}")` : value}; }`;
+    return `html[data-section-bg="${d.id}"] { --frame-image: ${isBackgroundFile(value) ? `url("${value}")` : value}; --frame-wash: linear-gradient(rgb(255 255 255 / 0.4), rgb(255 255 255 / 0.4)); }`;
   });
   write(path.join(root, PUBLIC_OUT, "backgrounds.css"), rules.join("\n") + "\n");
 }
@@ -149,7 +235,7 @@ function writeFileLists(root: string) {
 function writeSummary(root: string, input: DeckInput, assembled: AssembledDeck) {
   const addresses = assembled.demos.flatMap((d) => d.routes ?? []).map((r) => (typeof r.path === "string" ? { path: r.path } : { regex: r.path.source }));
   const { hosts } = assembled.deck;
-  write(path.join(root, OUT, "deck.json"), JSON.stringify({ firstSlide: assembled.slides[0].id, hosts, addresses, demos: input.demos.map((d) => d.demo.id), servers: input.config.servers ?? [] }, null, 2) + "\n");
+  write(path.join(root, OUT, "deck.json"), JSON.stringify({ firstSlide: assembled.slides[0].id, hosts, addresses, demos: input.demos.map((d) => d.demo.id), servers: input.config.servers ?? [], customThemes: input.config.chrome?.custom ?? [] }, null, 2) + "\n");
 }
 
 /** Inside this repo, rebuilds the engine's CSS when a source file is newer. A published engine ships it built. */
@@ -159,7 +245,7 @@ async function refreshEngineCss() {
   if (!existsSync(styles) || !existsSync(builder)) return;
   const dist = path.join(ENGINE, "dist", "engine.css");
   const built = existsSync(dist) ? statSync(dist).mtimeMs : 0;
-  const sources = [...readdirSync(styles, { recursive: true, encoding: "utf8" }).map((f) => path.join(styles, f)), path.join(ASSETS, "theme.css")];
+  const sources = readdirSync(styles, { recursive: true, encoding: "utf8" }).map((f) => path.join(styles, f));
   if (sources.every((f) => statSync(f).mtimeMs <= built)) return;
   await import(pathToFileURL(builder).href);
 }
@@ -176,7 +262,11 @@ export async function prepareDeck(root: string): Promise<AssembledDeck> {
   const file = writeDeckModule(root);
   const input = ((await import(pathToFileURL(file).href)) as { default: DeckInput }).default;
   const assembled = assembleDeck(input);
+  const themes = resolvedThemes(root, assembled);
   copyAssets(root);
+  writeChrome(root, assembled);
+  writeFonts(root, assembled.deck, themes);
+  writeDeckTheme(root, assembled);
   writeBackgrounds(root, assembled);
   await writeQr(root, assembled);
   writeMeters(root, assembled);

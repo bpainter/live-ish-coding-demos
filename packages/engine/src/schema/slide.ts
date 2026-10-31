@@ -9,11 +9,19 @@ export type Layout = CopyLayout | "demo-page";
 
 export type Citation = { text: string; url: string };
 
-export type SlideItem = { label: string; detail?: string; icon?: string; mono?: boolean };
+export type SlideItem = {
+  label: string;
+  detail?: string;
+  icon?: string;
+  mono?: boolean;
+  /** `timeline`: an open marker, for a date with nothing confirmed. */
+  hollow?: boolean;
+};
 
 export type SlideImage = { src: string; alt: string; placement?: "full-bleed" | "right-half" | "background" };
 
-export type Field = "white" | "navy" | "blue";
+/** The field a copy slide sits on. */
+export type Field = "light" | "dark" | "accent";
 
 export type TableRow = { cells: string[]; header?: boolean };
 
@@ -64,6 +72,9 @@ export interface SlideConfig {
   url?: string;
   linkLabel?: string;
   caption?: string;
+  /** `section`: the slug above the title, and a short legend under it. */
+  label?: string;
+  legend?: SlideItem[];
   /** `grid`. */
   variant?: GridVariant;
   tone?: "light" | "dark";
@@ -131,6 +142,10 @@ export interface Slide {
   chart?: SlideChart;
   /** The composed layouts' content. */
   copy?: CopyContent;
+  /** `section`. */
+  legend?: SlideItem[];
+  /** The audience theme, resolved. Unset on a copy slide. */
+  chrome?: string;
   /** Layout "demo-page": the page and its demo. */
   page?: DemoPage;
   demo?: Omit<Demo, "routes">;

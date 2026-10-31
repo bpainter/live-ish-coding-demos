@@ -14,7 +14,7 @@
   mix-blend-mode: normal;
 }
 ::view-transition-new(.deck-fade) {
-  animation: 200ms var(--glass-ease) both deck-in;
+  animation: 200ms var(--ease-out) both deck-in;
   mix-blend-mode: normal;
 }
 @keyframes deck-in {

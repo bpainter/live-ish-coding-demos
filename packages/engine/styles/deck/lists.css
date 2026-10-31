@@ -1,0 +1,258 @@
+/* Layouts of many small things: content items, grid cards, quotes, people. No boxes and no shadows:
+   a rule on top of each column does the grouping, as it would on a printed page. */
+
+/* Content items: 3 to 6, with an optional Lucide icon each. */
+.item-list {
+  @apply grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-8);
+  align-content: start;
+  /* The list sits on the foot of the slide, under the empty middle, not stacked under the title. */
+  margin-top: auto;
+}
+.item-list[data-count="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.slide[data-image="right-half"] .item-list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  margin-top: 0;
+}
+.item-list__item {
+  @apply grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--slide-rule);
+}
+.item-list[data-icons="false"] .item-list__item {
+  grid-template-columns: minmax(0, 1fr);
+}
+.item-list[data-icons="false"] .item-list__icon {
+  display: none;
+}
+.item-list__icon {
+  grid-row: 1 / span 2;
+  width: 52px;
+  height: 52px;
+  color: var(--slide-accent);
+}
+.item-list__label {
+  font-size: var(--text-card);
+  font-weight: var(--weight-bold);
+  line-height: 46px;
+}
+.item-list__detail {
+  font-size: var(--text-detail);
+  line-height: 40px;
+  color: var(--slide-soft);
+}
+
+/* A slide's image: a plain file under public/. */
+.slide-image {
+  @apply absolute block;
+  object-fit: cover;
+  pointer-events: none;
+}
+.slide-image[data-variant="full-bleed"],
+.slide-image[data-variant="background"] {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.slide-image[data-variant="right-half"] {
+  top: 72px;
+  right: var(--deck-margin);
+  width: 800px;
+  height: 860px;
+  object-fit: contain;
+  object-position: center top;
+}
+/* The text keeps the left half beside a right-half image. */
+.slide[data-image="right-half"] > .slide__header,
+.slide[data-image="right-half"] > .slide__body {
+  max-width: 800px;
+}
+
+/* Grid */
+.slide__lede {
+  max-width: 1320px;
+  font-size: var(--text-lede);
+  line-height: 60px;
+  color: var(--slide-soft);
+}
+.slide__display {
+  font-size: 144px;
+  font-weight: var(--weight-bold);
+  line-height: 148px;
+  letter-spacing: var(--deck-tracking-display);
+}
+.cards {
+  @apply grid;
+  grid-template-columns: repeat(var(--cards-across, 3), minmax(0, 1fr));
+  gap: var(--space-7) var(--space-7);
+  /* Title at the head, cards on the foot: the space between is the layout. */
+  margin-top: auto;
+}
+.cards[data-count="2"],
+.cards[data-count="4"] {
+  --cards-across: 2;
+}
+.cards[data-count="1"] {
+  --cards-across: 1;
+}
+.cards__eyebrow {
+  margin-top: auto;
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-slug);
+  line-height: 34px;
+  color: var(--slide-accent);
+}
+.cards__eyebrow + .cards {
+  margin-top: 0;
+}
+.card {
+  @apply flex flex-col;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 2px solid var(--slide-fg);
+}
+.card__icon {
+  flex: none;
+  color: var(--slide-accent);
+}
+.card__num {
+  font-family: var(--deck-font-mono);
+  font-size: 56px;
+  line-height: 64px;
+  color: var(--slide-accent);
+}
+.card__title {
+  font-size: var(--text-card);
+  font-weight: var(--weight-bold);
+  line-height: 44px;
+}
+.card__body {
+  margin-top: var(--space-2);
+  font-size: var(--text-detail);
+  line-height: 40px;
+  color: var(--slide-soft);
+  text-wrap: pretty;
+}
+.card__question {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  font-size: 40px;
+  font-weight: var(--weight-bold);
+  line-height: 48px;
+  color: var(--slide-accent);
+}
+/* A card's image is shown at 544 by 320 stage px. */
+.card__portrait {
+  display: block;
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  object-position: 50% 30%;
+}
+.slide--grid .slide__body {
+  gap: var(--space-6);
+}
+/* Six short cards: two rows, each close enough to read as a list. */
+.slide--grid[data-cards="6"] .cards {
+  gap: var(--space-5) var(--space-7);
+}
+.slide--grid[data-cards="6"] .card__body {
+  margin-top: 0;
+}
+/* Centered grids (align "center"): the text and the cards stack as one group, centered in the space
+   above the footer. Still flush left: only the block is centered, top to bottom. */
+.slide--grid[data-align="center"] .slide__body {
+  justify-content: center;
+}
+.slide--grid[data-align="center"] :is(.cards, .cards__eyebrow) {
+  margin-top: var(--space-5);
+}
+
+/* Quotes */
+.quotes {
+  @apply grid;
+  grid-template-columns: repeat(var(--quotes-across, 2), minmax(0, 1fr));
+  gap: var(--space-8);
+  align-items: start;
+}
+.quotes[data-count="1"] {
+  --quotes-across: 1;
+}
+.quote {
+  @apply flex flex-col;
+  gap: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 2px solid var(--slide-fg);
+}
+.quote__text {
+  font-size: 60px;
+  line-height: 76px;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+.quotes[data-count="1"] .quote__text {
+  max-width: 1560px;
+  font-size: 88px;
+  line-height: 104px;
+}
+.quote__cite {
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-slug);
+  line-height: 34px;
+  color: var(--slide-accent);
+}
+
+/* People: three across. A photo when there is one, initials otherwise. */
+.people {
+  @apply grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: var(--space-5) var(--space-7);
+  flex: 1;
+  min-height: 0;
+}
+.person {
+  @apply flex items-center;
+  gap: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--slide-rule);
+}
+.person__avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 128px;
+  height: 128px;
+  overflow: hidden;
+  background: var(--slide-panel);
+  color: var(--slide-fg);
+  font-family: var(--deck-font-mono);
+  font-size: var(--text-card);
+  line-height: 40px;
+}
+.person__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.person__text {
+  display: grid;
+  min-width: 0;
+}
+.person__name {
+  font-size: var(--text-card);
+  font-weight: var(--weight-bold);
+  line-height: 44px;
+}
+.person__role {
+  font-size: var(--text-detail);
+  line-height: 40px;
+  color: var(--slide-soft);
+}

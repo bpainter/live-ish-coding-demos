@@ -6,6 +6,7 @@ import type { Mode } from "../../lib/mode";
 import { FrameHandle, type StepResult } from "../../lib/engine/frame";
 import { installInputRelay, withInput } from "../../lib/engine/input-relay";
 import { flagsAt, replaySteps, segments, selectorsFor } from "../../lib/engine/steps";
+import { frameChrome } from "../../lib/chrome-preview";
 import { blockedFault, runtimeFault } from "../../lib/engine/faults";
 import { frameQuery, frameUrl, glassFlags, presenterOriginFor } from "../../lib/frames/origins";
 import { useStage } from "../../lib/stage-context";
@@ -41,7 +42,8 @@ const CODE_LEAD_MS = 400;
 function documentUrl(page: FramePage, flags: Record<string, boolean>): { origin: string; url: string } {
   const route = page.frame!.route;
   const { origin, url } = frameUrl(route.endsWith("/") ? `${route}index.html` : route.includes(".") ? route : `${route}/index.html`);
-  return { origin, url: `${url}${frameQuery(route, glassFlags(flags))}` };
+  const chrome = page.frame!.kind === "terminal" ? frameChrome(page.chrome) : undefined;
+  return { origin, url: `${url}${frameQuery(route, glassFlags(flags), chrome)}` };
 }
 
 /**
