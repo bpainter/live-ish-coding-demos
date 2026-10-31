@@ -7,6 +7,7 @@ import { hasFrame, type Action, type Demo, type DemoPage, type Step } from "../.
 import { AArrowDown, AArrowUp, ChevronLeft, ChevronRight, Download, ExternalLink, EyeOff, Hand, Menu, MonitorUp, RotateCcw } from "lucide-react";
 import { usePresenter } from "../../lib/presenter/context";
 import { speakerSlideName } from "../../lib/presenter/titles";
+import { buildId } from "../../lib/presenter/types";
 import { frameUrl } from "../../lib/frames/origins";
 import { SpeakerTimer } from "./Timer";
 import { NavTrigger, isNavOpen } from "../chrome/NavDrawer";
@@ -295,7 +296,7 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
   const heading = page && demo ? (hasFrame(page) && page.beat !== "single" ? { eyebrow: page.eyebrow, title: page.title } : { eyebrow: page.beat === "intro" ? "Intro slide" : null, title: page.beat === "intro" ? demo.title : page.title }) : null;
 
   if (!presenter) return null;
-  const { state, demoHealth, audienceConnected, update } = presenter;
+  const { state, demoHealth, audienceConnected, otherBuild, update } = presenter;
   const steps: Step[] = page?.steps ?? [];
   const stepIndex = state.stepIndex < 0 ? Math.max(steps.length - 1, 0) : Math.min(state.stepIndex, Math.max(steps.length - 1, 0));
   const step = steps[stepIndex];
@@ -395,7 +396,7 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
                   {step.proof ? <span className="notes__chip">Proof</span> : null}
                 </p>
                 {status ? (
-                  <p className="notes__play" role="status" data-status={status.key}>
+                  <p className="notes__play" role="status" data-status={status.key} title={status.key === "offline" && otherBuild ? `This window is on build ${buildId()}. Another window is on build ${otherBuild}. Reload it to sync.` : undefined}>
                     {status.text}
                   </p>
                 ) : null}

@@ -5,6 +5,8 @@ import type { Mode } from "../../lib/mode";
 import { slides, neighbours } from "../../lib/content";
 import { navCurrent, navGroups } from "../../lib/nav";
 import { backgroundCss, backgroundImage, firstPoster, introImage } from "../../lib/assets";
+import { slideHints } from "../../lib/hints";
+import { supportEntry } from "../../lib/support";
 import { Stage } from "./Stage";
 import { SlideRouter } from "./SlideRouter";
 
@@ -42,6 +44,16 @@ function slideImages(slide: Slide | undefined, stepIds?: string[]): string[] {
 
 const groups = navGroups();
 
+/** Author hints for the rehearsal overlay, in `dev` only. A production build passes none. */
+function devHints(slide: Slide): string[] | undefined {
+  if (process.env.NODE_ENV === "production") return undefined;
+  const page = slide.page;
+  return slideHints(slide, {
+    still: page?.beat === "intro" && page.visual ? introImage(page.visual.src) !== null : true,
+    support: slide.demo ? supportEntry(slide.demo.id) !== null : true,
+  });
+}
+
 export function SlidePage({ slide, mode, canonicalPath, embedded, passive }: Props) {
   const { prev, next, position } = neighbours(slide.id);
   const afterNext = slides[position + 2];
@@ -78,6 +90,7 @@ export function SlidePage({ slide, mode, canonicalPath, embedded, passive }: Pro
       nav={passive ? null : { groups, currentId: navCurrent(slide.id) }}
       steps={slide.page?.steps.map((s) => ({ label: s.label })) ?? []}
       frameRoute={slide.page && hasFrame(slide.page) ? slide.page.frame.route : undefined}
+      hints={devHints(slide)}
       mode={mode}
       canonicalPath={canonicalPath}
       embedded={embedded}

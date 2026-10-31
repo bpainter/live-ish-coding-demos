@@ -6,8 +6,10 @@ import type { Mode } from "../../lib/mode";
 import { FrameHandle, type StepResult } from "../../lib/engine/frame";
 import { installInputRelay, withInput } from "../../lib/engine/input-relay";
 import { flagsAt, replaySteps, segments, selectorsFor } from "../../lib/engine/steps";
-import { frameQuery, frameUrl, glassFlags } from "../../lib/frames/origins";
+import { blockedFault, runtimeFault } from "../../lib/engine/faults";
+import { frameQuery, frameUrl, glassFlags, presenterOriginFor } from "../../lib/frames/origins";
 import { useStage } from "../../lib/stage-context";
+import { DevFault } from "./DevFault";
 import { Overlay } from "./Overlay";
 
 interface Props {
@@ -21,6 +23,16 @@ interface Props {
   onStepResult?: (stepId: string, result: StepResult) => void;
   /** The current step's captured poster, shown under the slot until the first document is. */
   poster?: string | null;
+}
+
+/** Faults show on the slide in `dev` only. A production build has none of this. */
+const DEV = process.env.NODE_ENV !== "production";
+
+/** What `dev` can say about a frame that never answered. Each mode's rules stay in origins.ts. */
+function silentFrame(route: string) {
+  const { origin } = frameUrl(route);
+  const app = /^\/@([\w-]+)/.exec(route)?.[1] ?? null;
+  return blockedFault({ origin, app, allowed: !app && origin ? presenterOriginFor(origin) : null }, window.location.origin);
 }
 
 /** How long the code highlight shows before a step's playback starts. */
@@ -43,6 +55,8 @@ export function PageFrame({ page, sandbox, mode, slot, onStatus, onStepResult, p
   const rootRef = useRef<HTMLDivElement>(null);
   const [handle, setHandle] = useState<FrameHandle | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  /** The last error the frame reported, for the `dev` overlay. */
+  const [frameError, setFrameError] = useState<Parameters<typeof runtimeFault>[0] | null>(null);
   /** A document has been shown; until then the step's poster fills the slot. */
   const [shown, setShown] = useState(false);
   const posterRef = useRef<HTMLImageElement>(null);
@@ -100,6 +114,7 @@ export function PageFrame({ page, sandbox, mode, slot, onStatus, onStepResult, p
         setViewportWidth(Number.parseFloat(inlineSize));
       });
       h.onKey((k) => dispatchKey(k.key, k.shift));
+      if (DEV) h.onError(setFrameError);
       return h;
     },
     [page, sandbox, mode, handsOn, reducedMotion, dispatchKey],
@@ -157,6 +172,7 @@ export function PageFrame({ page, sandbox, mode, slot, onStatus, onStepResult, p
     // Spotlights for this entry wait until its playback has finished.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDoneStep(null);
+    if (DEV) setFrameError(null);
     if (!target) return;
     const cur = current.current;
     const watchList = selectorsFor(target);
@@ -376,6 +392,8 @@ export function PageFrame({ page, sandbox, mode, slot, onStatus, onStepResult, p
       {narrowed ? <div className="page-frame__edge" style={{ left: `calc(${viewportWidth}px * ${scale})` }} aria-hidden="true" /> : null}
       {status === "loading" && !(poster && !shown) ? <p className="page-frame__status">Loading demo…</p> : null}
       {status === "error" ? <p className="page-frame__status">The demo frame did not answer. Press r to reload it.</p> : null}
+      {DEV && status === "error" ? <DevFault fault={silentFrame(frame.route)} /> : null}
+      {DEV && frameError ? <DevFault fault={runtimeFault(frameError, step?.id)} /> : null}
     </div>
   );
 }
