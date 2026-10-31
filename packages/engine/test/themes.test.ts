@@ -22,6 +22,14 @@ test("themes: ten, with the default first, and the generated list agrees", () =>
   assert.equal(CHROME_THEME_IDS[0], "glass");
 });
 
+test("themes: the id list, the schema enum and the docs table agree", () => {
+  const ids = listThemes().map((t) => t.id);
+  const schema = JSON.parse(readFileSync(path.join(ENGINE, "themes", "chrome-theme-id.schema.json"), "utf8")) as { enum: string[] };
+  assert.deepEqual(schema.enum, ids);
+  const table = readFileSync(path.join(ENGINE, "..", "..", "docs", "generated", "themes-table.md"), "utf8");
+  assert.deepEqual([...table.matchAll(/^\| `([a-z-]+)` \|/gm)].map((m) => m[1]), ids);
+});
+
 test("themes: generated files match their sources", () => {
   const out = execFileSync(process.execPath, ["--import", "tsx", "scripts/gen-themes.mts", "--check"], { cwd: ENGINE, encoding: "utf8" });
   assert.match(out, /checked/);
