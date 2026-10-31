@@ -132,6 +132,8 @@ interface PageConfig {
   address?: string;
   /** Stylesheets under public/, loaded unshown. */
   styles?: string[];
+  /** Selectors a script creates, which the page's own files cannot show `live-ish check`. */
+  runtimeSelectors?: string[];
   poster?: string;
   spotlightClip?: { bottom: number };
   keycap?: "above-drawer";
