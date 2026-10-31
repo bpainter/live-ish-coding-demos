@@ -12,6 +12,7 @@ next-env.d.ts
 .live-ish/
 !packages/**/.live-ish/
 public/live-ish/
+packages/create/template/
 test-results/
 playwright-report/
 .turbo/

@@ -5,9 +5,10 @@
   "description": "A seven-slide Live-ish deck: one copy slide, one web demo, one terminal demo.",
   "license": "MIT",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "live-ish dev",
+    "build": "live-ish build",
+    "start": "live-ish start",
+    "live-ish": "live-ish",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

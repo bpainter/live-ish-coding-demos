@@ -1,69 +1,70 @@
 {
   "id": "session",
-  "capturedAt": "2026-10-31T00:00:00Z",
+  "capturedAt": "2026-10-31T23:03:20.605Z",
   "env": {
+    "os": "macOS 15.7.3",
     "node": "22.23.4"
   },
   "lines": [
     {
-      "line": 1,
-      "delay": 0,
+      "kind": "cmd",
       "text": "$ cat notes.txt",
-      "kind": "cmd"
+      "delay": 650,
+      "line": 1
     },
     {
-      "line": 2,
-      "delay": 60,
+      "kind": "out",
       "text": "show the code and show the result",
-      "kind": "out"
+      "delay": 900,
+      "line": 2
     },
     {
-      "line": 3,
-      "delay": 60,
+      "kind": "out",
       "text": "the room can follow the result",
-      "kind": "out"
+      "delay": 110,
+      "line": 3
     },
     {
-      "line": 4,
-      "delay": 0,
+      "kind": "cmd",
       "text": "$ node word-count.mjs notes.txt",
-      "kind": "cmd"
+      "delay": 650,
+      "line": 4
     },
     {
-      "line": 5,
-      "delay": 60,
+      "kind": "out",
       "text": "13 words",
-      "kind": "out"
+      "delay": 900,
+      "line": 5
     },
     {
-      "line": 6,
-      "delay": 0,
+      "kind": "cmd",
       "text": "$ node word-count.mjs --top notes.txt",
-      "kind": "cmd"
+      "delay": 650,
+      "line": 6
     },
     {
-      "line": 7,
-      "delay": 60,
+      "kind": "out",
       "text": "13 words",
-      "kind": "out"
+      "delay": 900,
+      "line": 7
     },
     {
-      "line": 8,
-      "delay": 60,
+      "kind": "out",
       "text": "4 the",
-      "kind": "out"
+      "delay": 110,
+      "line": 8
     },
     {
-      "line": 9,
-      "delay": 60,
+      "kind": "out",
       "text": "2 show",
-      "kind": "out"
+      "delay": 110,
+      "line": 9
     },
     {
-      "line": 10,
-      "delay": 60,
+      "kind": "out",
       "text": "2 result",
-      "kind": "out"
+      "delay": 110,
+      "line": 10
     }
   ]
 }
