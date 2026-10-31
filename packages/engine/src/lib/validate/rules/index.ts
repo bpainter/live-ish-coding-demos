@@ -8,6 +8,7 @@ import { rules as chrome } from "./chrome";
 import { rules as code } from "./code";
 import { rules as deck } from "./deck";
 import { rules as frames } from "./frames";
+import { rules as hosting } from "./hosting";
 import { rules as seo } from "./seo";
 import { rules as shape } from "./shape";
 import { rules as support } from "./support";
@@ -26,6 +27,6 @@ const config: Rule[] = [
 ];
 
 /** Every group. `rules/terminal.ts` joins this list with the CLI. */
-export const groups: Rule[][] = [config, shape, code, frames, support, writing, seo, assets, deck, chrome, wrappers, backgrounds];
+export const groups: Rule[][] = [config, shape, code, frames, support, writing, seo, assets, deck, chrome, hosting, wrappers, backgrounds];
 
 export const allRules: Rule[] = groups.flat();

@@ -8,14 +8,18 @@ import { AArrowDown, AArrowUp, ChevronLeft, ChevronRight, Download, ExternalLink
 import { usePresenter } from "../../lib/presenter/context";
 import { speakerSlideName } from "../../lib/presenter/titles";
 import { frameUrl } from "../../lib/frames/origins";
+import { deckKey, restoreOnClear } from "../../lib/deck-keys";
+import { BUILD_ID } from "../../lib/presenter/types";
 import { SpeakerTimer } from "./Timer";
 import { NavTrigger, isNavOpen } from "../chrome/NavDrawer";
 import { NotesInlineText, NotesText } from "./NotesText";
 
-const NOTES_KEY = "deck:notes-size";
+const NOTES_KEY = deckKey("notes-size");
 const NOTES_MIN = 28;
 const NOTES_MAX = 56;
-const LOG_KEY = "deck:rehearsal-log";
+const LOG_KEY = deckKey("rehearsal-log");
+/** The rehearsal log as last written, so a store a frame cleared keeps it. */
+let logInMemory: string | null = null;
 
 interface Props {
   slide: Slide;
@@ -97,6 +101,11 @@ const ICON = { size: 18, strokeWidth: 1.75, "aria-hidden": true } as const;
 
 type Status = { key: "offline" | "error" | "fallback" | "loading" | "playing" | "ready"; text: string };
 
+/** Why two windows are not syncing, when the reason is that they run different builds. */
+function buildNote(other: string | null): string | undefined {
+  return other ? `This window runs build ${BUILD_ID}. Another window runs build ${other}, so they cannot sync. Reload both.` : undefined;
+}
+
 /** One status pill for a framed page: first match wins. */
 function frameStatus(audienceConnected: boolean | null, health: string | undefined, playing: boolean): Status {
   if (audienceConnected === false) return { key: "offline", text: "No audience" };
@@ -111,7 +120,7 @@ function frameStatus(audienceConnected: boolean | null, health: string | undefin
 
 /**
  * The speaker window's shell, rendered by
- * `app/speaker/layout.tsx` above the prerendered `[id]` pages, so a slide move swaps only the page
+ * `app/speaker/layout.presenter.tsx` above the prerendered `[id]` pages, so a slide move swaps only the page
  *. It holds what must outlast the move: the `.speaker` grid, the
  * footer (the controls keep focus after Next or Previous), the notes text size, the `d` action
  * summaries, the "Timer started" toast, and `?rehearse=1`, read here in the browser because the
@@ -135,6 +144,7 @@ export function SpeakerShell({ slides, children }: { slides: SpeakerSlideInfo[];
     try {
       const saved = Number.parseInt(localStorage.getItem(NOTES_KEY) ?? "", 10);
       if (saved >= NOTES_MIN && saved <= NOTES_MAX) setNotesSize(saved);
+      logInMemory ??= localStorage.getItem(LOG_KEY);
     } catch {
       /* no storage */
     }
@@ -175,6 +185,20 @@ export function SpeakerShell({ slides, children }: { slides: SpeakerSlideInfo[];
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Both live in memory here, so a frame's localStorage.clear() on one origin loses neither.
+  const notesSizeRef = useRef(notesSize);
+  useEffect(() => {
+    notesSizeRef.current = notesSize;
+  }, [notesSize]);
+  useEffect(() => {
+    const stopSize = restoreOnClear(NOTES_KEY, () => String(notesSizeRef.current));
+    const stopLog = restoreOnClear(LOG_KEY, () => logInMemory);
+    return () => {
+      stopSize();
+      stopLog();
+    };
+  }, []);
+
   const shell = useMemo<SpeakerShellState>(() => ({ rehearse, notesSize, changeNotes, showActions, toast }), [rehearse, notesSize, changeNotes, showActions, toast]);
 
   if (!presenter) return null;
@@ -186,7 +210,7 @@ export function SpeakerShell({ slides, children }: { slides: SpeakerSlideInfo[];
     if (info.frameRoute) window.open(frameUrl(info.frameRoute).url, "_blank", "noopener");
   };
   const exportLog = () => {
-    const blob = new Blob([localStorage.getItem(LOG_KEY) ?? "[]"], { type: "application/json" });
+    const blob = new Blob([localStorage.getItem(LOG_KEY) ?? logInMemory ?? "[]"], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "rehearsal-log.json";
@@ -230,7 +254,7 @@ export function SpeakerShell({ slides, children }: { slides: SpeakerSlideInfo[];
             <span className="speaker__divider" aria-hidden="true" />
             {/* The name starts with the visible label (2.5.3). An aria-label, not hidden text: an
                 out-of-flow span would put a space before the comma. */}
-            <button type="button" className="speaker__button" onClick={openAudience} title="Open or focus the audience window" data-connected={offline ? "false" : undefined} aria-label={offline ? "Audience, not connected" : undefined}>
+            <button type="button" className="speaker__button" onClick={openAudience} title={buildNote(presenter.otherBuild) ?? "Open or focus the audience window"} data-connected={offline ? "false" : undefined} aria-label={offline ? "Audience, not connected" : undefined}>
               <MonitorUp {...ICON} />
               Audience
             </button>
@@ -275,9 +299,10 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
     const entered = Date.now();
     return () => {
       try {
-        const log = JSON.parse(localStorage.getItem(LOG_KEY) ?? "[]") as { slideId: string; seconds: number; at: number }[];
+        const log = JSON.parse(localStorage.getItem(LOG_KEY) ?? logInMemory ?? "[]") as { slideId: string; seconds: number; at: number }[];
         log.push({ slideId: slide.id, seconds: Math.round((Date.now() - entered) / 1000), at: entered });
-        localStorage.setItem(LOG_KEY, JSON.stringify(log));
+        logInMemory = JSON.stringify(log);
+        localStorage.setItem(LOG_KEY, logInMemory);
       } catch {
         /* no storage */
       }
@@ -395,7 +420,7 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
                   {step.proof ? <span className="notes__chip">Proof</span> : null}
                 </p>
                 {status ? (
-                  <p className="notes__play" role="status" data-status={status.key}>
+                  <p className="notes__play" role="status" data-status={status.key} title={buildNote(presenter.otherBuild)}>
                     {status.text}
                   </p>
                 ) : null}

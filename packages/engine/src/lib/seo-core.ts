@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import type { Deck } from "../schema/assemble";
 import type { CopyContent, Slide } from "../schema/slide";
-import type { Demo } from "../schema/demo";
+import type { Demo, IntroPage } from "../schema/demo";
 import { notesPlain } from "./notes";
 
 /**
  * Metadata and JSON-LD as a function of the deck, so `live-ish check` runs the code the pages run.
  * Every route builds its full metadata from these helpers, so none depends on Next's shallow merge
  * of `openGraph`. Canonical URLs, Open Graph URLs and JSON-LD ids all sit on `origin`.
+ * A local build with no site names no host: its ids are relative, and it writes no canonical URL.
  */
 
 /** At most this many characters in a description. */
@@ -173,7 +174,8 @@ export function createSeo({ deck, slides, demos }: { deck: Deck; slides: Slide[]
     if (slide.description) return clampSentences(slide.description);
     const page = slide.page;
     let text: string;
-    if (page) text = page.beat === "intro" ? page.description : spokenDescription(page.notes);
+    // A public build carries no notes, so the demo's own public line stands in for them.
+    if (page) text = page.beat === "intro" ? page.description : spokenDescription(page.notes) || (slide.demo?.pages.find((p): p is IntroPage => p.beat === "intro")?.description ?? slide.demo?.scenario ?? slide.title);
     else if (slide.copy) text = copyDescription(slide.copy);
     else text = slide.body?.join(" ") ?? slide.title;
     return clampSentences(text);
@@ -181,9 +183,14 @@ export function createSeo({ deck, slides, demos }: { deck: Deck; slides: Slide[]
 
   // --------------------------------------------------------------- metadata
 
-  function shared(title: string, description: string, url?: string): Metadata {
+  function shared(title: string, description: string, path?: string): Metadata {
+    // Next resolves a relative URL against localhost:3000 when there is no base, so with no site the
+    // absolute fields are left out.
+    const url = ORIGIN ? path : undefined;
+    const image = ORIGIN ? OG_IMAGE : null;
     return {
-      metadataBase: new URL(ORIGIN),
+      ...(ORIGIN ? { metadataBase: new URL(ORIGIN) } : {}),
+      ...(deck.reader.index ? {} : { robots: { index: false, follow: false } }),
       title,
       description,
       authors: [{ name: deck.speaker.name, url: deck.speaker.url }],
@@ -195,13 +202,13 @@ export function createSeo({ deck, slides, demos }: { deck: Deck; slides: Slide[]
         ...(url ? { url } : {}),
         title,
         description,
-        ...(OG_IMAGE ? { images: [{ url: OG_IMAGE.path, width: OG_IMAGE.width, height: OG_IMAGE.height, type: OG_IMAGE.type, alt: OG_IMAGE.alt }] } : {}),
+        ...(image ? { images: [{ url: image.path, width: image.width, height: image.height, type: image.type, alt: image.alt }] } : {}),
       },
       twitter: {
-        card: OG_IMAGE ? "summary_large_image" : "summary",
+        card: image ? "summary_large_image" : "summary",
         title,
         description,
-        ...(OG_IMAGE ? { images: [{ url: OG_IMAGE.path, alt: OG_IMAGE.alt }] } : {}),
+        ...(image ? { images: [{ url: image.path, alt: image.alt }] } : {}),
       },
     };
   }

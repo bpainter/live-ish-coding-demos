@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { slides } from "../lib/content";
+import { notFound } from "next/navigation";
+import { deck, slides } from "../lib/content";
 import { SlidePage } from "../components/stage/SlidePage";
 import { ReadingView } from "../components/page/ReadingView";
 import { TextViewBoot } from "../components/page/TextViewBoot";
@@ -9,6 +10,7 @@ export const metadata: Metadata = siteMetadata();
 
 /** `/` renders slide 1; the stage rewrites the URL to `/s/[id]` on the client. */
 export default function HomePage() {
+  if (!deck.reader.enabled) notFound();
   const first = slides[0];
   return (
     <>

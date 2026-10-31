@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { slides } from "../lib/content";
+import { AddressBanner } from "../components/presenter/AddressBanner";
 import { GlassMode } from "../components/presenter/GlassMode";
 import { PresenterProvider } from "../lib/presenter/context";
 import { AudienceView } from "../components/presenter/AudienceView";
@@ -15,6 +16,7 @@ export default function PresentLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <GlassMode />
+      <AddressBanner />
       <PresenterProvider mode="audience" slideIds={slideIds}>
         <AudienceView>{children}</AudienceView>
       </PresenterProvider>

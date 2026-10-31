@@ -51,4 +51,5 @@
 @import "./speaker/keyboard-help.css";
 @import "./components/stage-transition.css";
 @import "./components/reading-view.css";
+@import "./components/address-banner.css";
 @import "./components/not-found.css";

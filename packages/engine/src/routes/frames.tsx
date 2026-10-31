@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { asBuildFile, buildFile, composeFrame, frameResponse } from "../lib/frames/compose";
 import { parseFlags } from "../lib/frames/origins";
+import { requestOrigin } from "../lib/site";
 import { demoFolder } from "../lib/frames/registry";
 import { matchRoute } from "../lib/frames/routes";
 import { readRecording, terminalBody, terminalWindow } from "../lib/frames/terminal";
@@ -30,8 +31,7 @@ async function handle(req: Request, ctx: Ctx): Promise<Response> {
   if (!folder || !def) return notFound("Demo build");
   // The CSP names the origin the document is actually served from; Next's req.url may carry the
   // configured hostname instead of the one the request arrived on (localhost vs 127.0.0.1).
-  const host = req.headers.get("host") ?? url.host;
-  const origin = `${req.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "")}://${host}`;
+  const origin = requestOrigin(req.headers, url);
   const rest = path.join("/");
   const page = rest === "" ? "index.html" : rest;
   if (req.method === "GET" && (page === "index.html" || def.pages?.includes(page))) {
