@@ -3,7 +3,7 @@ import type { ChildProcess } from "node:child_process";
 import path from "node:path";
 import { portOf } from "../args";
 import { CliError, EXIT, engineVersion, environment, readSummary, requireDeck, type Ctx, type ExitCode } from "../io";
-import { openUrl, portAnswers, runNext, runSelf, spawnNext, startServers, watchDeck, type RunningServers } from "../process";
+import { onSignal, openUrl, portAnswers, runNext, runSelf, spawnNext, startServers, watchDeck, type RunningServers } from "../process";
 import { PUBLIC_NOTES_LINE } from "../../lib/validate/rules/hosting";
 import { assertHosting, detectProvider, resolveHosting } from "../../next/hosting.cjs";
 import { keepsNotes, prepareDeck } from "../../prepare";
@@ -22,11 +22,6 @@ function clearDevTypes(root: string): void {
 }
 
 const STAMP = "live-ish.json";
-
-/** Stops the children, then leaves with their code. Runs on Ctrl-C and on a terminated parent. */
-function onSignal(stop: () => void) {
-  for (const signal of ["SIGINT", "SIGTERM"] as const) process.once(signal, stop);
-}
 
 /** The origin servers read to find the deck: the runtime's presenter, which `demo.ts` cannot know. */
 const presenterEnv = (port: number) => ({ LIVE_ISH_PRESENTER_ORIGIN: `http://localhost:${port}` });
