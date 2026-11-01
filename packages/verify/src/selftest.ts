@@ -1,4 +1,5 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { BrowserContext, Page } from "@playwright/test";
 import { hasFrame } from "@live-ish/engine/verify";
 import { EXIT, EnvironmentError, UsageError } from "./lib/args";
@@ -18,7 +19,7 @@ import { walk, type WalkContext } from "./walk";
 
 type Sabotage = NonNullable<WalkContext["sabotage"]>;
 
-interface Row {
+export interface Row {
   id: string;
   what: string;
   argv: string[];
@@ -60,7 +61,7 @@ const dropId = (page: { frame: { route: string } }, id: string): Sabotage => asy
   });
 };
 
-function rows(deck: DeckData): Row[] {
+export function selfTestRows(deck: DeckData): Row[] {
   const c = clicker(deck);
   const shell = deck.input.demos.find((d) => d.demo.before?.shell || d.demo.after?.shell)?.demo.id;
   const lanes = deck.demos.find((d) => d.pages.some((p) => p.steps.some((s) => s.actions.some((a) => a.type === "assert" && a.when))))?.id;
@@ -102,7 +103,7 @@ function rows(deck: DeckData): Row[] {
 }
 
 /** One row, quietly, with its failures kept. */
-async function runRow(root: string, deck: DeckData, origin: string, row: Row): Promise<{ ok: boolean; detail: string }> {
+export async function runRow(root: string, deck: DeckData, origin: string, row: Row): Promise<{ ok: boolean; detail: string }> {
   const report = new Report("selftest", false, true);
   try {
     const code = await walk([...row.argv, `--origin=${origin}`], { root, deck, sabotage: row.sabotage, report });
@@ -126,7 +127,7 @@ async function main() {
   const deck = await loadDeck(root);
   let failed = 0;
   let ran = 0;
-  for (const row of rows(deck)) {
+  for (const row of selfTestRows(deck)) {
     if (only.length && !only.includes(row.id)) continue;
     ran++;
     const { ok, detail } = await runRow(root, deck, origin, row);
@@ -137,4 +138,4 @@ async function main() {
   process.exit(failed ? 1 : 0);
 }
 
-await main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) await main();

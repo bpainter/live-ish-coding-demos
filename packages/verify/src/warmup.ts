@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { flagsAt, frameQuery, hasFrame } from "@live-ish/engine/verify";
 import { UsageError, numberOpt, parseArgs } from "./lib/args";
-import { isBlocked, loadDeck } from "./lib/deck";
+import { isBlocked, loadDeck, type DeckData } from "./lib/deck";
 import { Report } from "./lib/report";
 import { framesOriginFor } from "./lib/session";
 import { median, percentile, table } from "./lib/stats";
@@ -82,11 +82,11 @@ export function cssUrls(css: string, base: string): string[] {
   return [...css.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/g)].map((m) => m[1]).filter((u) => !u.startsWith("data:")).map((u) => new URL(u, base).href);
 }
 
-export async function warmup(argv: string[], context: { root: string }): Promise<number> {
+export async function warmup(argv: string[], context: { root: string; deck?: DeckData; report?: Report }): Promise<number> {
   const args = parseArgs(argv, { values: ["origin", "demo", "expect", "concurrency"], flags: ["json"] });
   if (args.words.length) throw new UsageError(`warmup takes no id, found ${args.words.join(", ")}.`);
-  const report = new Report("warmup", args.flag("json"));
-  const deck = await loadDeck(context.root);
+  const report = context.report ?? new Report("warmup", args.flag("json"));
+  const deck = context.deck ?? (await loadDeck(context.root));
   const P = (args.opt("origin") ?? deck.deck.hosts.site ?? "http://localhost:3000").replace(/\/$/, "");
   const D = (args.opt("demo") ?? framesOriginFor(P, deck.deck.hosts.frames)).replace(/\/$/, "");
   const concurrency = numberOpt(args, "concurrency", 6);

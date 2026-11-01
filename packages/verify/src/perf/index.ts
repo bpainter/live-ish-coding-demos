@@ -1,5 +1,5 @@
 import { UsageError, parseArgs } from "../lib/args";
-import { loadDeck } from "../lib/deck";
+import { loadDeck, type DeckData } from "../lib/deck";
 import { Report } from "../lib/report";
 import { profileOf } from "../lib/session";
 import { origins } from "./lib";
@@ -24,12 +24,12 @@ const SPEC = {
   flags: ["json", "offline", "dev", "rebaseline"],
 };
 
-export async function perf(argv: string[], context: { root: string }): Promise<number> {
+export async function perf(argv: string[], context: { root: string; deck?: DeckData; report?: Report }): Promise<number> {
   const args = parseArgs(argv, SPEC);
   const task = args.words[0] as Task | undefined;
   if (!task || !TASKS.includes(task)) throw new UsageError(`perf needs a task: ${TASKS.join(", ")}.`);
-  const report = new Report(`perf ${task}`, args.flag("json"));
-  const deck = await loadDeck(context.root);
+  const report = context.report ?? new Report(`perf ${task}`, args.flag("json"));
+  const deck = context.deck ?? (await loadDeck(context.root));
   const { P, D } = origins(args, deck);
   const ctx = { deck, args, P, D, profile: profileOf(args.opt("profile")) };
   const mod = (await import(`./${task}.ts`)) as { run(c: typeof ctx, r: Report): Promise<void> };

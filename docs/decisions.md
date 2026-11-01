@@ -102,7 +102,13 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 
 ## Verify
 
-**One entry.** `@live-ish/verify/cli` exports `run(argv, { root, engineVersion })`, and the number it returns is the exit code. `bin/live-ish-verify.mjs` runs the same entry from a deck folder with no engine CLI around it. `parity` is listed by the engine and answers exit 3: it is not built yet.
+**One entry.** `@live-ish/verify/cli` exports `run(argv, { root, engineVersion })`, and the number it returns is the exit code. `bin/live-ish-verify.mjs` runs the same entry from a deck folder with no engine CLI around it.
+
+**Parity runs the tools.** `src/parity/tools.ts` maps each matrix row with no suite to what proves it: a walk mode, `axe`, `check`, `perf`, `warmup` or a self-test. One run answers every row that reads it, narrowed to the row's pages or text, and a row needs a passing check of its own, so nothing passes by being absent. These rows run only on a deck folder. A report built from a manifest file leaves them `not-run`, and `--compare` counts a row that ran on one side apart: it proves nothing either way, so it is neither a match nor a difference. Rows proved by `pnpm test`, CI or a person stay `not-run`, and a test holds that list closed.
+
+**`parity --compare` needs no deck.** It reads two files, so `delegate` falls back to the working folder, and the repo root depends on `@live-ish/verify`, so a bare checkout resolves it.
+
+**One Playwright.** `@playwright/test` alone: parity's imports moved off `playwright`, so the package pins one version.
 
 **What walks read.** `@live-ish/engine/verify` is an internal export, so nothing else reaches into engine paths. `.live-ish/deck.gen.ts` is loaded and assembled, and every target comes from that data. A test fails if a walk's source names a slide of the starter.
 

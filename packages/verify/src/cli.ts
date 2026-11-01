@@ -1,4 +1,5 @@
 import { EXIT, EnvironmentError, UsageError } from "./lib/args";
+import { REPORT_VERSION } from "./lib/report";
 
 /** Every command this package answers. */
 export const COMMANDS = ["walk", "axe", "capture", "og", "warmup", "perf", "backgrounds", "parity"] as const;
@@ -28,7 +29,7 @@ async function dispatch(command: string, argv: string[], context: RunContext): P
     case "backgrounds":
       return (await import("./backgrounds")).backgrounds(argv, context);
     case "parity":
-      throw new EnvironmentError("live-ish parity is not in this version of @live-ish/verify.");
+      return (await import("./parity")).parity(argv, context);
     default:
       throw new UsageError(`Unknown command "${command}". Commands: ${COMMANDS.join(", ")}.`);
   }
@@ -43,14 +44,11 @@ export async function run(argv: string[], context: RunContext): Promise<number> 
   try {
     return await dispatch(command, rest, context);
   } catch (e) {
-    if (e instanceof UsageError) {
-      console.error(`live-ish: ${e.message}`);
-      return EXIT.misuse;
-    }
-    if (e instanceof EnvironmentError) {
-      console.error(`live-ish: ${e.message}`);
-      return EXIT.environment;
-    }
-    throw e;
+    const code = e instanceof UsageError ? EXIT.misuse : e instanceof EnvironmentError ? EXIT.environment : null;
+    if (code === null) throw e;
+    console.error(`live-ish: ${(e as Error).message}`);
+    // Stdout under `--json` is always one document, on a failure too.
+    if (rest.includes("--json")) console.log(JSON.stringify({ version: REPORT_VERSION, ok: false, error: { code, message: (e as Error).message } }, null, 2));
+    return code;
   }
 }

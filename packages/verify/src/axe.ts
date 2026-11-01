@@ -128,11 +128,11 @@ async function scanLastStep(session: Session, t: Target): Promise<boolean> {
   }
 }
 
-export async function axe(argv: string[], context: { root: string }): Promise<number> {
+export async function axe(argv: string[], context: { root: string; deck?: DeckData; report?: Report }): Promise<number> {
   const args = parseArgs(argv, { values: BROWSER_VALUES, flags: [...BROWSER_FLAGS, "presenter"] });
   const id = args.words[0];
-  const report = new Report(args.flag("presenter") ? "axe --presenter" : "axe", args.flag("json"));
-  const deck = await loadDeck(context.root);
+  const report = context.report ?? new Report(args.flag("presenter") ? "axe --presenter" : "axe", args.flag("json"));
+  const deck = context.deck ?? (await loadDeck(context.root));
   return withSession(deck, sessionOptions(args), report, async (session) => {
     report.log(`axe at ${session.origin}${session.options.chrome ? `, theme ${session.options.chrome}` : ""}`);
     if (args.flag("presenter")) {

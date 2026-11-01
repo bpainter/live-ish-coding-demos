@@ -11,6 +11,7 @@ export { MANIFEST_FILE, POSTERS_FILE, jpegSize, posterInputHash, type PosterReco
 export { OG_IMAGE_FILE, OG_META_FILE, ogHash, ogInputs, type OgMeta } from "./lib/validate/seo";
 export { runChecks } from "./lib/validate";
 export { encodeImages } from "./cli/commands/images";
+export { startServers } from "./cli/process";
 export { prepareDeck, writeDeckModule } from "./prepare";
 export { assembleDeck, DeckError, type AssembledDeck, type DeckInput } from "./schema/assemble";
 export { isBackgroundFile } from "./schema/backgrounds";

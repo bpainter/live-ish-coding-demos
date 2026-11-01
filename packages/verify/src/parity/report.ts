@@ -65,6 +65,7 @@ export const outcomeOf = (facts: Facts): Outcome => (Object.values(facts).includ
 const sorted = (facts: Facts) => JSON.stringify(Object.entries(facts).sort(([a], [b]) => a.localeCompare(b)));
 
 function rowDifference(a: RowResult, b: RowResult, sameTarget: boolean): string | null {
+  if (a.outcome === "not-run" || b.outcome === "not-run") return null;
   if (a.outcome !== b.outcome) return `outcome: ${a.outcome} and ${b.outcome}`;
   if (sorted(a.facts) !== sorted(b.facts)) return `facts: ${sorted(a.facts)} and ${sorted(b.facts)}`;
   // A digest holds what one deck shows, so across targets it would always differ.
@@ -74,9 +75,11 @@ function rowDifference(a: RowResult, b: RowResult, sameTarget: boolean): string 
 
 /**
  * Every row that differs, and the subset no exception covers. `ok` means that subset is empty. Facts
- * and outcomes compare across targets, and digests only between two runs of one target.
+ * and outcomes compare across targets, and digests only between two runs of one target. A row that
+ * ran on one side only proves nothing either way, so it is counted apart and never called a match:
+ * the walks read a deck folder, and a report built from a manifest has none.
  */
-export function compareReports(a: Report, b: Report, matrix: Matrix): { differences: Difference[]; unlisted: Difference[]; ok: boolean } {
+export function compareReports(a: Report, b: Report, matrix: Matrix): { differences: Difference[]; unlisted: Difference[]; oneSided: string[]; ok: boolean } {
   const listed = new Map<string, string>();
   for (const row of matrix.rows) if (row.exception) listed.set(row.id, row.exception);
   for (const e of matrix.exceptions) for (const id of e.rows) listed.set(id, e.id);
@@ -88,5 +91,6 @@ export function compareReports(a: Report, b: Report, matrix: Matrix): { differen
     if (reason) differences.push({ id, a: left, b: right, reason, ...(listed.has(id) ? { exception: listed.get(id) } : {}) });
   }
   const unlisted = differences.filter((d) => !d.exception);
-  return { differences, unlisted, ok: unlisted.length === 0 };
+  const oneSided = matrix.rows.filter(({ id }) => (a.rows[id]?.outcome === "not-run") !== (b.rows[id]?.outcome === "not-run")).map((r) => r.id);
+  return { differences, unlisted, oneSided, ok: unlisted.length === 0 };
 }
