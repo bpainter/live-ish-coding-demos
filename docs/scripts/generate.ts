@@ -135,7 +135,7 @@ function liveDeck() {
   const group = path.join(app, "(deck)");
   rmSync(group, { recursive: true, force: true });
   for (const entry of ["layout.tsx", "not-found.tsx", "s", "present", "speaker"]) cpSync(path.join(shell, entry), path.join(group, entry), { recursive: true });
-  for (const entry of ["demos", "live-ish-address", "%5Fhealth"]) {
+  for (const entry of ["demos", "live-ish", "live-ish-address", "%5Fhealth"]) {
     rmSync(path.join(app, entry), { recursive: true, force: true });
     cpSync(path.join(shell, entry), path.join(app, entry), { recursive: true });
   }

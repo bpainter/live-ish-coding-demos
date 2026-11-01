@@ -69,7 +69,7 @@ The presenter drives a frame through a small runtime, and that runtime must load
 3. Send a `Content-Security-Policy` with `frame-ancestors` that names the presenter.
 4. Define `window.demoHooks` for any hook a step calls.
 
-The generated `server.mjs` does all four in about 30 lines. `@live-ish/bridge` is a small package with no dependencies that gives any Node server the same pieces.
+`live-ish new web-demo <id> --server` installs `@live-ish/bridge` and generates a `server.mjs` that does all four with it. The bridge is a small package with no dependencies, so any Node server can use the same pieces.
 
 ## When the server is down
 
