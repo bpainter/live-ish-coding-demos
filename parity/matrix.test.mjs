@@ -9,7 +9,10 @@ const PHASES = new Set(["v0.1", "beta", "v1.0", "None"]);
 
 test("every row names a proving check", () => {
   const missing = matrix.rows.filter((r) => typeof r.check !== "string" || r.check.trim() === "");
-  assert.deepEqual(missing.map((r) => r.id), []);
+  assert.deepEqual(
+    missing.map((r) => r.id),
+    [],
+  );
 });
 
 test("every row is complete", () => {
@@ -38,7 +41,10 @@ test("a row in a suite says so in its check, and the suite exists", () => {
 });
 
 test("all 23 exceptions are listed, none signed by anyone but the owner", () => {
-  assert.deepEqual(matrix.exceptions.map((e) => e.id), Array.from({ length: 23 }, (_, i) => `E-${i + 1}`));
+  assert.deepEqual(
+    matrix.exceptions.map((e) => e.id),
+    Array.from({ length: 23 }, (_, i) => `E-${i + 1}`),
+  );
   for (const e of matrix.exceptions) {
     assert.equal(e.status, "approved-pending-owner", e.id);
     assert.ok(e.recommendation, e.id);

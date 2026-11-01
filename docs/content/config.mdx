@@ -1,0 +1,62 @@
+---
+title: Config reference
+outcome: When you finish this page, you will be able to look up every field in deck.config.ts.
+---
+
+A deck has one config file, `deck.config.ts`. It is typed and checked. `schemaVersion`, `title`, `order` and `speaker.name` are required, so four lines start a deck.
+
+```ts
+import { defineDeck } from "@live-ish/engine/config";
+
+export default defineDeck({
+  schemaVersion: 1,
+  title: "Show the code and the result",
+  order: ["title", "what-this-shows", "faq", "count-words", "closing"],
+  speaker: { name: "Your Name" },
+});
+```
+
+A wrong field fails with its path, the expected type and the nearest valid name.
+
+## Every field
+
+This table is generated from the JSON Schema the engine builds from its types. `live-ish schema` writes the same schema to `.live-ish/schema/`.
+
+<Generated name="config-table" />
+
+## Values worth knowing
+
+| Field                | Default                                                     |
+| -------------------- | ----------------------------------------------------------- |
+| `lang`               | `"en"`. Drives `<html lang>`, `og:locale` and `inLanguage`. |
+| `beats.before`       | `"What we used to do"`                                      |
+| `beats.after`        | `"What we can do today"`                                    |
+| `theme.extends`      | `"default"`                                                 |
+| `theme.grain`        | `true`                                                      |
+| `chrome.theme`       | `"glass"`                                                   |
+| `presenter.onHost`   | `false`                                                     |
+| `reader.enabled`     | `true`                                                      |
+| `reader.notes`       | `false`                                                     |
+| `reader.index`       | `true`                                                      |
+| `analytics.provider` | `"none"`                                                    |
+| `writing.preset`     | `"none"`                                                    |
+| `checks.fit`         | `"warn"`                                                    |
+| `verify.browsers`    | `["chromium"]`                                              |
+
+`speaker`, `event`, `links` and `brand` feed the cover, the closing slide, the metadata and the structured data from one place. An unset field is left out of the structured data, and an unset `event` drops the Event node.
+
+`links.tag` adds query values to outbound links only. Its default adds nothing, so a link is never rewritten without you asking.
+
+## Demo fields
+
+`demos/<id>/demo.ts` default-exports `defineDemo()`. [Web demos](/web-demos) explains them in context.
+
+<Generated name="demo-fields" />
+
+## Environment overrides
+
+See [deploy](/deploy#environment-overrides). Nothing else is configured by environment.
+
+## Public and internal
+
+Anything public follows SemVer. Anything else can change in any release. See [architecture](/architecture#public-and-internal).

@@ -1,0 +1,87 @@
+# Stages all four packages. Nothing goes live from here: a maintainer reads the tarballs, then
+# approves each one with 2FA. See docs/content/release.mdx.
+#
+# This cannot run until the owner has done all of these:
+#   1. Set the PUBLISH_ENABLED repository variable to true.
+#   2. Created the npm-publish environment, with required reviewers.
+#   3. Set this repo and this workflow as a trusted publisher on npm, for each package.
+#
+# There is no npm token, here or in any secret. The id-token permission is the only credential.
+name: publish
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    if: vars.PUBLISH_ENABLED == 'true' && github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - run: echo "Publishing is on for this repository."
+
+  static:
+    needs: gate
+    uses: ./.github/workflows/static.yml
+  unit:
+    needs: gate
+    uses: ./.github/workflows/unit.yml
+  pack:
+    needs: gate
+    uses: ./.github/workflows/pack.yml
+  starter:
+    needs: gate
+    uses: ./.github/workflows/starter.yml
+  conformance:
+    needs: gate
+    uses: ./.github/workflows/conformance.yml
+  readme:
+    needs: gate
+    uses: ./.github/workflows/readme.yml
+  themes:
+    needs: gate
+    uses: ./.github/workflows/themes.yml
+  cross-browser:
+    needs: gate
+    uses: ./.github/workflows/cross-browser.yml
+  offline:
+    needs: gate
+    uses: ./.github/workflows/offline.yml
+  theme-budgets:
+    needs: gate
+    uses: ./.github/workflows/theme-budgets.yml
+
+  stage:
+    needs: [static, unit, pack, starter, conformance, readme, themes, cross-browser, offline, theme-budgets]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@12.2.1
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Pack with pnpm, so workspace ranges become versions
+        run: |
+          mkdir -p "$RUNNER_TEMP/tarballs"
+          for pkg in engine verify bridge create; do
+            pnpm --dir "packages/$pkg" pack --pack-destination "$RUNNER_TEMP/tarballs"
+          done
+      - name: Stage each tarball under the next tag
+        run: |
+          for tarball in "$RUNNER_TEMP"/tarballs/*.tgz; do
+            npm stage publish "$tarball" --tag next --access public --provenance
+          done

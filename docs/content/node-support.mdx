@@ -1,0 +1,31 @@
+---
+title: Node support policy
+outcome: When you finish this page, you will know which Node versions and package managers Live-ish supports, and what happens on an older one.
+---
+
+## Node
+
+Live-ish supports the active LTS and later. At launch, that is Node 22.
+
+`live-ish` and `create-live-ish` check the version first. On an older Node, they print the required version and exit 3.
+
+Dropping a Node version is a breaking change, with a changelog entry. During `0.x`, that means a minor release.
+
+## Package managers
+
+| Manager | Status                             |
+| ------- | ---------------------------------- |
+| pnpm    | Tested in CI, in the `starter` job |
+| npm     | Tested in CI, in the `starter` job |
+| Yarn    | Best effort                        |
+| Bun     | Best effort                        |
+
+The starter deck writes a `pnpm-workspace.yaml` when you scaffold with pnpm, because pnpm 12 stops an install at any build script it was not told about.
+
+## Next.js and React
+
+`next`, `react` and `react-dom` are peer dependencies. The range is narrow today, `~16.4.3` for Next and `19.3.1` for React, and that is what CI runs. A major Next release gets its own engine minor.
+
+## This repository
+
+The repo pins its own tools. `.nvmrc` sets Node, and `packageManager` sets pnpm with a hash, through Corepack.

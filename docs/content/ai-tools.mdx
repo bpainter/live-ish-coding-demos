@@ -1,0 +1,86 @@
+---
+title: AI tools
+outcome: When you finish this page, you will know what a new deck gives a coding agent, what stays enforced with or without one, and how to remove it all.
+---
+
+People will use an AI tool to make slides. Live-ish ships plain text files for that, and works the same with none of them. Nothing here is required to author, build or present.
+
+## What a deck gets
+
+| File                    | Purpose                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| `AGENTS.md`             | The instructions. Codex, Cursor, Copilot's coding agent, Gemini CLI and others read this format. |
+| `CLAUDE.md`             | One import line, for Claude Code.                                                                |
+| `.agents/skills/`       | Skills for tools reading that path. Generated.                                                   |
+| `.claude/skills/`       | Skills for Claude Code. Generated.                                                               |
+| `.live-ish/schema/`     | Machine-readable contracts, written by `dev`, `build` and `schema`.                              |
+| `.live-ish/skills.lock` | Versions and hashes.                                                                             |
+
+Skip all of it with `--no-agents` on the scaffolder. Add it later with `live-ish add agents`.
+
+## The rules an agent gets
+
+- Use `live-ish new` to create slides. Do not hand-write engine internals.
+- Edit only `slides/`, `demos/`, `themes/`, `public/` and `deck.config.ts`.
+- Never edit `app/`, `next.config.ts`, `.live-ish/` or `node_modules/`.
+- Run `live-ish check --json` after each change, and fix what it reports.
+- Take browser support from `live-ish support`. Never state it from memory.
+- Do not deploy unless the user asks.
+- Speaker notes are the author's words. Ask before rewriting them.
+
+## What stays enforced
+
+Instructions are context, so anything that must hold is enforced elsewhere.
+
+| Rule                              | Enforced by                                                                                  |
+| --------------------------------- | -------------------------------------------------------------------------------------------- |
+| The deck is valid                 | `live-ish check`, which `live-ish build` runs first                                          |
+| The shell is untouched            | `live-ish doctor` hashes                                                                     |
+| No invented support claim         | The [`support-claim`](/errors/support-claim) rule. `support` takes only a `web-features` id. |
+| Generated skills are not drifting | [`skills-stale`](/errors/skills-stale) and `live-ish skills sync --check`                    |
+
+## Skills
+
+A skill is a folder of instructions. Each one uses the public CLI and maps to a docs page, so a person with no AI tool has the same path.
+
+| Skill                 | Job                                               | Docs                              |
+| --------------------- | ------------------------------------------------- | --------------------------------- |
+| `add-copy-slide`      | Add a copy slide, in any layout                   | [Copy slides](/copy-slides)       |
+| `add-web-demo`        | Add a web demo, with steps and code               | [Web demos](/web-demos)           |
+| `add-terminal-demo`   | Add a terminal demo with its code                 | [Terminal demos](/terminal-demos) |
+| `write-speaker-notes` | Draft or tighten notes                            | [Speaker notes](/speaker-notes)   |
+| `apply-chrome-theme`  | Pick a theme and apply it                         | [Audience themes](/themes)        |
+| `create-chrome-theme` | Make a custom theme                               | [Custom themes](/custom-themes)   |
+| `check-deck`          | Run the checks and fix what is safe               | [Verification](/verification)     |
+| `upgrade-deck`        | Update the engine, shell and skills. Manual only. | [Upgrading](/upgrading)           |
+| `deploy-deck`         | Deploy to your host. Manual only.                 | [Deploy](/deploy)                 |
+
+Every skill follows the same rules: run `live-ish check` before saying a task is done, never state browser support without `live-ish support`, and stop and report if `check` fails twice on the same issue.
+
+## Keeping them current
+
+```text
+pnpm live-ish skills sync
+pnpm live-ish skills sync --check
+```
+
+`skills sync` regenerates both skill folders from the engine. `--check` fails on any difference. `live-ish upgrade` regenerates them with the engine and shell. If you edited a skill, the new version goes to `.live-ish/skills-incoming/<name>/`, and `upgrade` prints a line naming it.
+
+`AGENTS.md` holds a marked generated block and your own section. `upgrade` replaces only the block.
+
+## Machine-readable surfaces
+
+| Surface                           | What it gives a tool                                           |
+| --------------------------------- | -------------------------------------------------------------- |
+| `--json`                          | A stable, versioned shape on stdout                            |
+| Exit codes                        | 0 pass, 1 findings, 2 misuse, 3 environment                    |
+| `live-ish schema`                 | JSON Schema for the deck, slides, demos, recordings and themes |
+| `live-ish actions --json`         | Action types and the assert grammar                            |
+| `live-ish themes --json`          | Every theme id and its traits                                  |
+| `live-ish support <query> --json` | Ids, versions and Baseline dates                               |
+| `live-ish explain <rule>`         | A rule's docs, offline                                         |
+| [llms.txt](/llms.txt)             | An index of these docs                                         |
+
+## Remove it
+
+Delete `AGENTS.md`, `CLAUDE.md`, `.agents/` and `.claude/`. Nothing breaks, and `check` does not need them.

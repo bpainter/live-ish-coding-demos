@@ -1,0 +1,54 @@
+---
+title: Deploy with Docker
+outcome: When you finish this page, you will have a Dockerfile for a deck, and you will know what to check before you trust it.
+---
+
+**Status.** This is a sample. It has not been built or run. The project plans a published image for v1.0.
+
+## Dockerfile
+
+Put this in the deck's folder.
+
+```dockerfile
+FROM node:22-slim
+WORKDIR /deck
+RUN corepack enable
+
+COPY . .
+RUN pnpm install --frozen-lockfile
+
+ARG LIVE_ISH_SITE_ORIGIN
+ENV LIVE_ISH_SITE_ORIGIN=$LIVE_ISH_SITE_ORIGIN
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN pnpm live-ish build
+
+EXPOSE 3000
+CMD ["pnpm", "live-ish", "start", "--port=3000"]
+```
+
+Add a `.dockerignore`.
+
+```text
+node_modules
+.next
+.next-present
+.live-ish
+public/live-ish
+public/opt
+```
+
+## Build and run
+
+The site's address is set at build, so pass it as an argument.
+
+```text
+docker build --build-arg LIVE_ISH_SITE_ORIGIN=https://talk.example.com -t my-talk .
+docker run -p 3000:3000 my-talk
+```
+
+## Notes
+
+- A deck with `servers` needs those apps in their own containers. Set `hosts.external` to reach them.
+- `demos/` and `.live-ish/` must stay in the image, because the server reads them at request time. Next's `standalone` output is not tested.
+- `sharp` brings prebuilt `libvips` binaries with their own licenses. See `THIRD_PARTY.md`.
+- Behind a proxy, follow the [Node server](/deploy/node) page.

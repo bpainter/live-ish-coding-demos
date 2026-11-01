@@ -1,0 +1,65 @@
+---
+title: Contributing
+outcome: When you finish this page, you will have the repo running, and you will know what CI expects from a pull request.
+---
+
+`CONTRIBUTING.md` in the repo holds the setup, the rules and the DCO sign-off. This page adds what CI runs.
+
+## Set up
+
+```text
+corepack enable
+pnpm install
+pnpm test
+```
+
+The repo pins Node in `.nvmrc`, and pnpm in `packageManager`.
+
+## What CI runs
+
+GitHub Actions. Every workflow pins its actions by full commit SHA and sets minimal permissions.
+
+| Job             | When                        | What                                                                                 | Blocks merge     |
+| --------------- | --------------------------- | ------------------------------------------------------------------------------------ | ---------------- |
+| `static`        | Every pull request          | Typecheck, ESLint, Prettier, the private scan                                        | Yes              |
+| `unit`          | Every pull request          | The `node:test` units                                                                | Yes              |
+| `pack`          | Every pull request          | Packs tarballs, checks `exports` and types                                           | Yes              |
+| `starter`       | Every pull request          | Scaffolds from the tarballs with pnpm and npm, builds, starts and walks              | Yes              |
+| `conformance`   | Every pull request          | Chromium walk, `axe`, keys and a11y walks on the conformance deck                    | Yes              |
+| `budgets`       | Every pull request          | Underlay and focus walks, and weight budgets                                         | Warns for now    |
+| `readme`        | Every pull request          | Runs the quick start from a blank folder, then checks line count and links           | Yes              |
+| `themes`        | Every pull request          | Contrast on all themes, then `axe` and a walk per theme                              | Yes              |
+| `generated`     | Every pull request          | Rebuilds theme outputs and skills, and fails on a difference                         | Yes              |
+| `skills`        | Every pull request          | Skill validation, size limits, scripted commands, and a run with agent files removed | Yes              |
+| `matrix`        | Every pull request          | Every parity row has a proving check                                                 | Yes              |
+| `cross-browser` | Nightly, before a release   | WebKit and Firefox on the conformance deck                                           | Blocks a release |
+| `offline`       | Nightly                     | A local-only walk with outbound traffic blocked                                      | Blocks a release |
+| `theme-budgets` | Nightly                     | Underlay walk and load budget per theme                                              | Blocks a release |
+| `agent-evals`   | Nightly, protected branches | Trigger prompts and golden tasks                                                     | Warns            |
+| `parity`        | Nightly, private runner     | `live-ish parity` on the conformance deck                                            | Blocks v1.0      |
+| `codeql`        | Weekly                      | Static security analysis                                                             | Advisory         |
+
+Pure logic tests use `node:test`, and a contributor must be able to run `pnpm test` in about a minute with no browser. A bug in the engine gets a page in `examples/conformance`.
+
+## Add to the docs
+
+Pages live in `docs/content/` as MDX. Each opens with an `outcome` in its frontmatter, which says what the reader will have when done. List a new page in `docs/lib/nav.ts`.
+
+House style: sentence case headings, plain direct sentences, no em or en dashes and no exclamation marks. Tests enforce the mechanical parts, and they check every `live-ish` command against `live-ish --help`.
+
+```text
+pnpm --filter docs dev
+pnpm --filter docs test
+pnpm docs:build
+pnpm --filter docs check:links
+```
+
+Never hand-edit a generated table. Rule pages come from `packages/engine/rules/*.md`, the theme gallery from the theme files, the budgets from `packages/verify/budgets.json` and the parity table from `parity/matrix.json`.
+
+## Add a rule
+
+Add the rule, its broken fixture, its tier in `catalog.ts`, and `packages/engine/rules/<id>.md`. A test fails if a rule has no page.
+
+## Add a theme
+
+Add `packages/engine/themes/<id>.json` and run `pnpm gen:themes`. The types, the schema, the docs tables and the README line all follow. Run `pnpm test:contrast`.

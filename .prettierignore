@@ -1,0 +1,29 @@
+# Each workstream joins this check when its own files are reformatted. Until then, they stay out.
+packages/
+examples/
+scripts/export/
+scripts/scan/
+scripts/hosting.mts
+scripts/smoke.mts
+docs/decisions.md
+
+# Generated or machine-written.
+.agents/
+.claude/
+parity/matrix.json
+pnpm-lock.yaml
+.changeset/*.md
+.changeset/pre.json
+**/CHANGELOG.md
+docs/generated/
+docs/.gen/
+docs/.live-ish/
+docs/.next/
+docs/public/
+docs/slides/
+docs/demos/
+docs/deck.config.ts
+docs/app/(deck)/
+docs/app/demos/
+docs/app/live-ish-address/
+docs/app/%5Fhealth/

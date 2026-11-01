@@ -1,0 +1,118 @@
+---
+title: Deploy a deck
+outcome: When you finish this page, you will know which hosting mode your deck needs, what a deployed build leaves out, and which provider page to follow.
+---
+
+You do not need to deploy to present. [`live-ish present`](/offline) serves a deck from your laptop. Deploy when you want a link to share.
+
+## The three modes
+
+| Mode      | Origins                                                | Frame isolation                  | Network | When                                                              |
+| --------- | ------------------------------------------------------ | -------------------------------- | ------- | ----------------------------------------------------------------- |
+| Local     | `localhost:<port>` and `127.0.0.1:<port>`, one process | Full                             | None    | Rehearsal and the stage. No config.                               |
+| One host  | One                                                    | None between frame and presenter | Yes     | The default when deployed. A shared link, and your own demo code. |
+| Two hosts | Two domains on one deployment                          | Full                             | Yes     | Demos that run code you did not write, or a public presenter.     |
+
+A browser keeps two origins from reading each other. Two origins protect the presenter from a demo. Most decks run their author's own code, so one host is the right default. [This site](/live) runs the starter that way.
+
+## Build
+
+```text
+pnpm live-ish build
+```
+
+`build` runs `check`, then makes a deployable build. It needs to know the site's address, for canonical URLs. A host preset can supply it, or you can set it yourself.
+
+```ts
+hosts: { site: "https://talk.example.com" },
+```
+
+To add a frames host, set `hosts.frames` too.
+
+```ts
+hosts: { site: "https://talk.example.com", frames: "https://frames.example.com" },
+```
+
+Point both domains at the same deployment. A frame document names the presenter in `frame-ancestors`.
+
+A Node server is required, with `fs` at request time. Static hosts do not work.
+
+## Environment overrides
+
+| Variable                 | Overrides      | Why                                                 |
+| ------------------------ | -------------- | --------------------------------------------------- |
+| `LIVE_ISH_SITE_ORIGIN`   | `hosts.site`   | Different values per environment.                   |
+| `LIVE_ISH_FRAMES_ORIGIN` | `hosts.frames` | Same.                                               |
+| `LIVE_ISH_BUILD_ID`      | The build id   | Falls back to the provider's commit, then to `dev`. |
+
+Nothing else is configured by environment.
+
+## What counts as deployed
+
+`live-ish build` always makes a deployed build. A plain `next build` counts as deployed only where a provider's own variable says so: `VERCEL`, `NETLIFY`, `CF_PAGES`, `RENDER` or `RAILWAY_ENVIRONMENT_NAME`. Anywhere else, a plain `next build` is a local build with your notes in it, and prints a line saying so. On your own server, use `live-ish build`.
+
+## Notes on a public host
+
+A stranger should not publish private notes by deploying.
+
+- `presenter.onHost` is `false` by default. On a deployed host, `/present` and `/speaker` answer 404, and those pages are left out of the build.
+- `reader.notes` is `false` by default.
+- `live-ish build` reads the finished build back and fails if a note is in it.
+- To present from the host, set `presenter.onHost: true`. `check` then prints one line: "Your speaker notes are public at /speaker."
+
+Local modes are unaffected.
+
+## What one host gives up
+
+| Area         | What happens                                            | What to do                                                                                          |
+| ------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Isolation    | A frame can reach `parent.document`.                    | Run your own code. `check` warns on third-party scripts. Use two hosts for the rest.                |
+| Storage      | Frames share `localStorage` with the presenter.         | Keys are prefixed by deck, and `check` warns on `.clear()` in shown code. A cleared store recovers. |
+| Sync channel | A frame can open the presenter's channel.               | Same as isolation.                                                                                  |
+| Routes       | A demo's routes share one namespace with the presenter. | `reserved-route` fails on a clash.                                                                  |
+| Cookies      | Shared.                                                 | Keep demos from setting cookies the presenter would read.                                           |
+
+One host also brings a gain. Backgrounds and fonts download once, not once per origin.
+
+Previews work on one host, because `'self'` needs no name. On two hosts, a preview shows posters, because the frames host names production in `frame-ancestors`.
+
+## What has been run
+
+The hosting modes passed a harness in Chromium and WebKit, on a laptop, against `next start`. One host, two local origins and two named origins all ran. It has not run on a real provider yet. Each provider page says what has and has not run.
+
+## Pick a provider
+
+| Target                               | Status                                               |
+| ------------------------------------ | ---------------------------------------------------- |
+| [Vercel](/deploy/vercel)             | Has a full preset. Not yet run on a real deployment. |
+| [Netlify](/deploy/netlify)           | Detected, and otherwise best effort.                 |
+| [Cloudflare](/deploy/cloudflare)     | Detected, and otherwise best effort.                 |
+| [Render](/deploy/render)             | Detected. Runs `next start`.                         |
+| [Railway](/deploy/railway)           | Detected. Runs `next start`.                         |
+| [Your own Node server](/deploy/node) | `next start`, behind a proxy.                        |
+| [Docker](/deploy/docker)             | A sample image. Not run yet.                         |
+| GitHub Pages or any static host      | Not supported.                                       |
+
+## After a deploy
+
+```text
+curl -s https://talk.example.com/_health
+pnpm live-ish warmup --origin=https://talk.example.com
+pnpm live-ish perf headers --origin=https://talk.example.com
+```
+
+`/_health` names the build. `warmup` fetches every page and file, and `perf headers` checks the cache rules. Both need [`@live-ish/verify`](/verification).
+
+## Caching
+
+Production builds cache by path. Development stays `no-store`, so edits show at once.
+
+| Path                                                                                          | `Cache-Control`                                   | Why                                                                |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
+| `/_next/static/**`                                                                            | One year, immutable                               | Hashed names                                                       |
+| `/opt/*`                                                                                      | One year, immutable                               | Hashed names                                                       |
+| `/live-ish/*` with `?v=`                                                                      | One year, immutable                               | The shell adds a content hash                                      |
+| `/images`, `/fonts`, `/intro`, `/posters` and `/backgrounds`, and `/live-ish/*` without `?v=` | One hour, then stale for a day while revalidating | Names never change, so a dropped Wi-Fi still paints a cached slide |
+| Frame documents and demo routes                                                               | `no-store`                                        | They depend on flags and per-request state                         |
+
+A cached file with a fixed name can be an hour old after a deploy. That is why the [stage-day checklist](/stage-day) freezes deploys and clears the cache after one.
