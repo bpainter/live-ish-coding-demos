@@ -4,6 +4,7 @@ import path from "node:path";
 import { CliError, EXIT, environment, readSummary, requireDeck, type Ctx, type ExitCode } from "../cli/io";
 import { runNext, spawnNext } from "../cli/process";
 import { flagsQuery } from "../lib/frames/origins";
+import { SHARE_CARD } from "../lib/share-card";
 import { keepsNotes, prepareDeck } from "../prepare";
 import { collectNotes } from "../prepare/strip";
 import { frameRefs, planExport, staticFrame, type ExportPlan } from "./plan";
@@ -80,6 +81,10 @@ async function crawlPages(origin: string, out: string, slides: string[]) {
   }
   save(out, "404.html", await (await fetch(`${origin}/live-ish-export-missing-page`)).text());
   for (const file of ["/sitemap.xml", "/robots.txt"]) save(out, file, await (await fetch(`${origin}${file}`)).text());
+  // A route, not a file in public/, and every page names it.
+  const card = await fetch(`${origin}${SHARE_CARD.path}`);
+  if (!card.ok) throw new CliError(`${SHARE_CARD.path} answered ${card.status} while exporting.`, EXIT.findings);
+  save(out, SHARE_CARD.path, Buffer.from(await card.arrayBuffer()));
 }
 
 function leakedNotes(out: string, notes: string[]): string[] {

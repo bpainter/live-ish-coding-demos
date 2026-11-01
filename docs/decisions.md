@@ -236,3 +236,13 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **pnpm 9 needs `packages` in `pnpm-workspace.yaml`.** A blank folder runs whatever pnpm Corepack has as its default, and pnpm 9 refuses a workspace file without that field. The scaffolder now writes `packages: ["."]`.
 
 **Prettier covers only files that joined.** `.prettierignore` lists `packages/`, `examples/` and other workstreams' scripts, so `format:check` is real today without reformatting anyone's files.
+
+## Share card
+
+**The default card is a route, not `opengraph-image`.** Next's file convention outranks config metadata, so it would hide a `live-ish og` capture. `app/live-ish/og/card.png/route.ts` is a plain shell file that `next/og` draws at build, and `seo-core` names it only when there is no capture. With no site there is no address for a card, so that build keeps the text card.
+
+**The card draws only what its font holds.** `next/og` asks Google Fonts for any glyph its bundled font lacks, with the deck's text in the address. A failed font load only logs, but a failed emoji load stops the build, and a build must pass offline. `drawable()` strips emoji and symbols, and drops a line that would lose a letter or digit, because half a title reads as a different title. A title in another script gets a card with no title on it. `og:title` and the alt text still carry it. A test renders every listed character with `fetch` trapped, so a new font in Next fails there.
+
+**Share images are allowed in `robots.txt`.** They sit under `/live-ish/`, which is disallowed, and a preview bot that may not fetch an image shows none. That also blocked `live-ish og` captures. `Allow: /live-ish/og/` is the longer match, so it wins.
+
+**`export` saves the card.** It is a route, so copying `public/` would miss it, and every exported page names it.
