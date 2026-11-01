@@ -12,11 +12,13 @@ import { checkDistinct, walkDeck } from "./deck";
 import { walkFocus } from "./focus";
 import { walkKeys } from "./keys";
 import { walkDrawer, walkLinks, walkTransitions } from "./nav";
+import { stoppedPages, walkServersDown } from "./servers";
 import { walkFixture } from "./spotlight";
 import { openStepWalk, walkPage } from "./steps";
+import { walkTheme } from "./theme";
 import { walkUnderlay } from "./underlay";
 
-export const MODES = ["advance", "drawer", "links", "keys", "focus", "underlay", "a11y", "transitions", "fixtures", "deck"] as const;
+export const MODES = ["advance", "drawer", "links", "keys", "focus", "underlay", "a11y", "transitions", "fixtures", "deck", "theme", "servers"] as const;
 export type Mode = (typeof MODES)[number];
 
 export const WALK_SPEC = {
@@ -58,7 +60,7 @@ async function checkBlocked(session: Session) {
 async function runMode(session: Session, mode: Mode | undefined, id: string | undefined, args: ReturnType<typeof parseArgs>) {
   const { report, deck } = session;
   const serversUp = await runningServers(deck);
-  for (const app of Object.keys(deck.deck.hosts.external)) if (!serversUp.has(app)) report.note(`app ${app} is not running: its pages are skipped`);
+  for (const app of Object.keys(deck.deck.hosts.external)) if (!serversUp.has(app)) report.note(`app ${app} is not running: its pages get the stopped-app checks, and no steps`);
   switch (mode) {
     case "advance":
       return walkAdvance(session, id, serversUp);
@@ -80,6 +82,10 @@ async function runMode(session: Session, mode: Mode | undefined, id: string | un
       return walkKeys(session, serversUp);
     case "a11y":
       return walkA11y(session, serversUp);
+    case "theme":
+      return walkTheme(session, serversUp);
+    case "servers":
+      return walkServersDown(session, serversUp, id);
     case "focus": {
       const list = (name: string, fallback: string) => (args.opt(name) ?? fallback).split(",").map(Number);
       return walkFocus(session, id, list("holds", "0,1500,3000"), list("delays", "300,600,900,1250,2500,4000"), args.flag("serial"), serversUp);
@@ -108,7 +114,8 @@ async function runMode(session: Session, mode: Mode | undefined, id: string | un
   const w = await openStepWalk(session, args.flag("capture"), !args.flag("no-speaker"));
   const live = new Set(liveFrames(deck, serversUp).map((t) => t.page.id));
   const pages = deck.demos.flatMap((demo) => demo.pages.filter((p) => matches(id, demo, p) && (!hasFrame(p) || live.has(p.id))).map((page) => ({ demo, page })));
-  if (id && !pages.length) throw new UsageError(`No page or demo "${id}" in this deck.`);
+  const stopped = stoppedPages(deck, serversUp, id);
+  if (id && !pages.length && !stopped.length) throw new UsageError(`No page or demo "${id}" in this deck.`);
   for (const { demo, page } of pages) {
     try {
       await walkPage(w, demo, page);
@@ -117,6 +124,7 @@ async function runMode(session: Session, mode: Mode | undefined, id: string | un
     }
   }
   await w.context.close();
+  if (stopped.length) await walkServersDown(session, serversUp, id);
 }
 
 /** Mode from `--mode`, or from the first word when it names one: `walk underlay faq`. */
