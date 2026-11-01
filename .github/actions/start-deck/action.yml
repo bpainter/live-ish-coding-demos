@@ -12,10 +12,24 @@ inputs:
     description: Set to "1" to copy all five font families, so a chrome preview shows real faces.
     required: false
     default: ""
+  capture:
+    description: Set to "1" to capture posters first. Examples git-ignore theirs, so a clean checkout has none, and the underlay walk and parity need them.
+    required: false
+    default: ""
 
 runs:
   using: composite
   steps:
+    # Capture builds and serves a copy of its own, so the build below is the one that picks the
+    # posters up, and no second start is needed.
+    - name: Capture posters
+      if: inputs.capture == '1'
+      shell: bash
+      env:
+        DECK: ${{ inputs.deck }}
+        LIVE_ISH_ALL_FONTS: ${{ inputs.all-fonts }}
+      run: pnpm ci:capture "$DECK"
+
     - name: Build
       shell: bash
       env:

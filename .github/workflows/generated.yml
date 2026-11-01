@@ -1,4 +1,4 @@
-# Rebuilds theme outputs, the README theme line and skills, and fails on any difference. Blocks merge.
+# Rebuilds theme outputs and the README theme line, compares skills to their source, and fails on any difference. Blocks merge.
 name: generated
 
 on:
@@ -25,5 +25,9 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm gen:themes
       - run: pnpm gen:readme
-      - run: pnpm --filter starter exec live-ish skills sync --check
-      - run: git diff --exit-code
+      # From the repo root, not a deck: a deck checks its own skills, and the starter has none.
+      - run: pnpm live-ish skills sync --check
+      - name: Fail on any difference, new files included
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"

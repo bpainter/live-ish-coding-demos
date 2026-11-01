@@ -1,4 +1,4 @@
-# WebKit and Firefox on the conformance deck. Nightly and before a release, which it blocks.
+# WebKit and Firefox on the conformance deck and the starter. Nightly and before a release, which it blocks.
 name: cross-browser
 
 on:
@@ -22,6 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         browser: [webkit, firefox]
+        deck: [conformance, starter]
+    env:
+      BROWSER: ${{ matrix.browser }}
+      DECK: ${{ matrix.deck }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -31,8 +35,6 @@ jobs:
           browsers: ${{ matrix.browser }}
       - uses: ./.github/actions/start-deck
         with:
-          deck: conformance
+          deck: ${{ matrix.deck }}
           port: 3400
-      - run: pnpm --filter conformance exec live-ish walk --browser="$BROWSER" --origin=http://localhost:3400
-        env:
-          BROWSER: ${{ matrix.browser }}
+      - run: pnpm --filter "$DECK" exec live-ish walk --browser="$BROWSER" --origin=http://localhost:3400

@@ -1,4 +1,4 @@
-# skills-ref validate, size limits, scripted commands on a fresh starter, and a run with all agent files removed. Blocks merge.
+# skills-ref validate, size limits, scripted commands on a fresh starter, and a build and walk with all agent files removed. Blocks merge.
 name: skills
 
 on:
@@ -25,6 +25,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
       - name: Validate each skill
         run: |
           for skill in packages/engine/skills/*/; do
