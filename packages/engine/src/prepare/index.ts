@@ -250,7 +250,12 @@ export function deckId(title: string): string {
 function writeSummary(root: string, input: DeckInput, assembled: AssembledDeck) {
   const addresses = assembled.demos.flatMap((d) => d.routes ?? []).map((r) => (typeof r.path === "string" ? { path: r.path } : { regex: r.path.source }));
   const { hosts, presenter, reader, title } = assembled.deck;
-  write(path.join(root, OUT, "deck.json"), JSON.stringify({ firstSlide: assembled.slides[0].id, deckId: deckId(title), hosts, presenter, reader, addresses, demoFiles: demoFiles(root), demos: input.demos.map((d) => d.demo.id), servers: input.config.servers ?? [], customThemes: input.config.chrome?.custom ?? [] }, null, 2) + "\n");
+  write(path.join(root, OUT, "deck.json"), JSON.stringify({ firstSlide: assembled.slides[0].id, deckId: deckId(title), hosts, presenter, reader, addresses, publicFiles: publicFiles(root), demoFiles: demoFiles(root), demos: input.demos.map((d) => d.demo.id), servers: input.config.servers ?? [], customThemes: input.config.chrome?.custom ?? [] }, null, 2) + "\n");
+}
+
+/** The deck's own stylesheets and scripts under public/, which keep their names. `withDeck()` caches them. */
+function publicFiles(root: string): string[] {
+  return listFiles(path.join(root, "public"), ".").filter((f) => /\.(css|m?js)$/.test(f) && !/^\/(live-ish|opt)\//.test(f));
 }
 
 /**
