@@ -41,15 +41,15 @@ Read from each installed `package.json`. A deck installs its own copy of these, 
 | `react`, `react-dom`                  | 19.3.1  | MIT        | Peers of the engine |                                                                                    |
 | `shiki`                               | 4.5.0   | MIT        | Engine              |                                                                                    |
 | `tsx`                                 | 4.23.15 | MIT        | Engine              | Runs the CLI.                                                                      |
-| `postcss`                             | 8.5.31  | MIT        | Engine              |                                                                                    |
+| `postcss`                             | 8.5.32  | MIT        | Engine              |                                                                                    |
 | `qrcode`                              | 1.5.4   | MIT        | Engine              | Generates the closing slide's code at build.                                       |
 | `hast-util-to-jsx-runtime`            | 2.3.6   | MIT        | Engine              |                                                                                    |
 | `server-only`                         | 0.0.1   | MIT        | Engine              |                                                                                    |
-| `linkedom`                            | 0.18.12 | ISC        | Engine              |                                                                                    |
-| `lucide-react`                        | 1.61.0  | ISC        | Engine              | See the icons note above.                                                          |
+| `linkedom`                            | 0.18.14 | ISC        | Engine              |                                                                                    |
+| `lucide-react`                        | 1.64.0  | ISC        | Engine              | See the icons note above.                                                          |
 | `web-features`                        | 3.44.0  | Apache-2.0 | Engine              | A deck's support data derives from it.                                             |
 | `typescript`                          | 5.9.3   | Apache-2.0 | Development only    |                                                                                    |
-| `@playwright/test`                    | 1.58.2  | Apache-2.0 | `@live-ish/verify`  | Downloads browsers, which have their own licenses, only when a deck adds `verify`. |
+| `@playwright/test`                    | 1.64.1  | Apache-2.0 | `@live-ish/verify`  | Downloads browsers, which have their own licenses, only when a deck adds `verify`. |
 | `axe-core`                            | 4.14.0  | MPL-2.0    | `@live-ish/verify`  | Unmodified.                                                                        |
 | `lighthouse`                          | 12.8.2  | Apache-2.0 | `@live-ish/verify`  | Not a dependency. `perf lighthouse` fetches this pinned version with `pnpm dlx`.   |
 | `tailwindcss`, `@tailwindcss/postcss` | 4.3.3   | MIT        | Development only    | The engine ships compiled CSS.                                                     |
