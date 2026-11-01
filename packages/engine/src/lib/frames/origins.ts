@@ -28,6 +28,11 @@ export const HOSTING: Hosting = {
 };
 const EXTERNAL: Record<string, string> = JSON.parse(process.env.NEXT_PUBLIC_LIVE_ISH_EXTERNAL ?? "{}") as Record<string, string>;
 const FRAMES_OFF = Boolean(process.env.NEXT_PUBLIC_LIVE_ISH_FRAMES_OFF);
+/** A `live-ish export`: frames are files, one per flag combination, on a host with no server. */
+const EXPORTED = process.env.NEXT_PUBLIC_LIVE_ISH_EXPORT === "1";
+const POSTER_ROUTES: string[] = JSON.parse(process.env.NEXT_PUBLIC_LIVE_ISH_POSTER_ROUTES ?? "[]") as string[];
+/** Flags the presenter window adds for itself. No build is composed differently for them. */
+const WINDOW_FLAGS = new Set(["glass", "capture"]);
 /** A server frame's route names its app: `/@shop/products/1`. */
 const SERVER_ROUTE = /^\/@([\w-]+)(\/.*)?$/;
 
@@ -93,7 +98,7 @@ export const serverUpUrl = (app: string) => `/demos/live-ish-server/${app}`;
  * address the frames host does not name in `frame-ancestors`. Safe during server rendering.
  */
 export function frameLive(route: string): boolean {
-  if (FRAMES_OFF) return false;
+  if (FRAMES_OFF || POSTER_ROUTES.includes(route)) return false;
   const app = serverApp(route);
   return !app || Boolean(EXTERNAL[app]);
 }
@@ -101,6 +106,7 @@ export function frameLive(route: string): boolean {
 /** What a poster says in place of a frame that is off, or of an app that does not answer. */
 export function offlineNote(stopped = false): string {
   if (stopped) return "Captured still. This live demo's server is not running.";
+  if (EXPORTED) return "Captured still. This live demo needs a server, which this copy of the deck does not have.";
   return FRAMES_OFF ? "Captured still. Live demos run on the production address." : "Captured still. This live demo runs as its own app, which this site does not include.";
 }
 
@@ -114,6 +120,20 @@ export function frameQuery(route: string, flags: Record<string, boolean> | undef
   const server = serverApp(route) && typeof window !== "undefined" ? [`presenter=${encodeURIComponent(window.location.origin)}`, "mount=1"] : [];
   const parts = [q ? `flags=${q}` : "", terminalChrome ? `chrome=${encodeURIComponent(terminalChrome)}` : "", ...server].filter(Boolean);
   return parts.length ? `${route.includes("?") ? "&" : "?"}${parts.join("&")}` : "";
+}
+
+/** The file that holds a document with these flags in an export. Only what is off changes a document. */
+export function flagFile(flags: Record<string, boolean>): string {
+  const off = Object.keys(flags).filter((k) => !flags[k] && !WINDOW_FLAGS.has(k)).sort();
+  return ["index", ...off.map((k) => `off-${k}`), "html"].join(".");
+}
+
+/** The whole address of a frame document, which every window mounts through. */
+export function frameDocument(route: string, flags: Record<string, boolean> | undefined, terminalChrome?: string): string {
+  const { url } = frameUrl(route.endsWith("/") ? `${route}index.html` : route.includes(".") ? route : `${route}/index.html`);
+  // A static host ignores a query, so a flag can't arrive on one.
+  if (EXPORTED) return url.replace(/index\.html$/, flagFile(flags ?? {}));
+  return `${url}${frameQuery(route, flags, terminalChrome)}`;
 }
 
 /** Flags as the `?flags=` query the frame routes read (`enhance-css:0,enhance-js:1`). */
