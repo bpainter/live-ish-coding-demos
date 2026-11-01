@@ -179,6 +179,7 @@ test("parity can pass from a clean checkout", () => {
   const steps = named("parity").doc.jobs.parity.steps as Record<string, any>[];
   assert.match(steps.find((s) => s.uses === "./.github/actions/setup")?.with.browsers, /\bwebkit\b/);
   assert.equal(steps.find((s) => s.uses === "./.github/actions/start-deck")?.with.capture, "1");
+  assert.equal(named("parity").doc.jobs.parity.env.LIVE_ISH_SITE_ORIGIN, "http://localhost:3400", "canonical URLs need the origin the rows read");
 });
 
 test("generated skills are checked from the repo root, where the check is real", () => {
