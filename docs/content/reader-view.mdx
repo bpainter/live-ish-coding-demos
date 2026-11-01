@@ -45,7 +45,7 @@ Metadata comes from `deck.config.ts` and each slide. `event` feeds the structure
 pnpm live-ish og
 ```
 
-`og` captures the share image from the cover. It needs `@live-ish/verify`, and it writes a hash beside the image. `check` warns through `og-stale` when the cover has changed. With no image, a shared link shows a text card.
+`og` captures the share image from the cover. It needs `@live-ish/verify`, and it writes a hash beside the image. `check` warns through `og-stale` when the cover has changed. With no capture, a shared link shows a default card drawn from the deck's title at build time, with no browser.
 
 ## Analytics
 

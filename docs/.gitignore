@@ -13,6 +13,7 @@ next-env.d.ts
 /demos/
 /app/(deck)/
 /app/demos/
+/app/live-ish/
 /app/live-ish-address/
 /app/%5Fhealth/
 /public/
