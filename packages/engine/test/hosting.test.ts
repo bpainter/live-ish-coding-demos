@@ -144,6 +144,7 @@ test("robots: one host, no presenter", () => {
     `User-agent: *
 Allow: /
 Allow: /s/
+Allow: /live-ish/og/
 Disallow: /demos/
 Disallow: /live-ish/
 Disallow: /_health
@@ -174,6 +175,7 @@ User-agent: Applebot
 User-agent: redditbot
 User-agent: SkypeUriPreview
 Allow: /
+Allow: /live-ish/og/
 Disallow: /demos/
 Disallow: /live-ish/
 Disallow: /_health
@@ -184,6 +186,7 @@ Allow: /
 Allow: /s/
 Disallow: /present
 Disallow: /speaker
+Allow: /live-ish/og/
 Disallow: /demos/
 Disallow: /live-ish/
 Disallow: /_health

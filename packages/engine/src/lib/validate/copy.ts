@@ -115,7 +115,7 @@ export function copyFields(ctx: RuleContext): CopyField[] {
         if (page.notes) out.push({ where: wherePage(demo, page, "notes"), field: "notes", text: notesPlain(page.notes), spoken: true });
         if (page.beat === "intro") {
           out.push({ where: wherePage(demo, page, "description"), field: "description", text: page.description });
-          if (page.visual) out.push({ where: wherePage(demo, page, "visual.alt"), field: "visual.alt", text: page.visual.alt });
+          if (page.visual?.alt) out.push({ where: wherePage(demo, page, "visual.alt"), field: "visual.alt", text: page.visual.alt });
         }
         if (!hasFrame(page)) continue;
         if (page.beat === "single") {

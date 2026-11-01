@@ -211,6 +211,18 @@ export async function upgrade(ctx: Ctx): Promise<ExitCode> {
 
 const ADD: Record<PackageManager, string[]> = { pnpm: ["add", "-D"], npm: ["install", "-D"], yarn: ["add", "-D"], bun: ["add", "-d"] };
 const EXEC: Record<PackageManager, string[]> = { pnpm: ["exec"], npm: ["exec", "--"], yarn: ["exec"], bun: ["x"] };
+/** A package the deck runs, so not a dev dependency: `ADD` with its `-D` left off. */
+const ADD_RUNTIME: Record<PackageManager, string[]> = { pnpm: ["add"], npm: ["install"], yarn: ["add"], bun: ["add"] };
+
+/** Installs a package the deck runs, at this engine's version, with the deck's own manager. */
+export function addRuntimePackage(ctx: Ctx, root: string, name: string, again: string): void {
+  const manager = detectPackageManager(root);
+  const args = [...ADD_RUNTIME[manager], `${name}@${engineVersion()}`];
+  ctx.log(`$ ${manager} ${args.join(" ")}`);
+  // Under --json, stdout holds one document, so the manager's own output goes to stderr.
+  const run = spawnSync(manager, args, { cwd: root, stdio: ctx.json ? ["ignore", 2, 2] : "inherit" });
+  if (run.status !== 0) throw environment(`\`${manager} ${args.join(" ")}\` failed.`, `Check the network, then run \`${again}\` again.`);
+}
 
 export async function addVerify(ctx: Ctx): Promise<ExitCode> {
   const root = requireDeck(ctx);

@@ -6,6 +6,7 @@ import { rulePage } from "../src/lib/validate";
 import { allRules } from "../src/lib/validate/rules";
 import type { AssembledDeck } from "../src/schema/assemble";
 import type { DemoConfig, StepConfig } from "../src/schema/config";
+import type { SlideImage } from "../src/schema/slide";
 import { shown } from "../src/schema";
 import { fixture, type Fixture } from "./validate-fixture";
 
@@ -49,6 +50,12 @@ const terminalAfter = (f: Fixture, ranges: [number, number][], lines: string[]) 
 const CASES: Case[] = [
   // Integrity
   c("config", "a misspelled field", (f) => Object.assign(f.config, { titel: "Oops" })),
+  c("image-alt", "an image with no alt", (f) => (f.input.slides[1].image = { src: "/images/a.svg" } as SlideImage)),
+  c("image-alt", "an image with blank alt text", (f) => (f.input.slides[1].image = { src: "/images/a.svg", alt: "  " })),
+  c("image-alt", "a grid card's image with no alt", (f) => {
+    f.input.slides[1] = { id: "plain", layout: "grid", title: "Cards", description: "Cards.", minutes: 0.5, cards: [{ title: "One", image: { src: "/images/a.svg" } as SlideImage }] };
+  }),
+  c("image-alt", "an intro visual with no alt", (f) => (f.demo.intro!.visual = { capture: { beat: "after", step: "s1" } } as NonNullable<DemoConfig["intro"]>["visual"])),
   c("build", "a demo in order with no folder", (f) => f.config.order.push("x2")),
   c("build", "a listed page that is gone", (f) => (f.demo.after!.pages = ["nope.html"])),
   c("build", "a terminal page with no recording", (f) => (f.demo.after!.kind = "terminal")),

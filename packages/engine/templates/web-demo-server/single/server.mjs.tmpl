@@ -1,15 +1,15 @@
 import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
+import * as bridge from "@live-ish/bridge";
 
-const read = (name) =>
-  readFile(new URL(name, import.meta.url));
-const engine = "../../../public/live-ish";
-const deck =
-  process.env.LIVE_ISH_PRESENTER_ORIGIN ??
-  "http://localhost:3000";
-const csp =
-  "frame-ancestors http://localhost:* " +
-  "http://127.0.0.1:*";
+const page = new URL(
+  "page.html",
+  import.meta.url,
+);
+
+// The bridge gives a frame its script tag,
+// the script and its headers. The one
+// route this demo adds is /hello.
 const routes = {
   "/hello": async () => [
     "application/json",
@@ -17,12 +17,14 @@ const routes = {
   ],
   "/": async () => [
     "text/html",
-    String(await read("page.html"))
-      .replace("DECK_ORIGIN", deck),
+    String(await readFile(page)).replace(
+      "<!-- bridge -->",
+      bridge.runtimeTag(),
+    ),
   ],
-  "/runtime.js": async () => [
+  "/live-ish-bridge.js": async () => [
     "text/javascript",
-    await read(`${engine}/demo-runtime.js`),
+    bridge.bridgeScript(),
   ],
 };
 
@@ -32,9 +34,7 @@ createServer(async (req, res) => {
     return res.writeHead(404).end();
   }
   const [type, body] = await routes[path]();
-  res.writeHead(200, {
-    "Content-Type": type,
-    "Content-Security-Policy": csp,
-  });
-  res.end(body);
+  const headers = bridge.frameHeaders();
+  headers["Content-Type"] = type;
+  res.writeHead(200, headers).end(body);
 }).listen(process.env.PORT ?? {{port}});

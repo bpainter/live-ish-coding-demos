@@ -15,7 +15,7 @@ frame: { app: "shop", path: "/products/1" },
 
 `live-ish dev` and `live-ish present` start each server, with `PORT` and `LIVE_ISH_PRESENTER_ORIGIN` set, and stop it again. A port that already answers is left alone, so you can start a server by hand.
 
-`examples/server` is a working deck, with a small Node app and no framework.
+`live-ish new web-demo <id> --server` writes a working demo that uses this package, with one route and one hook, and installs it if the deck does not have it. `examples/server` is a larger working deck, with a small Node app and no framework.
 
 ## In a Node server
 

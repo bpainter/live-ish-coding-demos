@@ -24,6 +24,25 @@ export const rules: Rule[] = [
     }
   }),
 
+  defineRule("image-alt", "Every image says what it shows.", (ctx, add) => {
+    // Types can't hold this: `check` reads the deck's data, and blank text passes any type.
+    const blank = (alt: string | undefined) => !alt?.trim();
+    const fix = "Say what the image shows, for someone who can't see it.";
+    for (const s of copySlides(ctx)) {
+      if (s.image && blank(s.image.alt)) add(whereSlide(ctx, s, "image.alt"), `${s.image.src} has no alt text.`, { fix });
+      if (s.copy?.kind === "grid") {
+        s.copy.cards.forEach((card, i) => {
+          if (card.image && blank(card.image.alt)) add(whereSlide(ctx, s, `card ${i + 1}, image.alt`), `${card.image.src} has no alt text.`, { fix });
+        });
+      }
+    }
+    for (const demo of ctx.deck.demos) {
+      for (const page of demo.pages) {
+        if (page.beat === "intro" && page.visual && blank(page.visual.alt)) add(wherePage(demo, page, "visual.alt"), "The visual has no alt text.", { fix });
+      }
+    }
+  }),
+
   defineRule("nav", "The drawer reaches every demo once, and its links resolve.", (ctx, add) => {
     const known = new Set(ctx.deck.slides.map((s) => s.id));
     const links = navGroups(ctx.deck.slides, ctx.deck.demos).flatMap((g) => g.links);

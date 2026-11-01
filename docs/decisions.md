@@ -240,3 +240,28 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **S-1 passed: the engine ships source through `transpilePackages`.** A deck builds with `generateStaticParams` reached through a re-export, `server-only`, the `/*turbopackIgnore: true*/` paths and `outputFileTracingIncludes`, all from inside the package. The proof that stays true is `scripts/ci/starter.mts`, which scaffolds a deck from the packed tarballs with pnpm and npm, runs a production build and walks it. The S-1 fallback was not needed.
 
 **S-3 passed: themes reach syntax colors with no client JavaScript.** Shiki 4.5.0 renders each token with a sentinel color, and the theme's `colorReplacements` maps each sentinel to `var(--chrome-code-*)`. Sentinels stay on the outer `<pre>`, which `renderCodeFile` discards. Output stays server-rendered, so the per-theme render fallback was not needed.
+## Share card
+
+**The default card is a route, not `opengraph-image`.** Next's file convention outranks config metadata, so it would hide a `live-ish og` capture. `app/live-ish/og/card.png/route.ts` is a plain shell file that `next/og` draws at build, and `seo-core` names it only when there is no capture. With no site there is no address for a card, so that build keeps the text card.
+
+**The card draws only what its font holds.** `next/og` asks Google Fonts for any glyph its bundled font lacks, with the deck's text in the address. A failed font load only logs, but a failed emoji load stops the build, and a build must pass offline. `drawable()` strips emoji and symbols, and drops a line that would lose a letter or digit, because half a title reads as a different title. A title in another script gets a card with no title on it. `og:title` and the alt text still carry it. A test renders every listed character with `fetch` trapped, so a new font in Next fails there.
+
+**Share images are allowed in `robots.txt`.** They sit under `/live-ish/`, which is disallowed, and a preview bot that may not fetch an image shows none. That also blocked `live-ish og` captures. `Allow: /live-ish/og/` is the longer match, so it wins.
+
+**`export` saves the card.** It is a route, so copying `public/` would miss it, and every exported page names it.
+
+## Images
+
+**`image-alt` is a fourth rule id beyond the PRD list, and it is Integrity.** Section 11.3 says an image with no `alt` fails `check`, and Fit is only a warning without `--strict`. Types can't hold it, because `check` reads data and a deck need not run `tsc`. Blank text counts as none. It covers a slide's `image`, a grid card's `image` and an intro's `visual`. A `background` image renders with an empty alt, but it needs one here too: section 11.3 makes no exception, and the text view still shows it.
+
+## Server template
+
+**The `--server` template uses `@live-ish/bridge`.** This replaces the earlier entry that loaded the runtime from the app's own origin. The deck now names itself in `?presenter=`, so the app needs no presenter origin of its own and no path into the deck's `public/` folder.
+
+**`new web-demo --server` installs the bridge, and installs first.** The bridge is optional, so a fresh deck does not have it, and `server.mjs` would stop on import at the first `dev`. It goes in `dependencies`, because the deck runs it. A failed install exits 3 before anything is written, so a retry never meets a taken id. A deck that already resolves the bridge installs nothing.
+
+**`onSignal` keeps listening.** Ctrl-C reaches the whole process group and the shim forwards it, so the CLI hears each stop twice. A one-shot listener left the second on Node's default, which killed the CLI before it stopped the deck's servers. Every Ctrl-C of `dev` left the app running, and the next `dev` found the port taken and served the old code. `present` waited for `next` to exit first, so it had the same gap for longer. A repeat within a second is ignored as the echo, and a later one exits 130, because a hung server must not trap someone on stage.
+
+## Starter
+
+**Comments sit beside what they explain, once each.** The files stay as section 14 prints them apart from comments, and a one-off script confirmed that by stripping them and comparing. The commented `callouts` line was run uncommented through `check --strict`, so it works when an author uses it.

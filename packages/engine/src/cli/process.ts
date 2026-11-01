@@ -19,6 +19,27 @@ export function runSelf(args: string[], cwd: string, env: Record<string, string>
   });
 }
 
+/** A repeat inside this window is the same stop arriving twice. After it, a person means it. */
+const SIGNAL_ECHO_MS = 1000;
+
+/**
+ * Runs `stop` on the first signal, and keeps listening. Ctrl-C reaches the whole process group and
+ * the shim forwards it too, so this process hears every stop twice. A one-shot listener leaves the
+ * second on Node's default, which kills the process before it stops a deck's servers, and the next
+ * `dev` then finds the port taken and serves the old code. A later signal still forces the exit,
+ * because a hung server must not trap someone on stage.
+ */
+export function onSignal(stop: () => void) {
+  let first = 0;
+  const handle = () => {
+    if (first === 0) {
+      first = Date.now();
+      stop();
+    } else if (Date.now() - first > SIGNAL_ECHO_MS) process.exit(130);
+  };
+  for (const signal of ["SIGINT", "SIGTERM"] as const) process.on(signal, handle);
+}
+
 /** `next <args>` from the deck's own install. */
 export function spawnNext(root: string, args: string[], options: SpawnOptions = {}): ChildProcess {
   const bin = resolveFromDeck(root, "next/dist/bin/next");
