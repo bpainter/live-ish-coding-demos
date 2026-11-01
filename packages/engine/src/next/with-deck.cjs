@@ -54,8 +54,11 @@ function withDeck(options = {}) {
   const building = process.argv.includes("build");
   if (building) assertHosting({ target, mode, site });
   const deployed = target === "deployed";
+  // `live-ish export`: reader pages only, whatever the deck says, and no app to reach.
+  const exported = env.LIVE_ISH_EXPORT === "1";
+  const plan = exported ? JSON.parse(readFileSync(path.join(root, ".live-ish", "export-plan.json"), "utf8")) : { posters: [] };
   // Local modes always have the presenter. A deployed host has it only when the deck asks.
-  const presenter = !deployed || summary.presenter.onHost;
+  const presenter = !exported && (!deployed || summary.presenter.onHost);
   const preview = Boolean(deployed && PROVIDERS[provider]?.preview?.(env));
   // A plain `next build` is the one path to a host the engine cannot see, so it says what it made.
   if (building && !deployed && site && !env.LIVE_ISH_TARGET) console.warn("live-ish: local build, with the presenter and speaker notes in it. Deploy with `live-ish build`.");
@@ -73,6 +76,8 @@ function withDeck(options = {}) {
     // A second build directory lets a production build run beside `next dev`.
     distDir: process.env.NEXT_DIST_DIR ?? ".next",
     images: { unoptimized: true },
+    // tsconfig lists every build folder, and another's types name routes an export leaves out.
+    ...(exported ? { typescript: { ignoreBuildErrors: true } } : {}),
     ...next,
     // The one way to leave a page out of a build, with no route, no chunk and no payload.
     pageExtensions: [...(presenter ? [PRESENTER_EXTENSION] : []), ...(next.pageExtensions ?? NEXT_EXTENSIONS)],
@@ -85,7 +90,9 @@ function withDeck(options = {}) {
       // Only two hosts name an origin in client code. Local and one-host builds carry none.
       NEXT_PUBLIC_LIVE_ISH_PRESENTER_ORIGIN: mode === "two-hosts" ? site : "",
       NEXT_PUBLIC_LIVE_ISH_FRAMES_ORIGIN: frames,
-      NEXT_PUBLIC_LIVE_ISH_EXTERNAL: JSON.stringify(externalOrigins({ hosts: summary.hosts, target })),
+      NEXT_PUBLIC_LIVE_ISH_EXTERNAL: JSON.stringify(exported ? {} : externalOrigins({ hosts: summary.hosts, target })),
+      NEXT_PUBLIC_LIVE_ISH_EXPORT: exported ? "1" : "",
+      NEXT_PUBLIC_LIVE_ISH_POSTER_ROUTES: JSON.stringify(plan.posters.map((p) => p.route)),
       NEXT_PUBLIC_LIVE_ISH_PROVIDER: provider ?? "",
       // A preview cannot embed frames from a frames host that names production in `frame-ancestors`.
       NEXT_PUBLIC_LIVE_ISH_FRAMES_OFF: preview && mode === "two-hosts" ? "1" : "",

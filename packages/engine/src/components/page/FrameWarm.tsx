@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { frameChrome } from "../../lib/chrome-preview";
-import { frameQuery, frameUrl } from "../../lib/frames/origins";
+import { frameDocument } from "../../lib/frames/origins";
 import type { FrameKind } from "../../schema/demo";
 
 /**
@@ -21,9 +21,8 @@ export function FrameWarm({ route, kind, flags, sandbox, chrome }: { route: stri
   useEffect(() => {
     if (kind === "server") return;
     const t = window.setTimeout(() => {
-      const path = route.endsWith("/") ? `${route}index.html` : route.includes(".") ? route : `${route}/index.html`;
-      const query = frameQuery(route, flags, chrome ? frameChrome(chrome) : undefined);
-      setSrc(`${frameUrl(path).url}${query}${query ? "&" : "?"}warm=1`);
+      const url = frameDocument(route, flags, chrome ? frameChrome(chrome) : undefined);
+      setSrc(`${url}${url.includes("?") ? "&" : "?"}warm=1`);
     }, 300);
     return () => window.clearTimeout(t);
   }, [route, kind, flags, chrome]);
