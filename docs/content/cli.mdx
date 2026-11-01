@@ -32,18 +32,18 @@ pnpm live-ish themes --json
 pnpm live-ish support popover --json
 ```
 
-## Tiers
+## What each command needs
 
 A person with one slide never meets Playwright.
 
-| Tier         | Needs                                            | Commands                                                    |
-| ------------ | ------------------------------------------------ | ----------------------------------------------------------- |
-| 0, author    | Node 22 or later, a package manager              | Everything above the verify group, with no browser binaries |
-| 1, capture   | `live-ish add verify` and one Chromium           | `capture`, `og`                                             |
-| 2, verify    | Tier 1, with WebKit and Firefox if you want them | `walk`, `axe`                                               |
-| 3, stage day | Tier 1                                           | `warmup`, `perf`, `parity`                                  |
+| Use       | Needs                                              | Commands                                                    |
+| --------- | -------------------------------------------------- | ----------------------------------------------------------- |
+| Author    | Node 22 or later, a package manager                | Everything above the verify group, with no browser binaries |
+| Capture   | `live-ish add verify` and one Chromium             | `capture`, `og`, `backgrounds`                              |
+| Verify    | The same, with WebKit and Firefox if you want them | `walk`, `axe`                                               |
+| Stage day | The same as capture                                | `warmup`, `perf`, `parity`                                  |
 
-Without tier 1, all three slide types work. Arrival shows a loading state, the speaker's previews show a placeholder with the step label, and the intro slide lays out with no still. `check` says what is missing in one line and exits 0.
+Without `live-ish add verify`, all three slide types work. Arrival shows a loading state, the speaker's previews show a placeholder with the step label, and the intro slide lays out with no still. `check` says what is missing in one line and exits 0.
 
 A verify command in a deck with no `@live-ish/verify` prints the install line and exits 3.
 

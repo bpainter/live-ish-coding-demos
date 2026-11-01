@@ -4,8 +4,8 @@ export const NAV: { section: string; slugs: string[] }[] = [
   { section: "Write a deck", slugs: ["copy-slides", "web-demos", "terminal-demos", "steps-and-actions", "code-and-spotlights", "frame-shells", "speaker-notes", "server-demos"] },
   { section: "Look and feel", slugs: ["themes", "themes/gallery", "custom-themes"] },
   { section: "Present", slugs: ["presenting", "offline", "pacing", "stage-day", "reader-view"] },
-  { section: "Ship", slugs: ["deploy", "deploy/vercel", "deploy/netlify", "deploy/cloudflare", "deploy/render", "deploy/railway", "deploy/node", "deploy/docker"] },
-  { section: "Reference", slugs: ["config", "cli", "errors", "troubleshooting", "verification", "ai-tools", "upgrading"] },
+  { section: "Ship", slugs: ["deploy", "export", "deploy/vercel", "deploy/netlify", "deploy/cloudflare", "deploy/render", "deploy/railway", "deploy/node", "deploy/docker"] },
+  { section: "Reference", slugs: ["config", "cli", "glossary", "errors", "troubleshooting", "verification", "ai-tools", "upgrading"] },
   { section: "Promises", slugs: ["accessibility", "performance", "browser-support", "node-support", "parity"] },
   { section: "Project", slugs: ["architecture", "contributing", "release"] },
 ];

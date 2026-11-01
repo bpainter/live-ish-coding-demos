@@ -51,6 +51,7 @@ Read from each installed `package.json`. A deck installs its own copy of these, 
 | `typescript`                          | 5.9.3   | Apache-2.0 | Development only    |                                                                                    |
 | `@playwright/test`                    | 1.58.2  | Apache-2.0 | `@live-ish/verify`  | Downloads browsers, which have their own licenses, only when a deck adds `verify`. |
 | `axe-core`                            | 4.14.0  | MPL-2.0    | `@live-ish/verify`  | Unmodified.                                                                        |
+| `lighthouse`                          | 12.8.2  | Apache-2.0 | `@live-ish/verify`  | Not a dependency. `perf lighthouse` fetches this pinned version with `pnpm dlx`.   |
 | `tailwindcss`, `@tailwindcss/postcss` | 4.3.3   | MIT        | Development only    | The engine ships compiled CSS.                                                     |
 | `@mdx-js/mdx`                         | 3.1.1   | MIT        | Docs site only      |                                                                                    |
 | `remark-gfm`                          | 4.0.1   | MIT        | Docs site only      |                                                                                    |
