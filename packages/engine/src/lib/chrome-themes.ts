@@ -391,7 +391,7 @@ export function lintThemeFile(raw: unknown): ThemeProblem[] {
   for (const [key, value] of Object.entries(tokens)) {
     if (LOCKED_TOKENS.includes(key)) bad(`tokens.${key}`, "Not themeable: layout limits depend on 24 px code on a 36 px line.");
     else if (DERIVED_TOKENS.includes(key)) bad(`tokens.${key}`, "Set this through `code`, `fonts` or `motion`.");
-    else if (!CONTRACT_TOKENS.includes(key)) bad(`tokens.${key}`, LOOKS_LIKE_SELECTOR.test(key) ? "A theme file holds no selectors. Set a token from the contract." : "Not in the token contract (section 16.8).");
+    else if (!CONTRACT_TOKENS.includes(key)) bad(`tokens.${key}`, LOOKS_LIKE_SELECTOR.test(key) ? "A theme file holds no selectors. Set a token from the contract." : "Not in the token contract.");
     if (typeof value !== "string") bad(`tokens.${key}`, "A token value is a string.");
     else if (UNSAFE_VALUE.test(value)) bad(`tokens.${key}`, "A token value holds one CSS value: no rules, selectors, comments, url() or scripts.");
   }

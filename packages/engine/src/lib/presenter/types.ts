@@ -13,7 +13,7 @@ export interface PresenterState {
   live: boolean; // terminal pages: recording hidden for a real terminal
   startedAt: number | null; // epoch ms when the timer was started
   pausedAt: number | null; // epoch ms when paused, else null
-  resetSeq?: number; // bumped by `r` and Reset step in either window: every stage on the slide replays its frame (WS-1)
+  resetSeq?: number; // bumped by `r` and Reset step in either window: every stage on the slide replays its frame
 }
 
 export type SyncMessage =

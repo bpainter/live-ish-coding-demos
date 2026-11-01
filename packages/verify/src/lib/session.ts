@@ -100,7 +100,7 @@ export class Session {
   get browserName() {
     return this.options.browser;
   }
-  /** `next dev`: the budgets in section 22 do not apply. */
+  /** `next dev`: the budgets in `budgets.json` do not apply. */
   get onDevServer() {
     return this.health.server === "development";
   }
