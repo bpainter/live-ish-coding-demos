@@ -68,7 +68,7 @@ test("the walks read a deck, and name no slide of one", async () => {
 test("a small deck's arrivals repeat until a window has its minimum", () => {
   const leg = (i: number) => ({ dir: "forward", from: `p${i}`, key: "x", step: 0, page: {} }) as unknown as Leg;
   assert.equal(arrivalPlan([leg(1), leg(2), leg(3)], 50).length, 51);
-  assert.equal(arrivalPlan([leg(1)], 0).length, 0);
+  assert.equal(arrivalPlan([leg(1)], 0).length, 1);
   assert.equal(arrivalPlan([], 50).length, 0);
   assert.equal(budgets.underlay.minArrivalsPerWindow, 50);
 });

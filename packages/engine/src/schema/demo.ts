@@ -187,6 +187,14 @@ export function hasFrame(page: DemoPage): page is FramePage {
   return page.beat !== "intro";
 }
 
+/**
+ * A frame whose policy refuses every ancestor never answers, on purpose: the page shows its error
+ * state. Nothing can capture it, and a walk checks the state instead of the steps.
+ */
+export function refusesEmbedding(frame: Pick<Frame, "csp">): boolean {
+  return /frame-ancestors\s+'none'/.test(frame.csp ?? "");
+}
+
 /** A demo in the assembled deck: one folder expanded into pages, routes and timing. */
 export interface Demo {
   id: string;

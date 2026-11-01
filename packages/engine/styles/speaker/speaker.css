@@ -57,6 +57,9 @@
   min-inline-size: 0;
   min-block-size: 0;
 }
+.speaker__picture {
+  display: contents;
+}
 .speaker__current {
   @apply relative;
   flex: none;

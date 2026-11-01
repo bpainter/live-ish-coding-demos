@@ -245,6 +245,33 @@ async function checkHandsOn(w: StepWalk, where: string, page: FramePage, i: numb
   if (!r) report.fail(where, `hands-on ${step.id}: no replay after hands-on off`);
 }
 
+/** The iframe carries the sandbox the page asked for. */
+async function checkSandbox(w: StepWalk, { demo, page }: Target) {
+  const { report, deck } = w.session;
+  const want = deck.input.demos.find((d) => d.demo.id === demo.id)?.demo[page.beat]?.sandbox;
+  if (!want) return;
+  const got = await w.page.locator(FRAME_VISIBLE).getAttribute("sandbox");
+  if (got !== want) report.fail(page.id, `the frame's sandbox is "${got}", wanted "${want}"`);
+  else report.pass(`sandbox: ${got}`);
+}
+
+/** A keycap on a page with a docked drawer sits above the drawer, never on it. */
+async function checkKeycap(w: StepWalk, page: FramePage, step: Step) {
+  const { report } = w.session;
+  if (!page.frame.keycap || !step.actions.some((a) => a.type === "key")) return;
+  const v = (await w.page.evaluate(`(() => {
+    const cap = document.querySelector("#stage .overlay__keycap");
+    const frame = document.querySelector('#stage .page-frame__iframe[data-visible="true"]');
+    if (!cap || !frame) return null;
+    const c = cap.getBoundingClientRect(), f = frame.getBoundingClientRect();
+    return (c.bottom - f.top) / (f.height / ${page.frame.viewport.height});
+  })()`)) as number | null;
+  const clip = page.frame.spotlightClip?.bottom ?? page.frame.viewport.height;
+  if (v === null) report.fail(page.id, `${step.id}: no keycap on screen`);
+  else if (v > clip) report.fail(page.id, `${step.id}: the keycap ends at frame y ${v.toFixed(0)}, on the drawer at ${clip}`);
+  else report.pass(`${step.id}: the keycap ends at frame y ${v.toFixed(0)}, above the drawer at ${clip}`);
+}
+
 /** The slot widths a page's split implies, and a 44-column, 40-line fixture fits the code panel. */
 async function checkGeometry(w: StepWalk, page: FramePage, where: string) {
   const { report } = w.session;
@@ -319,6 +346,7 @@ async function walkFrames(w: StepWalk, { demo, page }: Target) {
   await w.page.waitForSelector(FRAME_VISIBLE, { timeout: 15000 }).catch(() => null);
   await w.page.waitForTimeout(800);
   if (demo.background) await checkFrameBackground(await visibleFrame(w.page), where, demo.background, report);
+  await checkSandbox(w, { demo, page });
   const forward: (string | null)[] = [];
   const steps = page.steps;
   for (let i = 0; i < steps.length; i++) {
@@ -353,6 +381,7 @@ async function walkFrames(w: StepWalk, { demo, page }: Target) {
       if (await hasShell(f)) await checkShell(f, `${where} ${step.id}`, page.files, report);
     }
     if (i === steps.length - 1) await checkPageTitle(w, page);
+    await checkKeycap(w, page, step);
     if (step.route) await checkRoute(w, where, step.id, step.route);
     await checkTransition(w, where, step.id, page, i);
     await checkSpeaker(w, where, page, demo, i);

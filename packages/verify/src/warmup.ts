@@ -159,7 +159,14 @@ export async function warmup(argv: string[], context: { root: string }): Promise
   const nextStatic = [...new Set(pages.flatMap((p) => [...(p.body ?? "").matchAll(/(?:href|src)="(\/_next\/static\/[^"]+\.(?:css|js))"/g)].map((m) => P + m[1])))];
   const assets = await fetchAll([...pageAssets, ...nextStatic].map((url) => ({ cls: classify(url), url, body: url.endsWith(".css") })));
   const css = [...files, ...assets].filter((h) => h.cls === "css" && h.body);
-  await fetchAll(css.flatMap((h) => cssUrls(h.body!, h.url)).map((url) => ({ cls: classify(url), url })));
+  // A stylesheet also names faces of themes this deck does not use, which a browser never asks for.
+  const inPublic = (url: string) => {
+    const { pathname } = new URL(url);
+    if (pathname.startsWith("/_next/") || existsSync(path.join(context.root, "public", decodeURIComponent(pathname)))) return true;
+    skipped++;
+    return false;
+  };
+  await fetchAll(css.flatMap((h) => cssUrls(h.body!, h.url)).filter(inPublic).map((url) => ({ cls: classify(url), url })));
 
   // Report.
   const wall = (performance.now() - started) / 1000;

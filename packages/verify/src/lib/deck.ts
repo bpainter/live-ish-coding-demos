@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { assembleDeck, DeckError, hasFrame, writeDeckModule, type AssembledDeck, type DeckInput, type Demo, type DemoPage, type FramePage, type Slide, type Step } from "@live-ish/engine/verify";
+import { assembleDeck, DeckError, hasFrame, refusesEmbedding, writeDeckModule, type AssembledDeck, type DeckInput, type Demo, type DemoPage, type FramePage, type Slide, type Step } from "@live-ish/engine/verify";
 import { EnvironmentError, UsageError } from "./args";
 
 export interface DeckData extends AssembledDeck {
@@ -36,7 +36,7 @@ export interface Target {
 }
 
 /** A frame that never answers, on purpose. Its `csp` refuses every ancestor. */
-export const isBlocked = (page: FramePage) => /frame-ancestors\s+'none'/.test(page.frame.csp ?? "");
+export const isBlocked = (page: FramePage) => refusesEmbedding(page.frame);
 
 /** Every page with a frame the walks can drive: not a blocked one, not one whose app is not running. */
 export function liveFrames(deck: DeckData, serversUp = new Set<string>()): Target[] {
