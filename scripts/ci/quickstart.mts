@@ -42,7 +42,9 @@ function run(command: string) {
 }
 
 async function runLong(command: string, url: string) {
-  const line = /--port/.test(command) || PORT === "3000" ? command : `${command} --port=${PORT}`;
+  const port = /--port/.test(command) || PORT === "3000" ? command : `${command} --port=${PORT}`;
+  // `present` opens a browser, and a job has no one to look at it.
+  const line = /\bpresent\b/.test(port) ? `${port} --no-open` : port;
   const child: ChildProcess = serve("/bin/bash", ["-c", `exec ${line}`], cwd);
   let exited = false;
   child.on("exit", () => (exited = true));
