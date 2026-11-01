@@ -1,4 +1,5 @@
 import { computeSupport, webFeaturesEntry, type SupportFile, type WebFeaturesData } from "../../support-data";
+import { planDeck, readLock, renderSkills } from "../../skills";
 import { installedWebFeatures } from "../../web-features";
 import { defineRule, genPath, memo, readJson, whereDemo } from "../context";
 import { copyFields, isTodo } from "../copy";
@@ -77,10 +78,15 @@ export const rules: Rule[] = [
     }
   }),
 
-  defineRule("skills-stale", "Agent skills target the schema this engine uses.", (ctx, add) => {
-    const lock = readJson<{ schema?: number; schemaVersion?: number }>(genPath(ctx, "skills.lock"));
+  defineRule("skills-stale", "Agent skills target the schema this engine uses, and match what it ships.", (ctx, add) => {
+    const lock = readJson<{ "live-ish-schema"?: string; schema?: number; schemaVersion?: number }>(genPath(ctx, "skills.lock"));
     if (!lock) return;
-    const target = lock.schema ?? lock.schemaVersion;
-    if (typeof target === "number" && target < ENGINE_SCHEMA) add(".live-ish/skills.lock", `Skills target schema ${target}, and this engine uses schema ${ENGINE_SCHEMA}.`, { fix: "Run live-ish upgrade." });
+    const target = Number(lock["live-ish-schema"] ?? lock.schema ?? lock.schemaVersion);
+    if (target < ENGINE_SCHEMA) add(".live-ish/skills.lock", `Skills target schema ${target}, and this engine uses schema ${ENGINE_SCHEMA}.`, { fix: "Run live-ish upgrade." });
+    // A skill the author deleted is no finding: nothing here requires agent files.
+    if (!readLock(ctx.root)) return;
+    const plan = planDeck(ctx.root, renderSkills());
+    if (plan.write.length || plan.remove.length) add(".agents/ and .claude/", `${plan.write.length + plan.remove.length} skill file(s) differ from what this engine ships.`, { fix: "Run live-ish upgrade." });
+    for (const { file, incoming } of plan.edited) add(file, "This generated skill was edited, so an upgrade will not refresh it.", { fix: `Compare it with ${incoming} after live-ish upgrade, or run live-ish skills sync --force.` });
   }),
 ];

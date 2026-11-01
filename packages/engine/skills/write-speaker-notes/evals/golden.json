@@ -1,0 +1,37 @@
+{
+  "skill": "write-speaker-notes",
+  "tasks": [
+    {
+      "id": "notes",
+      "prompt": "Write speaker notes for the terminal demo.",
+      "setup": [
+        {
+          "replace": "demos/count-words/demo.ts",
+          "find": "notes: [\"The script reads the file, splits it into words and prints the count.\"],",
+          "with": "notes: [\"TODO\"],"
+        }
+      ],
+      "solution": [
+        {
+          "replace": "demos/count-words/demo.ts",
+          "find": "notes: [\"TODO\"],",
+          "with": "notes: [\"The script reads the file and prints how many words it found.\"],"
+        },
+        {
+          "run": [
+            "check",
+            "--json"
+          ]
+        }
+      ],
+      "pass": {
+        "changed": [
+          "demos/count-words/"
+        ],
+        "noRules": [
+          "todo"
+        ]
+      }
+    }
+  ]
+}

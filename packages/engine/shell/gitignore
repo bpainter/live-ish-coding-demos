@@ -2,7 +2,8 @@
 node_modules/
 .next/
 .next-*/
-.live-ish/
+.live-ish/*
+!.live-ish/skills.lock
 public/live-ish/
 public/opt/
 next-env.d.ts

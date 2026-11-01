@@ -1,0 +1,14 @@
+{
+  "skill": "add-parity-row",
+  "invocation": "model",
+  "should": [
+    "Add a parity row for the new reader keyboard shortcut.",
+    "The matrix has no row for the warm-up command. Add one with its check.",
+    "Track this capability in parity/matrix.json."
+  ],
+  "should_not": [
+    "Add a validator rule for empty notes.",
+    "Run the parity suite.",
+    "Add a slide about parity."
+  ]
+}

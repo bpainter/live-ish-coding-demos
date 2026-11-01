@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { replaySteps, segments } from "../src/lib/engine/steps";
-import { frameDocument } from "../src/lib/frames/origins";
+import { framePath } from "../src/lib/frames/origins";
 import { SHELLS, defineShell, registerShells } from "../src/lib/frames/shells";
 import { strippedDeckModule } from "../src/prepare/strip";
 import type { DeckInput } from "../src/schema/assemble";
@@ -32,8 +32,8 @@ test("a routed page with no history walk opens its route directly", () => {
 });
 
 test("a build opens its entry page, and a declared address opens as written", () => {
-  assert.equal(frameDocument("/demos/faq/after"), "/demos/faq/after/index.html");
-  assert.equal(frameDocument("/harbor"), "/harbor");
+  assert.equal(framePath("/demos/faq/after"), "/demos/faq/after/index.html");
+  assert.equal(framePath("/harbor"), "/harbor");
 });
 
 test("a frame that refuses every ancestor counts as blocked", () => {

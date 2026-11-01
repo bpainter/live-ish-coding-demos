@@ -1,0 +1,44 @@
+{
+  "skill": "apply-chrome-theme",
+  "tasks": [
+    {
+      "id": "theme",
+      "prompt": "Use the early web theme on the before beat only.",
+      "setup": [],
+      "solution": [
+        {
+          "run": [
+            "themes",
+            "--json"
+          ]
+        },
+        {
+          "replace": "deck.config.ts",
+          "find": "  speaker: { name: \"Your Name\" },",
+          "with": "  speaker: { name: \"Your Name\" },\n  chrome: { beats: { before: \"early-web\" } },"
+        },
+        {
+          "run": [
+            "check",
+            "--json"
+          ]
+        }
+      ],
+      "pass": {
+        "changed": [
+          "deck.config.ts",
+          "demos/"
+        ],
+        "contains": [
+          {
+            "in": [
+              "deck.config.ts",
+              "demos/"
+            ],
+            "pattern": "beats:\\s*\\{[^}]*before:\\s*[\"']early-web[\"']|before:\\s*\\{[\\s\\S]*?^\\s*chrome:\\s*[\"']early-web[\"']|^\\s*chrome:\\s*[\"']early-web[\"']"
+          }
+        ]
+      }
+    }
+  ]
+}

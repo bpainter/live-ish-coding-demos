@@ -13,16 +13,23 @@
   },
   "scripts": {
     "scan:private": "node scripts/scan/private.mjs",
+    "live-ish": "node packages/engine/bin/live-ish.mjs",
+    "skills:ref": "node scripts/skills-ref.mjs",
+    "skills:fresh": "node --import tsx scripts/skills-fresh.mts",
+    "evals:claude": "node --import tsx scripts/skills-evals.mts",
     "export:talk": "node scripts/export/run.mjs",
     "build": "pnpm --filter starter exec next build",
     "build:conformance": "pnpm --filter conformance build",
-    "test": "pnpm --filter @live-ish/engine test && pnpm --filter @live-ish/verify test",
+    "test": "pnpm --filter @live-ish/engine test && pnpm --filter @live-ish/bridge test && pnpm --filter @live-ish/verify test && node --test parity/*.test.mjs",
     "test:contrast": "pnpm --filter @live-ish/engine test:contrast",
     "gen:themes": "pnpm --filter @live-ish/engine gen:themes",
-    "typecheck": "pnpm --filter @live-ish/engine typecheck && pnpm --filter @live-ish/verify typecheck && pnpm --filter starter typecheck && pnpm --filter conformance typecheck",
+    "typecheck": "pnpm --filter @live-ish/engine typecheck && pnpm --filter starter typecheck && pnpm --filter conformance typecheck && pnpm --filter server typecheck && pnpm --filter @live-ish/verify typecheck",
     "lint": "pnpm --filter @live-ish/engine lint && pnpm --filter @live-ish/verify lint",
+    "parity:docs": "node parity/render.mjs",
     "smoke": "node --import tsx scripts/smoke.mts",
-    "hosting": "node --import tsx scripts/hosting.mts"
+    "hosting": "node --import tsx scripts/hosting.mts",
+    "server": "node --import tsx scripts/server.mts",
+    "export:walk": "node --import tsx scripts/export.mts"
   },
   "packageManager": "pnpm@12.16.1+sha512.091d1dee7927575661b25dab3c2ae31cafc1c54d6b71ed6a6600cf0c1cb10434a447eae14015f1b23e2e6bedeed79df94a932e2164d2832280dce3fb32f656d1",
   "devDependencies": {

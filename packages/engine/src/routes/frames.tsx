@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { asBuildFile, buildFile, composeFrame, frameResponse } from "../lib/frames/compose";
 import { innerDocument, innerResponse } from "../lib/frames/inner";
-import { parseFlags } from "../lib/frames/origins";
+import { externalOrigin, parseFlags } from "../lib/frames/origins";
+import { serverAnswers } from "../lib/frames/server-up";
 import { requestOrigin } from "../lib/site";
 import { demoFolder } from "../lib/frames/registry";
 import { matchRoute } from "../lib/frames/routes";
@@ -17,6 +18,7 @@ import type { BuildBeat } from "../lib/frames/types";
  * Flags arrive on the request as ?flags=enhance-css:0,enhance-js:1, on every page of a build, so no
  * instance needs to remember them. The runtime carries them across a multi-page build's own links.
  * A terminal frame also takes ?chrome=<id>, which picks the theme its window links.
+ *   /demos/live-ish-server/<app>      whether a server frame's app is up, for the presenter
  */
 type Ctx = { params: Promise<{ demo: string; build: string; path?: string[] }> };
 
@@ -26,6 +28,12 @@ function notFound(what: string): Response {
 
 async function handle(req: Request, ctx: Ctx): Promise<Response> {
   const { demo, build, path = [] } = await ctx.params;
+  if (demo === "live-ish-server") {
+    // Only an app the deck names, so this can't be pointed at an address of a caller's choosing.
+    const origin = externalOrigin(build);
+    if (!origin || path.length) return notFound("Server");
+    return Response.json({ up: await serverAnswers(origin) }, { headers: { "Cache-Control": "no-store" } });
+  }
   const folder = demoFolder(demo);
   const def = folder?.builds[build as BuildBeat];
   const url = new URL(req.url);

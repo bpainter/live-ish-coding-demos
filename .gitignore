@@ -17,7 +17,8 @@ test-results/
 playwright-report/
 .turbo/
 *.log
-.claude/
+.claude/*
+!.claude/skills/
 .hosting/
 # What `live-ish capture` writes for an example. Decks commit theirs; the examples regenerate them.
 examples/*/public/posters/

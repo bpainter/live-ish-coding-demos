@@ -3,7 +3,7 @@
 import { createContext, useContext } from "react";
 import type { StepResult } from "./engine/frame";
 
-export type DemoStatus = "loading" | "ready" | "error";
+export type DemoStatus = "loading" | "ready" | "error" | "fallback";
 
 export interface Playback {
   isPlaying: () => boolean;
