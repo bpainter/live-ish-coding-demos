@@ -236,3 +236,17 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **pnpm 9 needs `packages` in `pnpm-workspace.yaml`.** A blank folder runs whatever pnpm Corepack has as its default, and pnpm 9 refuses a workspace file without that field. The scaffolder now writes `packages: ["."]`.
 
 **Prettier covers only files that joined.** `.prettierignore` lists `packages/`, `examples/` and other workstreams' scripts, so `format:check` is real today without reformatting anyone's files.
+
+## CI enforcement
+
+**Capture comes before the build, not between two builds.** `live-ish capture` builds and serves a copy of its own in `.next-capture`, so `next build` after it picks the posters up and one `next start` serves them. Build, start, capture, rebuild and restart would cost the same two builds for more steps.
+
+**`ci:capture` prepares first and fails on zero posters.** Capture reads a deck's companion apps from `.live-ish/deck.json` before its build writes that file, so a clean checkout of a server deck captured nothing and exited 0. With no posters every arrival waits for its live frame, and the first budgets run on GitHub failed for that reason: 159 ms p90 against 100, on zero poster arrivals. A capture that writes none is a failure here, because the walk below it would measure the wrong thing.
+
+**Budgets warn on a pull request and block a release.** `continue-on-error` at job level hides a failure from a caller's `needs`, so listing the workflow in `publish.yml` would prove nothing. A `blocking` input turns it off for the release call only.
+
+**gitleaks runs from the release binary, held to its SHA-256.** `gitleaks-action` needs a paid license once the repo sits in a GitHub org, and it fetches the same binary without checking it. The cost is that Dependabot does not bump it. The command is `detect`, the form the release checklist names.
+
+**Raw results go on a draft GitHub release.** Artifacts expire, so a job in `publish.yml` gathers every `results-*` artifact and attaches one tarball to a draft release for the tag, ahead of staging, so nothing ships without its numbers. That job is the only one that can write to the repository, and it checks out no code. CI has no credential for the docs host, so the release is the public address for these files, not the docs site.
+
+**Hosting and the server deck run on every pull request, nightly and before a release.** Nightly was the requirement, but all eleven hosting runs and the comparison took under 8 minutes, about the size of the other jobs, so they fit on a pull request too. The server deck's job lives in `conformance`, which gained a schedule, so there is one copy of it.
