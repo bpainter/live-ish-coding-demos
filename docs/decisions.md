@@ -246,3 +246,7 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **Share images are allowed in `robots.txt`.** They sit under `/live-ish/`, which is disallowed, and a preview bot that may not fetch an image shows none. That also blocked `live-ish og` captures. `Allow: /live-ish/og/` is the longer match, so it wins.
 
 **`export` saves the card.** It is a route, so copying `public/` would miss it, and every exported page names it.
+
+## Images
+
+**`image-alt` is a fourth rule id beyond the PRD list, and it is Integrity.** Section 11.3 says an image with no `alt` fails `check`, and Fit is only a warning without `--strict`. Types can't hold it, because `check` reads data and a deck need not run `tsc`. Blank text counts as none. It covers a slide's `image`, a grid card's `image` and an intro's `visual`. A `background` image renders with an empty alt, but it needs one here too: section 11.3 makes no exception, and the text view still shows it.
