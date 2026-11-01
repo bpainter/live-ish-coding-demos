@@ -64,6 +64,7 @@ jobs:
       - run: pnpm --silent --filter conformance exec live-ish axe --chrome="$THEME" --origin=http://localhost:3400 --json > "$RESULTS/axe-$THEME.json"
       - run: pnpm --silent --filter conformance exec live-ish walk --chrome="$THEME" --origin=http://localhost:3400 --json > "$RESULTS/walk-$THEME.json"
       - run: pnpm --silent --filter conformance exec live-ish walk --mode=a11y --chrome="$THEME" --origin=http://localhost:3400 --json > "$RESULTS/walk-a11y-$THEME.json"
+      - run: pnpm --silent --filter conformance exec live-ish walk --mode=theme --chrome="$THEME" --origin=http://localhost:3400 --json > "$RESULTS/walk-theme-$THEME.json"
       - if: ${{ !cancelled() }}
         uses: ./.github/actions/upload-results
         with:

@@ -41,7 +41,7 @@ jobs:
       - run: pnpm --silent --filter conformance exec live-ish walk --mode=keys --origin=http://localhost:3400 --json > "$RESULTS/walk-keys.json"
       - run: pnpm --silent --filter conformance exec live-ish walk --mode=a11y --origin=http://localhost:3400 --json > "$RESULTS/walk-a11y.json"
       - run: pnpm --silent --filter conformance exec live-ish perf headers --origin=http://localhost:3400 --json > "$RESULTS/perf-headers.json"
-      - run: pnpm --filter @live-ish/verify selftest --origin=http://localhost:3400 --root=../../examples/conformance
+      - run: pnpm --filter @live-ish/verify selftest --min-rows=27 --origin=http://localhost:3400 --root=../../examples/conformance
       - if: ${{ !cancelled() }}
         uses: ./.github/actions/upload-results
         with:

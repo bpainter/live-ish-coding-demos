@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { agentsBlock, agentsTemplate, AGENTS_OUTPUT, applyPlan, BLOCK_BEGIN, BLOCK_END, CLAUDE_OUTPUT, hashOf, INCOMING, LOCK, mergeFrontmatter, prependBlock, readLock, refreshBlock, renderSkills, repoDrift, skillSources, SKILL_SOURCE } from "../src/lib/skills";
@@ -216,6 +216,20 @@ test("golden: the judge fails a change outside the allowed folders, and a task t
 });
 
 // --- Machine-readable surfaces --------------------------------------------------------------------
+
+test("doctor exits 1 and names an edited shell file", () => {
+  const { deck, done } = freshDeck();
+  try {
+    assert.equal(cli(deck, ["upgrade", "--force"]).code, 0);
+    assert.equal(cli(deck, ["doctor"]).code, 0);
+    appendFileSync(path.join(deck, "app", "layout.tsx"), "\n// edited\n");
+    const run = cli(deck, ["doctor", "--json"]);
+    assert.equal(run.code, 1, run.stderr);
+    assert.match(run.stdout, /app\/layout\.tsx/);
+  } finally {
+    done();
+  }
+});
 
 test("--json prints one versioned document to stdout, on success and on failure, with the public codes", () => {
   const { deck, done } = freshDeck();

@@ -134,6 +134,7 @@ test("every published guarantee blocks a release", () => {
     );
   const { text: themes } = named("themes");
   assert.match(themes, /walk --mode=a11y --chrome="\$THEME"/);
+  assert.match(themes, /walk --mode=theme --chrome="\$THEME"/);
 });
 
 test("a job that blocks a release cannot pass by failing", () => {

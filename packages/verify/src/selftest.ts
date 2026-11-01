@@ -164,6 +164,12 @@ async function main() {
     console.log(`${ok ? "ok  " : "FAIL"} ${row.id} ${row.what}: ${detail}`);
   }
   console.log(`\nselftest: ${ran - failed} of ${ran} rows caught what they broke`);
+  // A row a deck cannot host drops out, so a run can shrink with no failure. CI pins its count.
+  const least = Number(opt("min-rows") ?? 0);
+  if (ran < least) {
+    console.log(`selftest: ${ran} row(s) ran, and this run needs ${least}`);
+    process.exit(1);
+  }
   process.exit(failed ? 1 : 0);
 }
 
