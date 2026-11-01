@@ -10,6 +10,7 @@ import type { Mode } from "../../lib/mode";
 import type { NavGroup } from "../../lib/nav";
 import type { Field } from "../../schema/slide";
 import { usePresenter } from "../../lib/presenter/context";
+import { openOtherWindow } from "../../lib/presenter/open-window";
 import { readerHref, slideHref } from "../../lib/presenter/url";
 import { frameLive, frameUrl } from "../../lib/frames/origins";
 import { rememberPillFocus, restorePillFocus } from "../../lib/focus-restore";
@@ -526,8 +527,8 @@ export function Stage(props: Props) {
         case "toggle-timer":
           toggleTimer();
           break;
-        case "open-speaker":
-          window.open("/speaker", "deck-speaker");
+        case "open-other-window":
+          openOtherWindow(presenter?.mode ?? "audience");
           break;
         case "goto":
           if (presenter?.mode === "speaker") setGotoOpen(true);

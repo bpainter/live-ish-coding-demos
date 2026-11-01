@@ -1,0 +1,61 @@
+---
+title: Export a static site
+outcome: When you finish this page, you will have a reader-only copy of your deck as plain files, and you will know which demos stay live in it.
+---
+
+`live-ish export` writes your deck as plain files, for a host with no server, such as GitHub Pages. Use it to share a deck after the talk. To present, use [`live-ish present`](/offline).
+
+## Run it
+
+```text
+pnpm live-ish export --site=https://talk.example.com
+```
+
+| Flag     | What it does                                                                                             |
+| -------- | -------------------------------------------------------------------------------------------------------- |
+| `--site` | The address for canonical URLs and share cards. Falls back to `LIVE_ISH_SITE_ORIGIN`, then `hosts.site`. |
+| `--out`  | Where the files go. Defaults to `.live-ish/export`.                                                      |
+
+With no address at all, it exits 1. `export` needs no network. It does not run `check`, so run that first. Run `live-ish capture` first too, so a demo that cannot run from files has a poster to show.
+
+To look at the result, serve the folder with any static file server.
+
+```text
+python3 -m http.server 3000 --directory .live-ish/export
+```
+
+## What you get
+
+- `/` and `/s/<id>` for every slide, with the text view and the keyboard controls.
+- Frame documents as files, for every demo that can run from them.
+- `sitemap.xml`, `robots.txt`, `404.html`, the share card and your `public/` folder.
+
+An export has no `/present` and no `/speaker`, whatever `presenter.onHost` says. It holds no speaker notes unless you set `reader.notes: true`, and it fails if a note reaches the files when that setting is off.
+
+## Which demos stay live
+
+Most demos run as they do on a server. A frame the host cannot run shows its poster and a note instead, and `export` prints each one with its reason.
+
+| A frame shows its poster when                          | Printed reason                            |
+| ------------------------------------------------------ | ----------------------------------------- |
+| Its kind is `server`                                   | it is a server of its own                 |
+| Its demo has a `routes.ts`                             | it has server routes                      |
+| Its route sits outside `/demos/`                       | it opens an address a server answers      |
+| It uses the `csp-enforce` flag                         | it needs csp-enforce                      |
+| It has several documents, and flags change across them | it changes flags across several documents |
+
+## How it differs from a server
+
+- **A slide move is a full page load.** The step lives in the address, so nothing is lost.
+- **Each flag combination is a file.** A static host ignores a query string, so `index.off-<flag>.html` sits beside `index.html`.
+- **A frame's security policy is a `<meta>` tag.** A `<meta>` policy cannot set `frame-ancestors` or reporting, so any page can embed an exported frame.
+
+## Pick a host
+
+The export needs the root of a site, because there is no base path. A custom domain or a GitHub user page works. A project page at `user.github.io/project` does not work yet.
+
+On GitHub Pages, publish with the Pages action. If you publish from a branch instead, add an empty `.nojekyll` file to the folder, because Jekyll drops `_next`.
+
+## What has been run
+
+An export of the starter passed `scripts/export.mts` on a laptop, against a plain static file server: every step of a demo, Back, a slide move, a console with no errors, and a 404 from the host. No CI job runs that check yet, and no export has run on a real host.

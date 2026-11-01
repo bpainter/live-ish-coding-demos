@@ -6,6 +6,7 @@ import type { Slide } from "../../schema/slide";
 import { hasFrame, type Action, type Demo, type DemoPage, type Step } from "../../schema/demo";
 import { AArrowDown, AArrowUp, ChevronLeft, ChevronRight, Download, ExternalLink, EyeOff, Hand, Menu, MonitorUp, RotateCcw } from "lucide-react";
 import { usePresenter } from "../../lib/presenter/context";
+import { openOtherWindow } from "../../lib/presenter/open-window";
 import { speakerSlideName } from "../../lib/presenter/titles";
 import { frameUrl } from "../../lib/frames/origins";
 import { deckKey, restoreOnClear } from "../../lib/deck-keys";
@@ -205,7 +206,7 @@ export function SpeakerShell({ slides, children }: { slides: SpeakerSlideInfo[];
   const { state, audienceConnected, update, perform } = presenter;
   const framed = info.frameRoute !== null;
   const offline = audienceConnected === false;
-  const openAudience = () => window.open("/present", "deck-audience");
+  const openAudience = () => openOtherWindow("speaker");
   const openFrame = () => {
     if (info.frameRoute) window.open(frameUrl(info.frameRoute).url, "_blank", "noopener");
   };

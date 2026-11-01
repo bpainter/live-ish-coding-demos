@@ -35,7 +35,7 @@ hosts: { site: "https://talk.example.com", frames: "https://frames.example.com" 
 
 Point both domains at the same deployment. A frame document names the presenter in `frame-ancestors`.
 
-A Node server is required, with `fs` at request time. Static hosts do not work.
+A deployed build needs a Node server, with `fs` at request time. For a host with no server, use [`live-ish export`](/export), which writes a reader-only copy.
 
 ## Environment overrides
 
@@ -82,16 +82,16 @@ The hosting modes passed a harness in Chromium and WebKit, on a laptop, against 
 
 ## Pick a provider
 
-| Target                               | Status                                               |
-| ------------------------------------ | ---------------------------------------------------- |
-| [Vercel](/deploy/vercel)             | Has a full preset. Not yet run on a real deployment. |
-| [Netlify](/deploy/netlify)           | Detected, and otherwise best effort.                 |
-| [Cloudflare](/deploy/cloudflare)     | Detected, and otherwise best effort.                 |
-| [Render](/deploy/render)             | Detected. Runs `next start`.                         |
-| [Railway](/deploy/railway)           | Detected. Runs `next start`.                         |
-| [Your own Node server](/deploy/node) | `next start`, behind a proxy.                        |
-| [Docker](/deploy/docker)             | A sample image. Not run yet.                         |
-| GitHub Pages or any static host      | Not supported.                                       |
+| Target                                     | Status                                                               |
+| ------------------------------------------ | -------------------------------------------------------------------- |
+| [Vercel](/deploy/vercel)                   | Has a full preset. Not yet run on a real deployment.                 |
+| [Netlify](/deploy/netlify)                 | Detected, and otherwise best effort.                                 |
+| [Cloudflare](/deploy/cloudflare)           | Detected, and otherwise best effort.                                 |
+| [Render](/deploy/render)                   | Detected. Runs `next start`.                                         |
+| [Railway](/deploy/railway)                 | Detected. Runs `next start`.                                         |
+| [Your own Node server](/deploy/node)       | `next start`, behind a proxy.                                        |
+| [Docker](/deploy/docker)                   | A sample image. Not run yet.                                         |
+| [GitHub Pages or any static host](/export) | Reader only, through `live-ish export`. You cannot present from one. |
 
 ## After a deploy
 

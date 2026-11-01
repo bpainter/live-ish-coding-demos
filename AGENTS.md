@@ -10,6 +10,8 @@ Live-ish makes scripted demos of code and UI, driven by a clicker. This pnpm mon
 | `packages/bridge`      | `@live-ish/bridge`: what a server-backed demo needs from its own app. Optional                          |
 | `examples/starter`     | The deck `create-live-ish` copies. It is also the API contract                                          |
 | `examples/conformance` | One slide per layout, for the theme and layout checks                                                   |
+| `examples/server`      | A deck that drives a real server, for the `server` frame kind                                           |
+| `parity/`              | The parity matrix: each capability and the check that proves it                                         |
 | `docs/decisions.md`    | Why things are the way they are. Append only, one entry per decision                                    |
 
 ## Commands
