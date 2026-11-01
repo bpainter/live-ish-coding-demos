@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
@@ -10,6 +10,7 @@ import { ENGINE, EXIT, CliError, engineVersion, environment, printJson, readSumm
 import { portAnswers, toolVersion } from "../process";
 import { MANIFEST, readManifest, shellStatus, strayFiles, writeShell } from "../shell";
 import { SCHEMA_DIST, SCHEMA_FILES } from "./schema";
+import { refreshAgents } from "./skills";
 
 type Status = "ok" | "warn" | "fail";
 
@@ -197,11 +198,13 @@ export async function upgrade(ctx: Ctx): Promise<ExitCode> {
   // Codemods first: a deck this engine cannot read stops here, with its shell as it was.
   const codemods = runCodemods(root, ctx.log);
   const { written, removed } = writeShell(root);
-  if (ctx.json) printJson({ ok: true, engine: engineVersion(), written, removed, codemods });
+  const agents = refreshAgents(root, ctx.log);
+  if (ctx.json) printJson({ ok: true, engine: engineVersion(), written, removed, codemods, agents });
   else {
     for (const file of written) ctx.log(`Wrote ${file}`);
     for (const file of removed) ctx.log(`Removed ${file}`);
     ctx.log(written.length || removed.length ? `Shell refreshed from @live-ish/engine ${engineVersion()}.` : `The shell already matches @live-ish/engine ${engineVersion()}.`);
+    if (agents.written.length) ctx.log(`Refreshed ${agents.written.length} agent file(s).`);
   }
   return EXIT.ok;
 }
@@ -228,18 +231,6 @@ export async function addVerify(ctx: Ctx): Promise<ExitCode> {
   if (ctx.json) printJson({ ok: true, commands: [install, browser] });
   else ctx.log("Verify is ready. Try `live-ish walk` and `live-ish capture`.");
   return EXIT.ok;
-}
-
-/** The instruction files a deck starts with, kept if the author already has their own. */
-export function writeAgentFiles(root: string): string[] {
-  const written: string[] = [];
-  for (const name of ["AGENTS.md", "CLAUDE.md"]) {
-    const target = path.join(root, name);
-    if (existsSync(target)) continue;
-    copyFileSync(path.join(ENGINE, "templates", "agents", name), target);
-    written.push(name);
-  }
-  return written;
 }
 
 /** Commands that live in `@live-ish/verify`. It ships Playwright, so a deck installs it on demand. */

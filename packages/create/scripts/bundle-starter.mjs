@@ -16,7 +16,7 @@ const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
 
 /** Everything the shell writes, by its top-level name. Templates name the files, so this cannot drift. */
 const shell = new Set(readdirSync(path.join(engine, "shell")).map((name) => (name === "gitignore" ? ".gitignore" : name)));
-const generated = new Set(["node_modules", ".next", ".live-ish", "next-env.d.ts", "live-ish.shell.json", "AGENTS.md", "CLAUDE.md"]);
+const generated = new Set(["node_modules", ".next", ".live-ish", "next-env.d.ts", "live-ish.shell.json", "AGENTS.md", "CLAUDE.md", ".agents", ".claude"]);
 
 function keep(source) {
   const rel = path.relative(starter, source).split(path.sep).join("/");
