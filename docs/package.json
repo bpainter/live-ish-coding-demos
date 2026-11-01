@@ -8,7 +8,7 @@
   "scripts": {
     "generate": "tsx --conditions=react-server scripts/generate.ts",
     "dev": "pnpm generate && live-ish dev --port=3100",
-    "build": "pnpm generate && tsx scripts/build.ts",
+    "build": "pnpm --filter @live-ish/engine build && pnpm generate && tsx scripts/build.ts",
     "start": "live-ish start --port=3100",
     "check:links": "tsx scripts/link-check.ts",
     "typecheck": "pnpm generate && live-ish prepare && tsc --noEmit",

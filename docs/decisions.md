@@ -334,3 +334,5 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **This repo holds no AI key.** People run agents in their own Claude or Codex app or CLI. `pnpm evals:claude --run` uses the Claude Code you are signed in to, and CI never runs it, so the nightly evals workflow is gone. A test fails if a workflow brings a key back.
 
 **The first pass ships on the owner's own testing.** Community feedback decides what comes next, in place of a formal usability study.
+
+**The docs build compiles the engine first.** Vercel restores its install cache, which skips the engine's `prepare` step, so `packages/engine/dist` is missing on every deploy after the first.
