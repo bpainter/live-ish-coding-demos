@@ -1,0 +1,24 @@
+---
+title: Deploy to Railway
+outcome: When you finish this page, you will have a deck running as a Node service on Railway.
+---
+
+**Status.** The engine detects Railway through `RAILWAY_ENVIRONMENT_NAME` and reads its commit. It has not run there. It is the same `next start` the hosting harness ran locally, so it should need nothing special.
+
+## Settings
+
+| Setting                | Value                              |
+| ---------------------- | ---------------------------------- |
+| Root directory         | The deck's folder                  |
+| Build command          | `pnpm live-ish build`              |
+| Start command          | `pnpm live-ish start --port=$PORT` |
+| `LIVE_ISH_SITE_ORIGIN` | `https://talk.example.com`         |
+
+There is no preset for the site address, so set it.
+
+## Check it
+
+```text
+curl -s https://talk.example.com/_health
+pnpm live-ish warmup --origin=https://talk.example.com
+```

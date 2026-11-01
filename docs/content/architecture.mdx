@@ -1,0 +1,90 @@
+---
+title: Architecture
+outcome: When you finish this page, you will know how the packages fit together, how a deck reaches the engine, and what counts as public API.
+---
+
+## The packages
+
+All four share one version.
+
+| Package            | What it holds                                                                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@live-ish/engine` | The stage, presenter, reader, frame composer, runtime, validators and the `live-ish` command. It publishes TypeScript source, consumed through `transpilePackages`. |
+| `@live-ish/verify` | Walks, `axe`, capture, warm-up, `perf` and `parity`. Optional, and the only package that needs Playwright.                                                          |
+| `@live-ish/bridge` | A small package with no dependencies, for a server-backed demo's own app.                                                                                           |
+| `create-live-ish`  | The scaffolder. It has no dependencies, because it runs before anything is installed.                                                                               |
+
+## How a deck reaches the engine
+
+A deck is a thin Next.js app.
+
+```text
+my-talk/
+  deck.config.ts        The deck
+  slides/NN-name.ts     Copy slides
+  demos/<id>/           One folder per demo
+  public/               Images and fonts
+  app/                  The shell: generated re-exports
+  next.config.ts        Generated: withDeck()
+  .live-ish/            Generated and ignored
+```
+
+**The shell.** Next's App Router needs `app/` in the project. A deck commits about 15 generated files, each a re-export from `@live-ish/engine/routes/*`.
+
+**Deck injection.** `withDeck()` runs `prepareDeck(root)` when `next.config.ts` loads, so plain `next dev` and `next build` work too. `prepareDeck` writes `.live-ish/deck.gen.ts`, which imports the config, every slide and every demo. `withDeck()` aliases the bare specifier `@live-ish/deck` to that file. Inside the engine, one module imports it, and everything else goes through that module.
+
+**Paths.** One module roots every path at the deck.
+
+**Assets.** The runtime, the grain tile, frame CSS and generated theme CSS live in the engine. `prepareDeck` copies them into `public/live-ish/`, which is ignored by git, and records content hashes. Frame shells link them with `?v=<hash>`.
+
+**CSS.** Engine styles use semantic classes built with Tailwind `@apply`. The engine ships compiled CSS, so a deck needs no Tailwind.
+
+## How a demo plays
+
+```text
+speaker window  <--BroadcastChannel-->  audience window
+                                             |
+                                             | postMessage
+                                             v
+                                        frame document
+                                        with the runtime
+```
+
+- **The composer** builds each frame document from your files plus a shell: the theme link, the frame base, the runtime and the flags. Your markup goes in exactly as written.
+- **The runtime** runs inside the frame. It plays actions in the real document, and reports when a step is done.
+- **The stage** holds the code panel and the spotlight overlay, and drives the runtime.
+- **The windows** sync through `BroadcastChannel`, with no server. The channel name carries the build id, so two builds cannot drive each other.
+
+A forward press plays in the live document. Any other move mounts a fresh document and replays `s0` to `sN` instantly. A poster sits under the frame until the live document is ready.
+
+Keys reach the stage even with focus in a frame, because the runtime forwards them. This is why a clicker keeps working.
+
+## Hosting
+
+The mode comes from origins, and the target from where the build runs. `src/next/hosting.cjs` decides both once, when `next.config.ts` loads. See [deploy](/deploy).
+
+A deployed build with no public notes gets a deck module holding data with `notes` removed, and `live-ish build` reads the build back to confirm it. The presenter's shell files are named `page.presenter.tsx`, and `withDeck()` lists that extension only when the build serves the presenter. That leaves no route, no chunk and no payload.
+
+## Public and internal
+
+Anything public follows SemVer. Anything else can change in any release.
+
+| Public                                                                                    | Internal                                        |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `deck.config.ts` and `defineDeck()`                                                       | The `postMessage` protocol                      |
+| `defineSlide()`, `defineDemo()` and their types                                           | Presenter state, sync messages and storage keys |
+| The 15 action types and the assert grammar                                                | Runtime internals                               |
+| `window.demoHooks`, including `reset`, `setNetwork` and `probes`                          | The overlay, settle gate and input relay        |
+| Enhancement flags and the demo folder layout                                              | Composer output and `data-*` attributes         |
+| CLI commands, flags and exit codes                                                        | The `.live-ish/` generated folder               |
+| URLs: `/`, `/s/<id>`, `/present?s=`, `/speaker?s=`, `?step=`, `?glass=off`, `?rehearse=1` | CSS class names, other than those documented    |
+| The keyboard map                                                                          | The walk harness                                |
+| Documented deck tokens, the theme file format and `--chrome-*` tokens                     | `--speaker-*` tokens                            |
+| JSON output shapes, JSON Schema and skill names                                           | The skill generator                             |
+| The bridge contract for server-backed demos                                               |                                                 |
+| Rule ids and presets                                                                      |                                                 |
+| `withDeck()` options and shell entry points                                               |                                                 |
+
+## This site
+
+The docs are a Next.js app in `docs/`, and also a deck. A build copies the starter and the engine's shell into the app, so [the live deck](/live) shares its origin. One route renders every MDX page, and `scripts/generate.ts` writes the generated tables, the rule pages and the Markdown copies.

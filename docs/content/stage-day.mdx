@@ -1,0 +1,55 @@
+---
+title: Stage-day checklist
+outcome: When you finish this page, you will have a checklist that takes you from the code freeze to the first slide, with a fallback ready at every step.
+---
+
+Here, T is the start of your talk. Copy this into your own notes and fill in the blanks.
+
+## Before you leave home
+
+- [ ] Freeze the code 72 hours out. After that, only stage fixes.
+- [ ] Rehearse once on the exact build you will present, 24 to 48 hours out.
+- [ ] If you deploy, stop deploying 24 hours out. Write down the deployment's address so you can roll back to it.
+- [ ] Build the local fallback from the same commit, with `pnpm live-ish present`, and try it once with the network off.
+
+Any deploy after the final rehearsal restarts this list.
+
+## In the room, T minus 60 minutes
+
+1. Join the venue Wi-Fi, or the tether you trust more.
+2. If you present from a deployed host, warm it from the talk laptop, from a checkout of the deployed commit.
+
+   ```text
+   pnpm live-ish warmup --origin=https://talk.example.com
+   ```
+
+   It fetches `/_health`, every slide, every frame document and every file they load, then prints failures and timings. It fails on any 4xx, any 5xx, a network error or a build mismatch. It warms the CDN and the functions. It does not warm your browser.
+
+3. Green means the build matches and frame documents have a median response of 300 ms or less. If it fails twice, switch to the local fallback and stop here.
+4. If anything was deployed since the rehearsal, clear cached images and files in the talk profile.
+
+`warmup` needs `@live-ish/verify`. See [verification](/verification).
+
+## T minus 45 minutes
+
+5. Open the speaker window, then press `s` to open the audience window.
+6. Drag the audience window to the projector and press `f`.
+7. Press `Shift` and the right arrow through every slide from the speaker window, then press `Home`. This fills the browser cache for every slide and frame.
+8. Press `d` in the audience window for one demo. Check that the 95th percentile frame time is under 20 ms, then press `d` again.
+
+## T minus 15 minutes
+
+9. Test the clicker on the projector. On an intro slide, press after 1 second and after 5 seconds. Both should advance. Press `Home` to go back.
+10. Check that the audience window is 1920 by 1080 at scale 1, with nothing cropped.
+11. Check the focus ring and the keycaps from the back of the room.
+12. Leave both windows open. Do not reload unless something breaks. A reload is safe: the cache serves the slides.
+
+## If the Wi-Fi drops during the talk
+
+On `live-ish present`, nothing changes.
+
+On a deployed host, slides, backgrounds and stills keep painting from the browser cache. Frame documents need the network, so the local fallback is the answer. Move to it at the next slide, and say so in one sentence.
+
+## If a frame breaks
+
+Press `r`. Say "Let me reset that step." Keep going. A poster sits under each frame when you have run `live-ish capture`, so a failed frame still shows something.

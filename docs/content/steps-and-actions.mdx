@@ -1,0 +1,74 @@
+---
+title: Steps and actions
+outcome: When you finish this page, you will be able to look up every field on a step, all 15 action types and the full assert grammar.
+---
+
+A step is one press. It runs its actions in the frame while the code panel and the spotlight move with it.
+
+`live-ish actions` prints the tables on this page, offline. Add `--json` for a tool. They are generated from the same source.
+
+## A step's fields
+
+| Field            | What it does                                                                              |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| `id`             | `s0`, `s1` and so on. Required. Step `s0` is the entry state and takes no press.          |
+| `label`          | A short name for the speaker window. Required. Two to four words, starting with a verb.   |
+| `actions`        | What the frame does, in order. Required.                                                  |
+| `code`           | `{ file, lines, off }`. The tab to show and the lines to highlight.                       |
+| `spotlight`      | Selectors to ring in the frame.                                                           |
+| `callouts`       | `{ target, text, side }` labels.                                                          |
+| `meter`          | `{ label, value, source }`. A number the checker recounts from `source`.                  |
+| `key`            | `true` on the one step to stress on this page.                                            |
+| `notes`          | One string per paragraph.                                                                 |
+| `ifKeyboard`     | What to do by hand in hands-on mode.                                                      |
+| `proof`          | The claim this step proves. Shows a chip in the speaker window.                           |
+| `poster`         | A still for this step.                                                                    |
+| `posterUnderlay` | `false` keeps the poster out from under the frame when it differs from the live document. |
+| `route`          | Multi-page demos: the document this step ends on.                                         |
+
+## Actions
+
+<Generated name="action-table" />
+
+### The key action
+
+Script cannot produce a trusted key press, so a `key` action shows a keycap and does the job through a DOM call. `via` names that call, and the `via` rule checks it against the key.
+
+The keys are `Escape`, `Tab`, `Shift+Tab`, `Enter`, `Space`, `ArrowDown`, `ArrowUp`, `Alt+ArrowLeft` and `Alt+ArrowRight`.
+
+The `via` values are `dialog.requestClose()`, `popover.hidePopover()`, `focus(target)`, `el.click()`, `form.requestSubmit()`, `select.next()/.prev()`, `navigation.back()`, `navigation.forward()` and `dispatch(keydown)`.
+
+### The wait action
+
+`wait` is skipped during an instant replay. Reach for a real signal first. An `assert` or a `hook` gives a better result than a fixed pause.
+
+## The assert grammar
+
+`assert` takes a `target` and an `expect`. It prints nothing on stage. It runs in rehearsal and in walks, and a failure names the step. Put `!` in front of any form to negate it.
+
+<Generated name="assert-table" />
+
+## What happens on a press
+
+1. The code panel moves first. The highlight leads playback by 400 ms, so the room reads the cause and then sees the effect.
+2. The actions play in the frame.
+3. The spotlight fades in once the page has settled.
+
+**Next during playback finishes the step.** The next press then advances. A press never queues up behind a long animation.
+
+**Back is deterministic.** It mounts a fresh document and replays every step up to the one you want, instantly, with `wait` skipped and animations off. A digest confirms the replay matches. This is why a stateful demo can step backward on stage.
+
+**A stuck step cannot trap you.** If a run still reports playing 1500 ms after Next asked it to finish, the stage moves on anyway.
+
+## The limits
+
+`check` warns on these, and fails under `--strict`. Most exist because a room cannot follow more.
+
+| Rule                             | Limit                                                                     |
+| -------------------------------- | ------------------------------------------------------------------------- |
+| [`step-cap`](/errors/step-cap)   | Three steps after `s0` on a before page, five on an after or single page. |
+| [`callouts`](/errors/callouts)   | One callout per step, on after pages, three words at most.                |
+| [`file-size`](/errors/file-size) | 44 columns and 40 lines in a shown file.                                  |
+| [`bullets`](/errors/bullets)     | One to three notes paragraphs on a step.                                  |
+
+`code` is stricter: it fails on a highlight over 12 lines or spanning over 20. The first three limits come from the layout, so you can only relax their severity. Set that under `checks.rules`. See [pacing a demo](/pacing) for the reasons.

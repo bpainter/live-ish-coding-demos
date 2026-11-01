@@ -1,0 +1,84 @@
+---
+title: Release runbook
+outcome: When you finish this page, you will have the steps to take a change from merged to published, with a human approval at the end and no stored token anywhere.
+---
+
+Nothing here has run for real yet. Run the first release as a dry run on a throwaway package. The npm and pnpm features below were checked against `npm stage --help` on npm 12.2.1 and against pnpm 12.16.1. Check them again before you rely on them.
+
+## One-time setup
+
+The `publish` workflow cannot run until the owner does all of these.
+
+1. Claim the `@live-ish` scope and `create-live-ish` on npm, and turn on 2FA for every owner.
+2. Set up trusted publishing on npm for each of the four packages: this repository, the workflow `publish.yml`, the environment `npm-publish`.
+3. Create the `npm-publish` environment on GitHub, with required reviewers.
+4. Protect `main`, and restrict tag creation to maintainers.
+5. Set the `PUBLISH_ENABLED` repository variable to `true`.
+6. Run a staged publish on a throwaway package, through inspection and approval, and confirm it with `npm view`.
+
+No `NPM_TOKEN` exists, here or in any secret. The workflow's `id-token` permission is the only credential.
+
+## Versions
+
+- SemVer across all four packages, with one shared version. A fixed Changesets group keeps them together, and a test fails if they drift.
+- During `0.x`, a minor can break the public API. Each break gets a changelog entry and, where possible, a codemod.
+- Pre-releases go to the `next` dist-tag. `latest` only moves by hand.
+
+The repo is in Changesets pre mode with the tag `next`, so versions read `0.1.0-next.0`. To leave it for a stable release, run `pnpm changeset pre exit`.
+
+## Release
+
+1. Merge the version pull request. To make one, run `pnpm changeset version` on a branch and commit the result.
+2. Tag on `main`.
+
+   ```text
+   git tag v0.1.0-next.1
+   git push origin v0.1.0-next.1
+   ```
+
+   The `publish` workflow starts, and it waits for approval on the `npm-publish` environment.
+
+3. CI runs everything once more, then stages all four packages under the `next` tag. Nothing goes live from CI.
+4. Read what was staged.
+
+   ```text
+   npm stage list
+   npm stage view <stage-id>
+   npm stage download <stage-id>
+   ```
+
+   Read the tarball list. Unpack each tarball and run the private scan over it.
+
+5. Approve each package, with 2FA.
+
+   ```text
+   npm stage approve <stage-id>
+   ```
+
+   To stop instead, run `npm stage reject <stage-id>`.
+
+6. Verify from a clean machine: `pnpm create live-ish`, `pnpm dev`, one walk.
+7. Publish the GitHub release from the changelog.
+
+To move `latest` by hand, once a release has proved itself:
+
+```text
+npm dist-tag add @live-ish/engine@0.1.0 latest
+```
+
+Repeat for all four packages.
+
+## Why it works this way
+
+- **Trusted publishing, no stored token.** There is no secret to steal.
+- **Staged publishing.** CI cannot publish by itself.
+- **Human approval.** A maintainer reads the tarball, then approves with 2FA.
+- **Provenance.** Kept, and not leaned on. Attacks have got past valid provenance.
+- **Build scripts off by default.** See `pnpm-workspace.yaml`.
+- **A three-day hold on new versions.** pnpm's `minimumReleaseAge` and Dependabot's cooldown agree. CONTRIBUTING.md holds the exception path for urgent fixes.
+- **Pinned tools.** `packageManager` carries a hash, and actions are pinned to commit SHAs.
+- **Frozen installs.** All of CI uses `pnpm install --frozen-lockfile`.
+
+## Changing a guarantee
+
+A loosened guarantee on the [performance](/performance) or [accessibility](/accessibility) pages is a breaking change, and needs a changelog entry.

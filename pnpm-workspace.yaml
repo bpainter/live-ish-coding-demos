@@ -6,7 +6,15 @@ packages:
 # Hold versions younger than three days. Urgent fixes follow the exception path in CONTRIBUTING.md.
 minimumReleaseAge: 4320
 
-# Both ship their binaries as optional dependencies, so neither install script is needed.
-allowBuilds:
-  esbuild: false
-  unrs-resolver: false
+# Build scripts stay off by default: pnpm stops an install at any package that has one and is not
+# listed here. Each entry is a reviewed decision. New entries need a reason in the pull request.
+# `pnpm permissions list` prints this list and anything waiting for a decision.
+permissions:
+  # Ships its binary as an optional dependency, so the script has nothing to do.
+  esbuild:
+    build: false
+    skills: false
+  # Same: the resolver binary arrives as an optional dependency.
+  unrs-resolver:
+    build: false
+    skills: false

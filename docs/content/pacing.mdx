@@ -1,0 +1,99 @@
+---
+title: Pacing a demo
+outcome: When you finish this page, you will have a time budget for each demo, a step count the room can follow, and notes you can say while the demo plays.
+---
+
+A demo has two audiences. Newer developers need each term said once in plain words. Senior developers need proof the old way is a fair picture of real code. You need to glance once, know what is on screen, say it and press Next.
+
+These numbers are a starting model. No audience research sits behind them. To test yours, run one timed rehearsal with two or three developers of mixed seniority. After each demo, ask each one to say the single point in one sentence, and note where each person looked away.
+
+## The pace model
+
+A step costs about 20 seconds:
+
+- 3 to 6 seconds of playback, while you say the first line.
+- About 2 seconds for eyes to find the highlight.
+- 10 to 15 seconds on the code.
+
+Plan speech at 130 words a minute. That is slower than normal, because you are also pointing.
+
+People hold about four new things at once. So a demo may introduce four new terms at most, one per step.
+
+## Step caps
+
+Step 0 does not count.
+
+| Page   | Steps               | Lines of notes per step            | Words per step              | Minutes     |
+| ------ | ------------------- | ---------------------------------- | --------------------------- | ----------- |
+| Intro  | 0                   | Intro only, 50 words at most       | None                        | 0.25        |
+| Before | 3, one per language | 1, a second only on the meter step | 20, or 30 on the meter step | 0.5 to 0.75 |
+| After  | 4 target, 5 cap     | 2 typical, 3 at most               | 40                          | 1.5 to 2    |
+
+That gives about 2.5 minutes for a demo. Spend the first demo's extra minute on teaching the format, because a clear start pays back across the rest of the talk.
+
+## Rules that keep a room with you
+
+- **Every step changes something in the frame.** A step that only moves the code highlight belongs with its neighbor.
+- **One step, one press, one idea.** A step that needs more than four keys gets split, or moves to hands-on mode.
+- **One proof per demo.** Prefer a proof the room has not seen yet.
+- **Behavior and code move together.** When they sit a minute apart, the room must recall one to understand the other.
+- **Say each source once at most.** Citations go in the speaker window's References, one tap away for questions.
+
+## How one demo moves
+
+| Beat            | The audience leaves knowing                           | Eyes go to                                | You do                                                             |
+| --------------- | ----------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ |
+| Intro           | The feature, what it lets you do, and where it works  | The title, then the browser tiles         | Say the scenario in two or three sentences. Do not read the slide. |
+| Before, arrival | The task, and how to watch                            | The frame, then the code tabs             | Name the task.                                                     |
+| Before, steps   | Each language carries part of the cost                | The highlight, then the outline           | One line per step.                                                 |
+| Before, meter   | How much code a team writes for this                  | The meter                                 | Say the number once, and where it comes from.                      |
+| After, arrival  | The same task, built from parts the browser gives you | The frame                                 | Say which element does which job.                                  |
+| After, steps    | Each behavior comes from a few lines                  | The highlight, then the frame             | First line while it plays, second line on the code.                |
+| After, key step | The one thing to remember                             | The focus ring, keycaps or the "Off" chip | Let it finish, pause one beat, say it once.                        |
+
+Polish three moments first: the first before page, where the room learns how every demo works; the meter, where senior developers judge whether the comparison is fair; and the key step, which is the takeaway.
+
+The last demo gets remembered best. Hold every earlier demo to its time, so the last one is not rushed.
+
+## The notes pattern
+
+```text
+Intro: 2 or 3 sentences, 50 words at most
+  Sentence 1: the task on screen, in user terms.
+  Sentence 2: what is different on this page.
+  Sentence 3, optional: how to watch, or which element does which job.
+
+Step: a label of 2 to 4 words, starting with a verb
+  - On screen: what just happened, named by its visible label.
+  - Meaning: what the highlighted code does, in plain words.
+  - Optional: why it matters to the person using the page.
+```
+
+The first line always says what the audience sees, so you can say it during playback without looking at the code. Here is the pattern on the starter's FAQ.
+
+```text
+Open with no script
+  - The details element opens and closes by itself.
+  - No handler runs.
+
+One name, one open [Key point]
+  - Both elements share the name faq.
+  - The first answer closed, and we wrote no code to close it.
+```
+
+## Comparing two ways of doing something
+
+- Show that the old way is fair. Say once that it matches common production code, and keep your sources one tap away.
+- Do not mock the old way. Teams shipped it for good reasons.
+- Label the beats with care. "Today" for the old way sounds like the current way. Set your own labels with `beats` in `deck.config.ts`.
+
+## Common ways a room gets lost
+
+| Risk                                | What to do                                                                                           |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Code and demo move at once          | Keep the order: highlight, then playback. Say the first line while it plays, then point at the code. |
+| You press Next too early            | Wait for "Ready" in the speaker window. In rehearsal, never press on "Playing".                      |
+| Focus is invisible on the projector | Test the ring and the keycaps on the real projector.                                                 |
+| Too many new terms                  | Four per demo. A fifth goes in References.                                                           |
+| Every demo has the same shape       | Keep the shape, because a predictable one helps. Vary the proof.                                     |
+| You read instead of watching        | If a line needs a second look, it is too long.                                                       |
