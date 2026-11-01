@@ -110,7 +110,8 @@ function notesInBuild(root: string, notes: string[]): string[] {
       }
     }
   };
-  visit(path.join(root, ".next"));
+  // `.next/dev` is the dev server's own output, which holds notes by design and never deploys.
+  for (const entry of readdirSync(path.join(root, ".next"))) if (entry !== "dev") visit(path.join(root, ".next", entry));
   return found;
 }
 
