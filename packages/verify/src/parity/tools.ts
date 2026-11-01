@@ -2,11 +2,12 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { hasFrame, runChecks, type FramePage } from "@live-ish/engine/verify";
 import { axe } from "../axe";
-import { isBlocked, loadDeck, type DeckData } from "../lib/deck";
+import { isBlocked, loadDeck, runningServers, type DeckData } from "../lib/deck";
 import { Report, type Entry } from "../lib/report";
 import { perf } from "../perf";
 import { selfTestRows, runRow } from "../selftest";
 import { walk } from "../walk";
+import { stoppedPages } from "../walk/servers";
 import { warmup } from "../warmup";
 import type { Facts, MatrixRow } from "./report";
 import type { Check } from "./target";
@@ -32,10 +33,11 @@ type Scope = (e: Entry) => boolean;
 
 const everything: Scope = () => true;
 const sections = (ids: string[]): Scope => (e) => ids.some((id) => e.section === id || e.section.startsWith(`${id} `));
-const text = (re: RegExp): Scope => (e) => re.test(e.message);
+/** A failure often names its subject in `where`, so a scope that read only the message would miss it. */
+export const text = (re: RegExp): Scope => (e) => re.test(e.message) || (e.where !== "" && re.test(`${e.where}: ${e.message}`));
 
 /** Facts compare across targets, so they say only whether the row held. */
-function verdict(run: Run, scope: Scope): Facts | null {
+export function verdict(run: Run, scope: Scope): Facts | null {
   const fails = run.fails.filter(scope);
   const passes = run.passes.filter(scope);
   if (!fails.length && !passes.length) return null;
@@ -86,10 +88,10 @@ class Tools {
     return this.checked;
   }
 
-  /** Self-tests, in one pass: a row is whether its walk caught what its break broke. */
+  /** Self-tests, in one pass: a row is whether its walk caught what its break broke. Only the WK rows have a matrix row to read them. */
   selfTests() {
     return this.once("selftest", async (report) => {
-      for (const row of selfTestRows(this.deck)) {
+      for (const row of selfTestRows(this.deck).filter((r) => r.id.startsWith("WK-"))) {
         const { ok, detail } = await runRow(this.root, this.deck, this.origin, row);
         (ok ? report.pass : (m: string) => report.fail(row.id, m))(`${row.id} ${detail}`);
       }
@@ -197,6 +199,7 @@ const READERS: Record<string, Reader> = {
   "FR-16": fromMode("keys", text(/hides the recording/)),
   "FR-17": onPages((p) => p.frame.kind === "server"),
   "FR-18": onPages((p) => p.frame.kind === "server"),
+  "FR-19": async (t) => (stoppedPages(t.deck, await runningServers(t.deck)).length ? verdict(await t.walk("servers"), sections(["stopped apps"])) : null),
   "FR-21": fromMode("focus", text(/iframe\.frame-warm|warming/)),
   "FR-22": async (t) => verdict(await t.walk("underlay --runs=1"), everything),
   "FR-23": async (t) => {
