@@ -2,7 +2,9 @@
  * What `@live-ish/verify` reads from the engine. It is one package with the engine in practice, kept
  * apart so a deck that never runs a walk never installs a browser. Not part of the public API.
  */
+export { listThemes } from "./lib/chrome-themes";
 export { keyHelpFor } from "./lib/keys";
+export { SPEAKER_PALETTE } from "./lib/palettes";
 export { firstPoster, type ImageManifest } from "./lib/assets";
 export { posterMatchesTheme, posterThemeInput, posterUrl } from "./lib/posters";
 export { flagsAt } from "./lib/engine/steps";
