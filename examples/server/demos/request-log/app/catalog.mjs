@@ -1,9 +1,6 @@
 import { clearLog, log } from "./log.mjs";
 
-const NAMES = {
-  1: "Notebook",
-  2: "Pencil",
-};
+const NAMES = { 1: "Notebook", 2: "Pen" };
 // One cache per frame session.
 const caches = new Map();
 
@@ -19,7 +16,7 @@ export function plain(session, id, path) {
 }
 
 // The first request renders. The next is a
-// hit, until something invalidates the entry.
+// hit, until something invalidates it.
 export function cached(session, id, path) {
   const cache = caches.get(session) ?? {};
   caches.set(session, cache);
