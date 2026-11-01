@@ -28,9 +28,12 @@
   "files": [
     "bin",
     "budgets.json",
+    "matrix.json",
     "src"
   ],
   "scripts": {
+    "prepack": "node -e \"require('node:fs').copyFileSync('../../parity/matrix.json', 'matrix.json')\"",
+    "postpack": "node -e \"require('node:fs').rmSync('matrix.json', { force: true })\"",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "node --conditions=react-server --import tsx --test test/*.test.ts src/parity/*.test.ts",
