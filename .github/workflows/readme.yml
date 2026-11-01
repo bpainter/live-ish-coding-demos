@@ -28,6 +28,4 @@ jobs:
       - run: node --import tsx scripts/ci/quickstart.mts README.md "Quick start"
       - run: node --import tsx scripts/ci/quickstart.mts docs/content/start.mdx
       - run: pnpm docs:build
-        env:
-          LIVE_ISH_SITE_ORIGIN: http://localhost:3100
       - run: pnpm --filter docs check:links
