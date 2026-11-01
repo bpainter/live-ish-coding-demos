@@ -10,7 +10,7 @@ export default defineDeck({
   title: "Conformance",
   speaker: { name: "Rosa Quintero", title: "Staff engineer", org: "Tideline Labs", url: "https://example.com/rosa" },
   event: { name: "Conformance", city: "Halifax", startDate: "2026-10-30T09:00:00-03:00" },
-  links: { site: { label: "example.com/conformance", url: "https://example.com/conformance" } },
+  links: { site: { label: "example.com/conformance", url: "https://example.com/conformance" }, tag: { from: "{slide}" } },
   theme: { brand: { text: "Tideline" } },
   // A browser feature behind a switch: `walk --without` proves the deck holds up with it removed.
   verify: { chromiumArgs: ["--enable-blink-features=CSSGridLanesLayout"] },
