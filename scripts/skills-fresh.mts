@@ -28,7 +28,15 @@ function line(ok: boolean, text: string, detail = "") {
   console.log(`${ok ? "pass" : "FAIL"}  ${text}`);
   if (!ok) {
     failed++;
-    if (detail) console.log(detail.trim().split("\n").slice(-12).map((l) => `      ${l}`).join("\n"));
+    if (detail)
+      console.log(
+        detail
+          .trim()
+          .split("\n")
+          .slice(-12)
+          .map((l) => `      ${l}`)
+          .join("\n"),
+      );
   }
 }
 
@@ -90,7 +98,10 @@ lock.skills["check-deck"] = "0";
 lock["live-ish-schema"] = "0";
 writeFileSync(lockFile, JSON.stringify(lock));
 const stale = JSON.parse(liveIsh(deck, ["check", "--json"]).out) as { findings: { rule: string }[] };
-line(stale.findings.some((f) => f.rule === "skills-stale"), "check warns through skills-stale");
+line(
+  stale.findings.some((f) => f.rule === "skills-stale"),
+  "check warns through skills-stale",
+);
 const edited = ".claude/skills/add-copy-slide/SKILL.md";
 writeFileSync(path.join(deck, edited), `${read(deck, edited)}\nMy own step.\n`);
 rmSync(path.join(deck, ".claude/skills/deploy-deck"), { recursive: true });
@@ -109,14 +120,26 @@ const dev = spawn(path.join(deck, "node_modules", ".bin", "next"), ["dev", "--po
 let up = false;
 for (let i = 0; i < 60 && !up; i++) {
   await new Promise((resolve) => setTimeout(resolve, 500));
-  up = await fetch(`http://localhost:${PORT}/_health`, { signal: AbortSignal.timeout(2000) }).then(() => true, () => false);
+  up = await fetch(`http://localhost:${PORT}/_health`, { signal: AbortSignal.timeout(2000) }).then(
+    () => true,
+    () => false,
+  );
 }
 await new Promise((resolve) => setTimeout(resolve, 2000));
 // All the way down: a server still dying would rewrite public/live-ish under the next command.
 const stopped = new Promise((resolve) => dev.once("exit", resolve));
 dev.kill("SIGTERM");
 await stopped;
-for (let i = 0; i < 40 && (await fetch(`http://localhost:${PORT}/_health`, { signal: AbortSignal.timeout(500) }).then(() => true, () => false)); i++) await new Promise((resolve) => setTimeout(resolve, 250));
+for (
+  let i = 0;
+  i < 40 &&
+  (await fetch(`http://localhost:${PORT}/_health`, { signal: AbortSignal.timeout(500) }).then(
+    () => true,
+    () => false,
+  ));
+  i++
+)
+  await new Promise((resolve) => setTimeout(resolve, 250));
 line(up, "next dev answered");
 line(read(deck, "AGENTS.md") === mine, "AGENTS.md is byte for byte the author's");
 

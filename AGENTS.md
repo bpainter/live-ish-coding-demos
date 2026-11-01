@@ -2,15 +2,15 @@
 
 Live-ish makes scripted demos of code and UI, driven by a clicker. This pnpm monorepo publishes the engine and its tools. A deck takes them through npm and keeps a thin Next.js shell. The nearest `AGENTS.md` wins, so each package adds its own.
 
-| Folder | What it is |
-|---|---|
-| `packages/engine` | `@live-ish/engine`: stage, presenter, reader, validators, the `live-ish` CLI, the shell, themes, skills |
-| `packages/create` | `create-live-ish`, the scaffolder. No runtime dependencies |
-| `packages/verify` | `@live-ish/verify`: walks, axe, capture and perf. Optional, ships Playwright |
-| `packages/bridge` | `@live-ish/bridge`: what a server-backed demo needs from its own app. Optional |
-| `examples/starter` | The deck `create-live-ish` copies. It is also the API contract |
-| `examples/conformance` | One slide per layout, for the theme and layout checks |
-| `docs/decisions.md` | Why things are the way they are. Append only, one entry per decision |
+| Folder                 | What it is                                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| `packages/engine`      | `@live-ish/engine`: stage, presenter, reader, validators, the `live-ish` CLI, the shell, themes, skills |
+| `packages/create`      | `create-live-ish`, the scaffolder. No runtime dependencies                                              |
+| `packages/verify`      | `@live-ish/verify`: walks, axe, capture and perf. Optional, ships Playwright                            |
+| `packages/bridge`      | `@live-ish/bridge`: what a server-backed demo needs from its own app. Optional                          |
+| `examples/starter`     | The deck `create-live-ish` copies. It is also the API contract                                          |
+| `examples/conformance` | One slide per layout, for the theme and layout checks                                                   |
+| `docs/decisions.md`    | Why things are the way they are. Append only, one entry per decision                                    |
 
 ## Commands
 
@@ -40,11 +40,11 @@ After changing an example's shell or config, delete its `.next` first. Stale `.n
 
 Never edit these by hand. Edit the source and regenerate.
 
-| Generated | Source |
-|---|---|
-| `.agents/skills/`, `.claude/skills/` | `packages/engine/skills/`, through `pnpm live-ish skills sync` |
+| Generated                                                          | Source                                                              |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| `.agents/skills/`, `.claude/skills/`                               | `packages/engine/skills/`, through `pnpm live-ish skills sync`      |
 | `examples/*/app/`, `next.config.ts`, `tsconfig.json`, `.gitignore` | `packages/engine/shell/`, through `live-ish upgrade` in the example |
-| `packages/engine/assets/chrome/`, `docs/generated/` | `packages/engine/themes/`, through `pnpm gen:themes` |
+| `packages/engine/assets/chrome/`, `docs/generated/`                | `packages/engine/themes/`, through `pnpm gen:themes`                |
 
 ## Testing
 

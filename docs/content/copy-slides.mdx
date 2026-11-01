@@ -1,0 +1,90 @@
+---
+title: Copy slides
+outcome: When you finish this page, you will have a copy slide in the layout you want, with its image, notes and timing in place.
+---
+
+A copy slide is text and images. It lives in one file under `slides/`.
+
+## Create one
+
+```text
+pnpm live-ish new copy "My point"
+pnpm live-ish new copy "Thanks for coming" --layout closing
+```
+
+The command writes `slides/NN-<slug>.ts` and adds the id to `order` in `deck.config.ts`. It places a new slide ahead of a closing slide, so the closing stays last.
+
+## The shape
+
+This is the starter's second slide, in `slides/02-what-this-shows.ts`.
+
+```ts
+import { defineSlide } from "@live-ish/engine/config";
+
+export default defineSlide({
+  id: "what-this-shows",
+  layout: "content",
+  title: "What this deck shows",
+  body: ["Three things your own deck can do."],
+  items: [
+    { label: "Slides", detail: "Plain slides like this one, with text and images.", icon: "presentation" },
+    { label: "Web demos", detail: "Real pages, played one step at a time.", icon: "play" },
+    { label: "Terminal demos", detail: "Recorded commands beside their code.", icon: "square-terminal" },
+  ],
+  image: {
+    src: "/images/two-windows.svg",
+    alt: "A speaker window with notes beside an audience window showing a highlighted element.",
+    placement: "right-half",
+  },
+  notes: "This is a standard copy slide.\n\nThe notes you are reading live in the same file.",
+  minutes: 1,
+});
+```
+
+## Fields on every slide
+
+| Field         | What it does                                                       |
+| ------------- | ------------------------------------------------------------------ |
+| `id`          | The slide's address, `/s/<id>`, and its name in `order`. Required. |
+| `title`       | The heading. Required.                                             |
+| `layout`      | One of the layouts below. Defaults to `content`.                   |
+| `eyebrow`     | A short line above the title.                                      |
+| `notes`       | What you say. See [speaker notes](/speaker-notes).                 |
+| `minutes`     | Your target for this slide.                                        |
+| `citations`   | `{ text, url }` entries, shown in the speaker window's References. |
+| `description` | The text for search and share cards.                               |
+| `background`  | An image or a token behind the slide.                              |
+| `field`       | The surface the slide sits on: `light`, `dark` or `accent`.        |
+
+## Layouts
+
+| Layout       | Extra fields                                                           | Use it for                                                         |
+| ------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `content`    | `body`, `items`, `image`                                               | The standard slide: a sentence, up to six items and an image.      |
+| `title`      | `lines`, `eyebrow`                                                     | The cover. `lines` falls back to `title`.                          |
+| `closing`    | `url`, `linkLabel`, `caption`                                          | Your name, a link and a QR code built from `url` at build time.    |
+| `grid`       | `variant`, `tone`, `align`, `display`, `lede`, `cardsEyebrow`, `cards` | Cards with icons, numbers or images.                               |
+| `statement`  | `lines`                                                                | One big line.                                                      |
+| `section`    | `label`, `legend`                                                      | A divider between parts of the talk.                               |
+| `quotes`     | `quotes`                                                               | One or several quotes, with `{ text, cite }`.                      |
+| `people`     | `people`                                                               | Names and roles. Initials stand in when there is no photo.         |
+| `image`      | `image`                                                                | A full-bleed image. Set `placement: "full-bleed"`.                 |
+| `stat`       | `stats`                                                                | One or two big numbers, with `{ value, label, source }`.           |
+| `comparison` | `items`                                                                | Two columns.                                                       |
+| `table`      | `tableColumns`, `tableRows`                                            | A table.                                                           |
+| `timeline`   | `items`                                                                | Dated entries. `hollow: true` marks a date with nothing confirmed. |
+| `chart`      | `chart`                                                                | A `dot` or `bar` chart from `points`.                              |
+
+`grid` takes `variant: "icons"`, `"numbered"` or `"portraits"`, `tone: "light"` or `"dark"`, and `align: "center"`.
+
+An icon is a Lucide name in kebab case, such as `square-terminal`. Only the icons a slide names reach the page.
+
+## Add an image
+
+1. Put the file under `public/images/`.
+2. Set `image` with a `src` and an `alt`. The type requires `alt`, so your editor flags a missing one.
+3. Run `pnpm live-ish images` to encode a raster image to AVIF and WebP. This needs `sharp`, which Next installs where your platform allows it.
+
+## Theme
+
+Copy slides use the deck theme, set under `theme` in `deck.config.ts`. Audience themes apply to demo slides only. See [config](/config) for the `--deck-*` tokens and fonts.

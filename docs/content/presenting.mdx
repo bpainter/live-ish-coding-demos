@@ -1,0 +1,76 @@
+---
+title: Presenting
+outcome: When you finish this page, you will have two windows in sync, a clicker that works, and a plan for the moment something goes wrong.
+---
+
+Live-ish runs in two windows: the audience window on the projector and the speaker window on your laptop. They stay in sync through the browser, with no server involved.
+
+## Open the two windows
+
+```text
+pnpm live-ish present
+```
+
+This serves a build from your laptop and opens the speaker window at `http://localhost:3000/speaker`.
+
+1. Press `s` in the speaker window to open the audience window.
+2. Drag the audience window to the projector.
+3. Press `f` there for full screen.
+
+Open the presenter on `localhost`. On `127.0.0.1`, a banner asks you to move, because frames are served from that address and windows on it would stop syncing.
+
+To present from a deployed host, see [notes on a public host](/deploy#notes-on-a-public-host). [Offline presenting](/offline) is the safer plan.
+
+## Keys
+
+These work in both windows. Press `?` to see them on screen.
+
+<Generated name="keys-presenter" />
+
+`F5` does nothing, so a clicker's "start slideshow" button cannot reload the deck. Space always advances in the audience window, because that is what many clickers send.
+
+## Use a clicker
+
+A clicker sends arrow keys, Page Up and Page Down, or Space. All of them work, so a clicker is enough. Every action is scripted, and you never return to the laptop.
+
+Press Next once a step finishes. A press during playback finishes the step, and the next press moves on. On an intro slide, press after 1 second and after 5 seconds while testing. Both should advance.
+
+When focus moves into a frame, the runtime forwards deck keys, so your clicker keeps working.
+
+## Hands-on mode
+
+Press `h`. Steps stop playing, and your keyboard and pointer reach the demo. This is how a scripted demo becomes a live one on demand. Press `h` to leave, then press Next once to sync the frame. A step's `ifKeyboard` text reminds you what to do by hand.
+
+## Blank the screen
+
+Press `b` or `.` to blank the audience window. Press it again to bring it back. Use it when you want the room's eyes on you.
+
+## Jump around
+
+- `Shift` and an arrow key moves a whole page, to step 0.
+- `Home` and `End` go to the first and last slide.
+- `g` in the speaker window goes to a slide number.
+- `o` opens the frame on its own in a new tab.
+
+## Turn glass off
+
+Add `?glass=off` to `/present` or `/speaker`. This sets a window's surfaces to solid, for a machine that struggles with blur.
+
+## URLs
+
+| Address                  | What it shows                            |
+| ------------------------ | ---------------------------------------- |
+| `/`                      | The reader view, slide 1                 |
+| `/s/<id>`                | The reader view, one slide               |
+| `/present?s=<id>&step=2` | The audience window                      |
+| `/speaker?s=<id>`        | The speaker window                       |
+| `?chrome=<id>`           | A preview of an audience theme           |
+| `?glass=off`             | Solid surfaces                           |
+| `?rehearse=1`            | The rehearsal log, on the speaker window |
+
+## When something goes wrong
+
+- **A frame stalls.** Press `r` to replay to the current step. Say "Let me reset that step" and keep going. Do not explain the engine.
+- **The pill reads "No audience".** The audience window has gone, or the two windows run different builds. Its tooltip names both build ids. Reload the stale window.
+- **The pill reads "Frame error".** Press `r`. The same step on a poster still lets you make the point. The stage moves on even if a frame never answers.
+- **The Wi-Fi drops.** `live-ish present` does not care. A deployed deck paints from the browser cache until a frame document needs the network. See the [stage-day checklist](/stage-day).

@@ -1,0 +1,29 @@
+# The local-only walk in a network namespace with loopback alone, so the build and the walk run with no outbound traffic and the runner keeps its own connection. Nightly. Blocks a release.
+name: offline
+
+on:
+  schedule:
+    - cron: "47 3 * * *"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: offline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
+      - name: Build and walk with the network off
+        run: sudo -E unshare --net -- bash -c 'ip link set lo up && sudo -E -u "$SUDO_USER" env PATH="$PATH" HOME="$HOME" bash scripts/ci/offline.sh'

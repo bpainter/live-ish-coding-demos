@@ -1,0 +1,42 @@
+name: Bug
+description: Something in the presenter, reader, CLI or checks does not work.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: For a demo that plays wrongly, use the demo engine bug form. For a security problem, use private reporting.
+  - type: input
+    id: version
+    attributes:
+      label: Live-ish version
+      description: Run `live-ish --version`.
+      placeholder: 0.1.0-next.0
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 145
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `live-ish doctor`
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What you did
+      description: The commands or keys, in order.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened
+    validations:
+      required: true

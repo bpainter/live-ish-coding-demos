@@ -1,0 +1,65 @@
+# Contrast on all themes, then axe and a walk on the conformance deck through the chrome query, once per theme. Blocks merge.
+name: themes
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: themes-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contrast:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm test:contrast
+
+  list:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      ids: ${{ steps.ids.outputs.ids }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Read the theme ids from the theme files
+        id: ids
+        run: echo "ids=$(pnpm --silent --filter starter exec live-ish themes --json | node -e 'console.log(JSON.stringify(JSON.parse(require("fs").readFileSync(0)).themes.map((t) => t.id)))')" >> "$GITHUB_OUTPUT"
+
+  theme:
+    needs: list
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        theme: ${{ fromJSON(needs.list.outputs.ids) }}
+    env:
+      THEME: ${{ matrix.theme }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
+      - uses: ./.github/actions/start-deck
+        with:
+          deck: conformance
+          port: 3400
+          all-fonts: "1"
+      - run: pnpm --filter conformance exec live-ish axe --chrome="$THEME" --origin=http://localhost:3400
+      - run: pnpm --filter conformance exec live-ish walk --chrome="$THEME" --origin=http://localhost:3400

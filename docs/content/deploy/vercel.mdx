@@ -1,0 +1,50 @@
+---
+title: Deploy to Vercel
+outcome: When you finish this page, you will have a deck on Vercel with a shared link that plays its demos.
+---
+
+**Status.** The engine has a full Vercel preset. It has run on `next start` with Vercel's variables set by hand, and has not yet run on a real deployment. Please report what you find.
+
+## Project settings
+
+| Setting          | Value                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| Framework preset | Next.js                                                                               |
+| Root directory   | The deck's folder                                                                     |
+| Install command  | `pnpm install --frozen-lockfile`                                                      |
+| Build command    | `pnpm live-ish build`                                                                 |
+| Output directory | Leave empty                                                                           |
+| Node.js version  | 22.x                                                                                  |
+| Skew Protection  | On, if your plan has it. Open windows keep the old deployment's files after a deploy. |
+
+## The site address
+
+The preset reads `VERCEL_PROJECT_PRODUCTION_URL`, so `hosts.site` is optional. Set it when you use your own domain, in `deck.config.ts` or as `LIVE_ISH_SITE_ORIGIN`.
+
+## What the preset does
+
+- Counts as deployed on a plain `next build`.
+- Takes the build id from `VERCEL_GIT_COMMIT_SHA`.
+- Sends `Vercel-CDN-Cache-Control` on frame build files. It reaches no browser there, and no other host sends it.
+- Keeps a preview out of search. On two hosts, a preview shows posters.
+
+## Two hosts
+
+Add a second domain to the same project, and set `hosts.frames` to it. Both domains serve every route. The origins the presenter uses decide which host shows what, and the frames host answers `Disallow: /` in `robots.txt`.
+
+## Analytics
+
+Off by default. To turn them on, enable them in the Vercel project and set them in `deck.config.ts`.
+
+```ts
+analytics: { provider: "vercel", speedInsights: true },
+```
+
+No `@vercel/*` package is installed. The scripts load from the addresses the platform serves, on `/` and `/s/<id>` only.
+
+## Check it
+
+```text
+curl -s https://talk.example.com/_health
+pnpm live-ish warmup --origin=https://talk.example.com
+```

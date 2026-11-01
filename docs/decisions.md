@@ -106,7 +106,7 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 
 **Parity runs the tools.** `src/parity/tools.ts` maps each matrix row with no suite to what proves it: a walk mode, `axe`, `check`, `perf`, `warmup` or a self-test. One run answers every row that reads it, narrowed to the row's pages or text, and a row needs a passing check of its own, so nothing passes by being absent. These rows run only on a deck folder. A report built from a manifest file leaves them `not-run`, and `--compare` counts a row that ran on one side apart: it proves nothing either way, so it is neither a match nor a difference. Rows proved by `pnpm test`, CI or a person stay `not-run`, and a test holds that list closed.
 
-**`parity --compare` needs no deck.** It reads two files, so `delegate` falls back to the working folder, and the repo root depends on `@live-ish/verify`, so a bare checkout resolves it.
+**`parity --compare` needs no deck.** It reads two files, so `delegate` falls back to the working folder, and in a bare checkout it finds `packages/verify` beside the engine.
 
 **One Playwright.** `@playwright/test` alone: parity's imports moved off `playwright`, so the package pins one version.
 
@@ -209,3 +209,30 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **`--json` failures are documents.** A misuse or environment failure used to leave stdout empty, so a script had nothing to parse. It now prints `{ version, ok: false, error: { code, message, fix } }` on stdout, and the same words on stderr.
 
 **`create-live-ish` names `packages` in `pnpm-workspace.yaml`.** pnpm 9 stops on that file without it. Newer pnpm reads the same file.
+## Docs and foundations
+
+**The docs app is also a deck.** The live starter runs inside `docs/`, on one origin. The engine's routes have no base path, so the deck keeps `/s`, `/present`, `/speaker`, `/demos` and `/_health`, and the docs take every other address. Two root layouts, `app/(site)` and `app/(deck)`, keep the CSS apart. `pnpm generate` copies the starter and the shell in, git-ignored, so they cannot drift. The copy sets `presenter.onHost: true`, because the starter's notes are public and a public presenter is the proof. `check` warns about shell files on this one deck, since the docs app is not a standard shell. `next.config.ts` here is hand-written.
+
+**One route renders every page.** Pages are read from disk and compiled with `@mdx-js/mdx` at build. `@next/mdx` was not used, because generated fragments and the Markdown copies need the source text anyway. `<Generated name="x" />` expands before compiling, so the site and `/<page>.md` hold the same words. Generated rule pages compile as plain Markdown, so a brace in a rule's text cannot break the build.
+
+**Code blocks have no syntax colors.** Highlighting would need a dependency or inline styles. One quiet design does not need it.
+
+**`shell` has a hand-written error page.** `check` prints a `shell` finding with a docs address, and it is not a rule, so nothing would have generated one. A test now reads the addresses in `check.ts`.
+
+**Install policy uses `permissions`.** pnpm 12.16.1 has a real `permissions` setting, with `build` and `skills` keys. `build` takes precedence over `allowBuilds`, and `pnpm permissions list` reads both. By default an unlisted build script stops the install with `ERR_PNPM_IGNORED_BUILDS`, and the script does not run. `create-live-ish` still writes `allowBuilds`, which works.
+
+**The fixed group uses a glob.** `["@live-ish/*", "create-live-ish"]`, because Changesets rejects a name that is not in the workspace, and `verify` and `bridge` land from their own branches. A test resolves the glob against the four names. `scripts/release/sync-packages.mjs` writes the shared metadata and the version when a package joins.
+
+**Pre-release mode is on, tag `next`.** The first version is `0.1.0-next.0`. `publishConfig.tag` is `next`, and the publish workflow stages under `next`. `latest` only moves by hand.
+
+**The publish workflow has a variable gate.** `vars.PUBLISH_ENABLED` must be `true`, on top of the protected environment and the trusted publisher. So a stray tag does nothing until the owner has set all three up.
+
+**npm 12.2.1 in the publish job.** The sample named `npm@11.15`. `npm stage` was checked on 12.2.1, with `publish`, `list`, `view`, `approve`, `reject` and `download`, so that is the pinned version.
+
+**The offline job uses a network namespace.** Blocking outbound traffic with `iptables` on a hosted runner can cut the runner's own connection. `unshare --net` gives the build and the walk loopback alone, and the runner keeps its link.
+
+**`prepare:decks` runs before typecheck.** A fresh checkout has no `.live-ish/`, and the examples' `tsc` needs the alias target.
+
+**pnpm 9 needs `packages` in `pnpm-workspace.yaml`.** A blank folder runs whatever pnpm Corepack has as its default, and pnpm 9 refuses a workspace file without that field. The scaffolder now writes `packages: ["."]`.
+
+**Prettier covers only files that joined.** `.prettierignore` lists `packages/`, `examples/` and other workstreams' scripts, so `format:check` is real today without reformatting anyone's files.

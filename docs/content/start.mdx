@@ -1,0 +1,81 @@
+---
+title: Quickstart
+outcome: When you finish this page, you will have a deck running on your laptop, one slide you edited, one demo of your own, and a build ready for the stage.
+---
+
+You need Node 22 or later and pnpm. CI runs every command on this page, in order, from a blank folder.
+
+> The packages are not on npm yet. Until they are, `pnpm create live-ish` will not work. See [run from this repo](#run-from-this-repo).
+
+## Create a deck
+
+```sh
+pnpm create live-ish my-talk
+cd my-talk
+pnpm dev
+```
+
+The first command writes a seven-slide starter deck into `my-talk` and installs it. It needs no browser binaries. The last command starts the dev server.
+
+Open `http://localhost:3000/present`. Press the right arrow key to play the demo. Press `s` to open the speaker window, which holds your notes.
+
+Open `/present` and not `/`. The root address is the reader view, where `s` does nothing.
+
+## Edit a slide
+
+Open `slides/02-what-this-shows.ts` and change the title. Save. The page reloads with your words, and the terminal prints the result of `live-ish check`.
+
+## Add a demo
+
+Stop the server with Ctrl-C, or use a second terminal. These commands write a working demo folder and add its id to `order` in `deck.config.ts`.
+
+```sh
+pnpm live-ish new web-demo tabs
+pnpm live-ish check
+```
+
+Open `demos/tabs/`. It holds `before/` and `after/` folders of plain files, a `hooks.js` and a `demo.ts`. Run `pnpm dev` again and press the arrow keys on the new slides. [Web demos](/web-demos) explains every line.
+
+## Add the other two slide types
+
+```sh
+pnpm live-ish new copy "My point"
+pnpm live-ish new terminal-demo setup
+pnpm live-ish check
+```
+
+A copy slide is text and images. A terminal demo is a recorded session beside its code.
+
+## Serve it for the stage
+
+```sh
+pnpm live-ish present
+```
+
+This builds the deck into its own folder, serves it from your laptop, and opens the speaker window. It needs no network. The terminal prints the three steps to put the audience window on the projector.
+
+## Run from this repo
+
+Until the packages are on npm, run the starter from a checkout. The repo pins pnpm through Corepack.
+
+```text
+git clone https://github.com/bpainter/live-ish-coding-demos.git
+cd live-ish-coding-demos
+corepack enable
+pnpm install
+pnpm --filter starter dev
+```
+
+To scaffold a deck of your own from a checkout, pack the engine, then point the scaffolder at the tarball.
+
+```text
+pnpm --filter @live-ish/engine pack --pack-destination /tmp/live-ish
+pnpm --filter create-live-ish run prepack
+node packages/create/bin/create-live-ish.mjs ../my-talk --engine=file:/tmp/live-ish/live-ish-engine-0.1.0-next.0.tgz
+```
+
+## Next
+
+- [Web demos](/web-demos) walks through a real demo, line by line.
+- [Presenting](/presenting) covers the keys, a clicker and two windows.
+- [Known limits](/limits) says what Live-ish does not do.

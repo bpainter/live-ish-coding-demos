@@ -1,0 +1,45 @@
+name: Demo engine bug
+description: A step, action, spotlight or frame plays wrongly.
+labels: [bug, demo-engine]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Live-ish version
+      description: Run `live-ish --version`.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `live-ish doctor`
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: demo
+    attributes:
+      label: A minimal demo folder
+      description: Link to a repo or paste `demo.ts` and the files it shows. Run `live-ish new web-demo x` for a small base. The smaller, the faster the fix.
+    validations:
+      required: true
+  - type: input
+    id: step
+    attributes:
+      label: Page and step
+      placeholder: faq-after, s2
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened
+      description: Include what the rehearsal overlay shows (press d).
+    validations:
+      required: true

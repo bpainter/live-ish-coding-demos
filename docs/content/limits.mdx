@@ -1,0 +1,42 @@
+---
+title: Known limits
+outcome: When you finish this page, you will know where Live-ish is weaker than other tools, so you can pick the right one for your talk.
+---
+
+Live-ish does one job: scripted demos of code and UI, driven by a clicker, with proof that they work before you go on stage. Here is what that costs.
+
+## What you give up
+
+- **It needs Node and Next.js.** Marp and reveal.js need far less.
+- **It has no PDF export yet.** The reader view and the text view are how a deck travels after the talk.
+- **Slides are typed objects.** If you write slides in Markdown, these will feel heavier.
+- **It has no ecosystem or community yet.** You will not find plugins or a theme market.
+- **Layouts are limited, and the canvas is fixed at 16:9.** There are 14 copy layouts. The stage is always 1920 by 1080, scaled to fit.
+- **A demo takes real effort to script.** That effort is the price of the result. If you will not rehearse the demo, a screenshot may serve you better.
+- **Demo Time lives in the editor speakers already use.** That may suit some talks better, such as one that happens in the editor.
+
+These comparisons come from general knowledge and web research, and have not been checked hands-on against current releases of those tools.
+
+## What is not built
+
+- There is no static export. A deck needs a Node server, because frames come from route handlers and their security policy is a response header. GitHub Pages and other static hosts do not work.
+- Password protection on `/speaker` does not exist. Keep private notes off a public host.
+- `chrome.copySlides` is parsed and not applied. Copy slides keep the deck theme.
+- Copy slides have no audience themes.
+
+## What has not been tested
+
+- No real screen reader and no real phone have run the engine. See [accessibility](/accessibility).
+- No deck has run on a real provider. See [deploy](/deploy).
+- Safari itself has not run the walks, only the WebKit build that Playwright ships. See [browser support](/browser-support).
+
+## When to pick something else
+
+| If you want                                               | Look at       |
+| --------------------------------------------------------- | ------------- |
+| Slides from a Markdown file, with no build                | Marp          |
+| A plain HTML deck with a large plugin set                 | reveal.js     |
+| Markdown slides with Vue components and live code editing | Slidev        |
+| A rendered video of animated code                         | Motion Canvas |
+| Scripted demos inside VS Code                             | Demo Time     |
+| Keystroke record and replay                               | Rety          |

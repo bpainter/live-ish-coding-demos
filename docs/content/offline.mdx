@@ -1,0 +1,64 @@
+---
+title: Offline presenting
+outcome: When you finish this page, you will have a deck that runs on your laptop with the network off, and a checklist for the room.
+---
+
+Venue Wi-Fi fails. Present from your laptop, and the network stops mattering.
+
+## What needs the network
+
+| Step                                        | Network                             |
+| ------------------------------------------- | ----------------------------------- |
+| `pnpm install`                              | Yes. Do it at home.                 |
+| `live-ish dev`, `build`, `start`, `present` | No                                  |
+| `live-ish capture`, `live-ish record`       | No                                  |
+| `live-ish support`                          | No. It reads your installed data.   |
+| `live-ish support --tools`                  | Yes. It reads the npm registry.     |
+| `live-ish warmup`                           | Local network, or the deployed host |
+
+## Present
+
+```text
+pnpm live-ish present
+```
+
+`present` does four things:
+
+1. It builds into `.next-present`, its own folder, so it survives beside `pnpm dev`. It skips the build when nothing changed.
+2. It serves the build with `next start`, and starts any `servers` your deck lists.
+3. It checks that `localhost` and `127.0.0.1` both answer with this build.
+4. It opens the speaker window, and prints the steps for the projector.
+
+Pick another port with `--port`. It needs no rebuild.
+
+```text
+pnpm live-ish present --port=3100
+```
+
+Add `--no-open` to leave your browser alone.
+
+Frames are served from `127.0.0.1` and the presenter from `localhost`, so a demo and the presenter sit on different origins, just as they would on two hosts.
+
+## What makes it work
+
+Fonts, the runtime, QR codes and highlighting are all local. `verify` backs the claim: `live-ish walk --local-only` fails on any request to a host other than the two local origins, and the `offline` job in CI runs that walk with outbound traffic blocked.
+
+A deck can still reach out on its own. If a demo fetches a remote image, the local-only walk names the address. Serve it from the demo folder.
+
+## Laptop checklist
+
+The night before:
+
+1. Run `pnpm install`, then turn off the network and run `pnpm live-ish present`.
+2. Walk the whole deck once, forward, with the speaker window open.
+3. Close every other app. Turn off notifications, updates and sleep.
+4. Charge the laptop, and pack the power adapter and display adapters.
+
+In the room:
+
+1. Plug in power, then the projector. Set the display to extended, not mirrored.
+2. Run `pnpm live-ish present`. Press `s`, drag the audience window across and press `f`.
+3. Check that the audience window is 1920 by 1080 at scale 1, with nothing cropped.
+4. Try the clicker on an intro slide.
+
+The full version is the [stage-day checklist](/stage-day).
