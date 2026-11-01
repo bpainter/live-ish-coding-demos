@@ -1,0 +1,10 @@
+.wall {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@supports (display: grid-lanes) {
+  .wall {
+    display: grid-lanes;
+  }
+}

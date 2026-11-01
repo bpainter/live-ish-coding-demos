@@ -1,0 +1,7 @@
+/* The shell's own detail. Tokens only, in the wrapper layer, so shown CSS always wins. */
+@layer wrapper {
+  .wrap-harbor__tag {
+    margin-inline-start: auto;
+    color: var(--frame-ink-soft);
+  }
+}
