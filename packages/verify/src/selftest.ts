@@ -2,10 +2,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { BrowserContext, Page } from "@playwright/test";
 import { hasFrame } from "@live-ish/engine/verify";
+import { axe } from "./axe";
 import { EXIT, EnvironmentError, UsageError } from "./lib/args";
 import { liveFrames, loadDeck, type DeckData } from "./lib/deck";
 import { Report } from "./lib/report";
 import { walk, type WalkContext } from "./walk";
+import { slideText } from "./walk/a11y";
 
 /**
  * Proves each walk can fail. Every row breaks one thing on purpose, the way a real regression would
@@ -28,6 +30,8 @@ export interface Row {
   expect: RegExp;
   /** An exit code other than findings. */
   exit?: number;
+  /** A row for `axe`. Every other row runs `walk`. */
+  command?: "axe";
 }
 
 /** A script in every document, frames included, ahead of any page script. */
@@ -37,6 +41,9 @@ const everywhere = (script: string): Sabotage => async (ctx: BrowserContext) => 
 
 /** A style in every document. */
 const styled = (css: string) => everywhere(`(() => { const add = () => { const s = document.createElement("style"); s.textContent = ${JSON.stringify(css)}; document.documentElement.append(s); }; if (document.documentElement) add(); else addEventListener("DOMContentLoaded", add); })()`);
+
+/** A style in the top document only, and only under one `?chrome=`: a regression in one theme. */
+const styledUnder = (theme: string, css: string) => everywhere(`(() => { if (window !== window.top || new URLSearchParams(location.search).get("chrome") !== ${JSON.stringify(theme)}) return; const add = () => { const s = document.createElement("style"); s.textContent = ${JSON.stringify(css)}; document.documentElement.append(s); }; if (document.documentElement) add(); else addEventListener("DOMContentLoaded", add); })()`);
 
 /** A key that dies before anything hears it, in the window and in every frame. */
 const eatKey = (key: string) => everywhere(`addEventListener("keydown", (e) => { if (e.key === ${JSON.stringify(key)} && !e.shiftKey) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);`);
@@ -99,6 +106,27 @@ export function selfTestRows(deck: DeckData): Row[] {
   );
   if (lanes && switches.length) out.push({ id: "WK-14", what: "a browser claims a feature the run removed", argv: [lanes, "--no-speaker", ...switches.map((s) => `--without=${s}`)], sabotage: everywhere(`CSS.supports = () => true;`), expect: /got display=|style:display/ });
   out.push({ id: "local-only", what: "a page reaches for another host", argv: ["links", "--local-only"], sabotage: everywhere(`addEventListener("DOMContentLoaded", () => { void fetch("https://example.invalid/").catch(() => {}); });`), expect: /left the two local origins/ });
+  const layouts = deck.slides.filter((s) => !s.page);
+  // The middle of the deck on purpose: the first and last slides were always scanned.
+  const inner = layouts.find((s) => s.layout !== layouts[0].layout && s.layout !== layouts.at(-1)!.layout);
+  if (inner) out.push({ id: "axe-layout", what: "one copy layout loses its contrast", command: "axe", argv: ["--presenter"], sabotage: styled(`.slide--${inner.layout} * { color: #c8c8c8 !important; background: #ffffff !important; }`), expect: new RegExp(`/s/${inner.id}: color-contrast`) });
+  const pictured = layouts.find((s) => slideText(s).alts.length);
+  out.push(
+    { id: "text-content", what: "the text view drops its image alts and its lists", argv: ["a11y"], sabotage: everywhere(`addEventListener("DOMContentLoaded", () => { for (const n of document.querySelectorAll(".reading-view img")) n.alt = ""; for (const n of document.querySelectorAll(".reading-view ul, .reading-view figure")) n.remove(); });`), expect: /text content \/s\/.*: no / },
+  );
+  if (pictured) out.push({ id: "stage-image", what: "an image on the stage loses its alt", argv: ["a11y"], sabotage: everywhere(`addEventListener("DOMContentLoaded", () => { for (const n of document.querySelectorAll("#stage img")) n.alt = ""; });`), expect: new RegExp(`image /s/${pictured.id}: no drawn image`) });
+  const theme = ["theme", "--chrome=flat"];
+  out.push(
+    { id: "theme-frame", what: "a theme reaches inside the frame", argv: theme, sabotage: styledUnder("flat", ".page-frame__iframe { filter: invert(1) !important; }"), expect: /the frame differs from glass/ },
+    { id: "theme-chrome", what: "a theme stops changing the code panel", argv: theme, sabotage: styled(".code { background: #101010 !important; border-radius: 0 !important; box-shadow: none !important; font-family: monospace !important; }"), expect: /the code panel is the same/ },
+    { id: "theme-ink", what: "a theme reaches --speaker-ink", argv: theme, sabotage: styledUnder("flat", ":root { --speaker-ink: #123456 !important; }"), expect: /--speaker-ink is rgb\(18, 52, 86\)/ },
+    { id: "theme-pill", what: "a theme reaches the footer pill", argv: theme, sabotage: styledUnder("flat", ".speaker__controls { background: #ff0000 !important; }"), expect: /the footer pill is rgb\(255, 0, 0\)/ },
+    { id: "theme-motion", what: "an effect runs with reduced motion", argv: theme, sabotage: styled(".page__steps-seg { animation: chrome-blink 1s steps(1, end) 3 !important; }"), expect: /an effect ran with reduced motion.*chrome-blink/ },
+    { id: "theme-duration", what: "a transition runs long with reduced motion", argv: theme, sabotage: styled(".page__steps-seg { animation: page-long 2s linear 1 !important; } @keyframes page-long { from { opacity: 0.5; } }"), expect: /over 160 ms with reduced motion: page-long/ },
+    { id: "theme-transparency", what: "a surface keeps its blur with reduced transparency", argv: theme, sabotage: styled(".code { -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; background: rgb(0 0 0 / 0.4) !important; }"), expect: /still blurred: code/ },
+    { id: "theme-forced", what: "a surface keeps its own color in forced colors", argv: theme, sabotage: styled(".code { forced-color-adjust: none; background: #123456 !important; }"), expect: /not system colors: code/ },
+  );
+  if (Object.keys(deck.deck.hosts.external).length) out.push({ id: "servers", what: "a stopped app's page shows no note", argv: ["servers"], sabotage: styled(".page__poster-note { display: none !important; }"), expect: /no note where the frame would be/ });
   return out;
 }
 
@@ -106,7 +134,8 @@ export function selfTestRows(deck: DeckData): Row[] {
 export async function runRow(root: string, deck: DeckData, origin: string, row: Row): Promise<{ ok: boolean; detail: string }> {
   const report = new Report("selftest", false, true);
   try {
-    const code = await walk([...row.argv, `--origin=${origin}`], { root, deck, sabotage: row.sabotage, report });
+    const command = row.command === "axe" ? axe : walk;
+    const code = await command([...row.argv, `--origin=${origin}`], { root, deck, sabotage: row.sabotage, report });
     const text = report.failures.map((f) => `${f.where}: ${f.message}`).join("\n");
     const ok = code === (row.exit ?? EXIT.findings) && row.expect.test(text);
     return { ok, detail: ok ? text.split("\n").find((l) => row.expect.test(l))!.slice(0, 140) : `exit ${code}; ${text.slice(0, 300) || "no failure reported"}` };
