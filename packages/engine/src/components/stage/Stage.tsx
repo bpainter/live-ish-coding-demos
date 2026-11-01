@@ -259,12 +259,29 @@ export function Stage(props: Props) {
   }, [slideId, stepIndex]);
   /** When Next first asked the playing step to finish, for the stuck-playback watchdog. */
   const finishAsked = useRef<{ stepIndex: number; at: number } | null>(null);
+  /** A pill press played a step here. The step's click can take focus into the frame, and a reader's next Enter would then press the demo. */
+  const pillFocusHeld = useRef(false);
   const reportPlaying = useCallback(
     (playing: boolean) => {
       if (!playing) finishAsked.current = null;
+      if (!playing && pillFocusHeld.current) {
+        pillFocusHeld.current = false;
+        restorePillFocus(() => canvasRef.current?.focus({ preventScroll: true }));
+      }
       if (shared && mode === "audience") presenterRef.current?.reportPlayback({ ...playState.current, playing });
     },
     [shared, mode],
+  );
+  /** Moves a step in place, keeping a reader's focus on the pill control that asked for it. */
+  const stepInPlace = useCallback(
+    (n: number) => {
+      if (mode === "reader" && !handsOn) {
+        rememberPillFocus();
+        pillFocusHeld.current = true;
+      }
+      setStepIndex(n);
+    },
+    [mode, handsOn, setStepIndex],
   );
   const registerPlayback = useCallback((p: Playback | null) => {
     playback.current = p;
@@ -404,6 +421,7 @@ export function Stage(props: Props) {
       } else {
         // Back lands on the last step; a slide with one step has no other, and the bare URL is the prefetched one.
         // The pill button that had focus gets it back on the next slide.
+        pillFocusHeld.current = false;
         rememberPillFocus();
         router.push(readerHref(id, { last: step === "last" && (id !== prevId || prevHasSteps) }));
       }
@@ -458,13 +476,13 @@ export function Stage(props: Props) {
             w.__stuckPlayback = [...(w.__stuckPlayback ?? []), `${slideId} s${c.stepIndex}`];
             if (rehearsal || new URLSearchParams(window.location.search).get("rehearse") === "1") console.warn(`Stuck playback on ${slideId} s${c.stepIndex}`);
           } else finishAsked.current = null;
-          if (stepsFirst && c.stepIndex < c.stepCount - 1) setStepIndex(c.stepIndex + 1);
+          if (stepsFirst && c.stepIndex < c.stepCount - 1) stepInPlace(c.stepIndex + 1);
           else go(nextId);
           break;
         }
         case "retreat": {
           const c = current();
-          if (stepsFirst && c.stepIndex > 0) setStepIndex(c.stepIndex - 1);
+          if (stepsFirst && c.stepIndex > 0) stepInPlace(c.stepIndex - 1);
           else go(prevId, "last");
           break;
         }
@@ -525,7 +543,7 @@ export function Stage(props: Props) {
           break;
       }
     },
-    [mode, shared, slideIds, slideSteps, stepsFirst, current, setStepIndex, patch, go, nextId, prevId, firstId, lastId, blank, handsOn, live, frameRoute, helpOpen, gotoOpen, presenter, toggleTimer, slideId, rehearsal],
+    [mode, shared, slideIds, slideSteps, stepsFirst, current, setStepIndex, stepInPlace, patch, go, nextId, prevId, firstId, lastId, blank, handsOn, live, frameRoute, helpOpen, gotoOpen, presenter, toggleTimer, slideId, rehearsal],
   );
 
   useEffect(() => {
