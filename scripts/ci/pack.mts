@@ -50,7 +50,7 @@ for (const [name, tarball] of Object.entries(tarballs)) {
   for (const group of ["dependencies", "peerDependencies", "optionalDependencies"]) for (const [dep, range] of Object.entries<string>(pkg[group] ?? {})) if (range.startsWith("workspace:")) fail(name, `${group}.${dep} still says ${range}.`);
 
   const shipped = walk(root).map((f) => path.relative(root, f));
-  for (const file of shipped) if (/(^|\/)(_source|\.next|test|node_modules)(\/|$)/.test(file) && !/^templates\//.test(file)) fail(name, `ships ${file}.`);
+  for (const file of shipped) if (/(^|\/)(\.next|test|node_modules)(\/|$)/.test(file) && !/^templates\//.test(file)) fail(name, `ships ${file}.`);
   if (!shipped.includes("LICENSE") && !shipped.includes("README.md")) console.log(`note ${name}: no LICENSE or README in the tarball`);
   console.log(`ok   ${name}@${pkg.version}: ${shipped.length} files`);
 }

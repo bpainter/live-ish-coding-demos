@@ -25,27 +25,26 @@ const GROUPS = {
 
 /** A cell can't hold a pipe or a line break. */
 const cell = (value) => String(value).replace(/\|/g, "\\|").replace(/\n/g, " ");
-const code = (values) => values.map((v) => `\`${v}\``).join(", ");
 
 export function render(matrix) {
   const out = ["# Parity matrix", "", "Generated from `parity/matrix.json` by `parity/render.mjs`. Do not edit.", ""];
   const sign = matrix.rows.filter((r) => r.suite).length;
   out.push(`${matrix.rows.length} capabilities, ${sign} of them proved by \`live-ish parity\`. Every other row names the tool that proves it.`, "");
   for (const [group, title] of Object.entries(GROUPS)) {
-    out.push(`## ${title}`, "", "| ID | Capability | Source | Target | Phase | Proving check |", "|---|---|---|---|---|---|");
-    for (const r of matrix.rows.filter((row) => row.group === group)) out.push(`| ${r.id} | ${cell(r.capability)} | ${cell(code(r.source))} | ${cell(r.target)} | ${r.phase} | ${cell(r.check)} |`);
+    out.push(`## ${title}`, "", "| ID | Capability | Target | Phase | Proving check |", "|---|---|---|---|---|");
+    for (const r of matrix.rows.filter((row) => row.group === group)) out.push(`| ${r.id} | ${cell(r.capability)} | ${cell(r.target)} | ${r.phase} | ${cell(r.check)} |`);
     out.push("");
   }
   out.push(
     "## Exceptions",
     "",
-    "`approved-pending-owner` means the recommendation is the default until the owner signs the table below.",
+    "An exception is a deliberate gap or a default that differs from what a row might suggest. `approved-pending-owner` means the recommendation is the default until the repository owner signs the table below.",
     "",
     "| ID | Exception | Kind | Reason | Recommendation | Status | Rows |",
     "|---|---|---|---|---|---|---|",
   );
   for (const e of matrix.exceptions) out.push(`| ${e.id} | ${cell(e.exception)} | ${e.kind} | ${cell(e.reason)} | ${cell(e.recommendation)} | ${e.status} | ${e.rows.join(", ")} |`);
-  out.push("", "## Sign-off", "", "For the owner. Left blank on purpose.", "", "| Exception | Decision | Date |", "|---|---|---|");
+  out.push("", "## Sign-off", "", "For the repository owner. Left blank on purpose.", "", "| Exception | Decision | Date |", "|---|---|---|");
   for (const e of matrix.exceptions) out.push(`| ${e.id} | | |`);
   return `${out.join("\n")}\n`;
 }

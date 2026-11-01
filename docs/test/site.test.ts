@@ -135,7 +135,7 @@ test("headings use sentence case", () => {
 });
 
 /** Commands that live in @live-ish/verify, with the flags it takes. */
-const VERIFY_FLAGS = new Set(["--browser", "--channel", "--chrome", "--headed", "--local-only", "--manifest", "--mode", "--origin", "--out", "--presenter", "--profile", "--without"]);
+const VERIFY_FLAGS = new Set(["--browser", "--channel", "--chrome", "--compare", "--headed", "--local-only", "--manifest", "--mode", "--origin", "--out", "--presenter", "--profile", "--without"]);
 
 test("every live-ish command in the docs is real", () => {
   const help = cli("--help");
