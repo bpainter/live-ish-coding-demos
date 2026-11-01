@@ -1,6 +1,6 @@
-# live-ish parity on the conformance deck. Nightly, on a private runner. Blocks v1.0. The talk
-# comparison runs on the owner's machine, since its data is not public. It has no pull_request trigger,
-# so no outside code reaches the runner, and it is skipped until the PARITY_RUNNER variable is set.
+# live-ish parity on the conformance deck: every row of the parity matrix, proved against one deck.
+# Nightly, on a self-hosted runner. Blocks v1.0. It has no pull_request trigger, so no outside code
+# reaches the runner, and it is skipped until the PARITY_RUNNER variable is set.
 # It captures first, since the capture rows and the underlay self-test read git-ignored posters. It
 # installs WebKit too, since the frame history row walks in it. It names the site, since canonical
 # URLs need one, and a next build with no provider stays local, so the presenter stays in the build.
