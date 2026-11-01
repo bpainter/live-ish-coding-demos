@@ -20,11 +20,11 @@ interface Props {
  * Elision lines of excerpts are dimmed and italic and never highlighted. On an enhancement-off step
  * (`code.off`) the file is dimmed and its tab carries an "Off" chip.
  *
- * Where the panel is interactive (reader mode), the file tabs follow the APG tabs pattern
- *: one tab stop, ArrowLeft, ArrowRight, Home and End move between
- * files without moving the deck, and the code is the tab panel. The highlight is also text
- * (M6): the code points to a visually hidden sentence naming the highlighted lines, and an off
- * file's tab says so. The audience window and the speaker's previews keep no tab stops.
+ * Where the panel is interactive (reader mode), the file tabs follow the APG tabs pattern:
+ * one tab stop, ArrowLeft, ArrowRight, Home and End move between files without moving the deck,
+ * and the code is the tab panel. The highlight is also text: the code points to a visually hidden
+ * sentence naming the highlighted lines, and an off file's tab says so. The audience window and
+ * the speaker's previews keep no tab stops.
  */
 export function PageCodePanel({ files, code, mode }: Props) {
   const stepFile = code?.file ?? files[0]?.file;
