@@ -4,13 +4,13 @@ Live-ish coding: now with 100% less typing in front of strangers.
 
 Live-ish runs slides and scripted demos of code and UI from one web app. Each click plays one step in a real page and highlights the code behind it.
 
-> Preview. Packages are not on npm yet. The API will change. Until they are, [run it from this repo](#run-it-from-this-repo). The docs site at live-ish.dev is not up yet, so read the same pages in [`docs/content`](docs/content).
+> Preview. Packages are not on npm yet. The API will change. The docs site at live-ish.dev is not up yet either, so the docs links here open the same pages in this repo.
 
 <img src="docs/assets/demo-slide.png" alt="A demo slide with highlighted code beside a running page.">
 
 ## Quick start
 
-You need Node 22 or later and pnpm.
+The packages are not on npm yet, so `pnpm create live-ish` fails today. Until they are, [run it from this repo](#run-it-from-this-repo). Once they are, this is the whole setup:
 
 ```sh
 pnpm create live-ish my-talk
@@ -18,11 +18,11 @@ cd my-talk
 pnpm dev
 ```
 
-Open <http://localhost:3000/present> and press the right arrow key to play the demo. Press `s` to open the speaker view.
+You need Node 22 or later and pnpm. Open <http://localhost:3000/present> and press the right arrow key to play the demo. Press `s` to open the speaker window.
 
 ## Run it from this repo
 
-This runs the starter deck from `examples/starter`. The repo pins pnpm through Corepack.
+This runs the starter deck from `examples/starter`, and works today. You need Node 22 or later. The repo pins pnpm through Corepack.
 
 ```sh
 git clone https://github.com/bpainter/live-ish-coding-demos.git
@@ -32,15 +32,15 @@ pnpm install
 pnpm --filter starter dev
 ```
 
+Then open the same address as above. The `pnpm live-ish` commands below run from a deck's folder, so in this repo, run `cd examples/starter` first.
+
 ## Slide types
 
-| Type          | Shows                                                          | Create one                              |
-| ------------- | -------------------------------------------------------------- | --------------------------------------- |
-| Copy          | Text and images                                                | `pnpm live-ish new copy "My point"`     |
-| Web demo      | An HTML, CSS and JavaScript demo with code, callouts and steps | `pnpm live-ish new web-demo tabs`       |
-| Terminal demo | Recorded commands with their code                              | `pnpm live-ish new terminal-demo setup` |
-
-You can run a web demo as one page, or as before and after pages.
+| Type          | Shows                                                                                 | Create one                              |
+| ------------- | ------------------------------------------------------------------------------------- | --------------------------------------- |
+| Copy          | Text and images                                                                       | `pnpm live-ish new copy "My point"`     |
+| Web demo      | An HTML, CSS and JavaScript demo with code, callouts and steps, on one page or as two | `pnpm live-ish new web-demo tabs`       |
+| Terminal demo | Recorded commands with their code                                                     | `pnpm live-ish new terminal-demo setup` |
 
 ## Themes
 
@@ -52,28 +52,40 @@ Demo slides use one of 10 themes: glass, flat, early web, soft, brutalist, layer
 
 ```ts
 // deck.config.ts
+import { defineDeck } from "@live-ish/engine/config";
+
 export default defineDeck({
   // ...
   chrome: { theme: "flat" },
 });
 ```
 
-The speaker view keeps one fixed style. You can add your own theme as a token file. See [themes](https://live-ish.dev/themes).
+The speaker window keeps one fixed style. You can add your own theme as a token file. See [themes][themes].
 
 ## AI tools
 
-New decks include instructions and skills for coding agents. Your agent can add slides and run `live-ish check`. See [AGENTS.md](AGENTS.md). You can use Live-ish with no AI tool.
+New decks include instructions and skills for coding agents. Your agent can add slides and run `live-ish check`. See [AI tools][ai-tools], and the [instructions a deck gets](packages/engine/templates/agents/AGENTS.md). You can use Live-ish with no AI tool.
 
 ## Presenting
 
-Run `pnpm live-ish present` to serve the deck from your laptop. It needs no network after install. See [presenting](https://live-ish.dev/presenting).
+Run `pnpm live-ish present` to serve the deck from your laptop. It needs no network after install. See [presenting][presenting].
 
 ## Docs
 
-- [Getting started](https://live-ish.dev/start)
-- [Write a web demo](https://live-ish.dev/web-demos)
-- [Deploy a deck](https://live-ish.dev/deploy)
-- [Known limits](https://live-ish.dev/limits)
+- [Getting started][start]
+- [Write a web demo][web-demos]
+- [Deploy a deck][deploy]
+- [Known limits][limits]
+
+<!-- Every docs link in this file uses these references. Point them at https://live-ish.dev/<page> once the site is up. -->
+
+[start]: docs/content/start.mdx
+[web-demos]: docs/content/web-demos.mdx
+[deploy]: docs/content/deploy.mdx
+[limits]: docs/content/limits.mdx
+[themes]: docs/content/themes.mdx
+[ai-tools]: docs/content/ai-tools.mdx
+[presenting]: docs/content/presenting.mdx
 
 ## Contributing
 

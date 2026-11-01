@@ -16,7 +16,7 @@ export type KeyAction =
   | { type: "toggle-timer" }
   | { type: "toggle-rehearsal" }
   | { type: "open-demo" }
-  | { type: "open-speaker" }
+  | { type: "open-other-window" }
   | { type: "goto" }
   | { type: "escape" }
   | { type: "help" }
@@ -26,7 +26,7 @@ export type KeyAction =
  * Actions only the presenter windows have: reader mode maps no key to
  * them, and `perform` ignores them there even when called.
  */
-export const PRESENTER_ONLY: ReadonlySet<KeyAction["type"]> = new Set(["open-speaker", "toggle-timer", "toggle-blank", "toggle-rehearsal", "goto"]);
+export const PRESENTER_ONLY: ReadonlySet<KeyAction["type"]> = new Set(["open-other-window", "toggle-timer", "toggle-blank", "toggle-rehearsal", "goto"]);
 
 /**
  * The key map. Reader mode (`/s/<id>` and `/`) gets the deck map without the presenter-only keys
@@ -74,7 +74,7 @@ function presenterMap(e: Pick<KeyboardEvent, "key" | "shiftKey" | "metaKey" | "c
     case "o":
       return { type: "open-demo" };
     case "s":
-      return { type: "open-speaker" };
+      return { type: "open-other-window" };
     case "g":
       return { type: "goto" };
     case "Escape":
@@ -132,8 +132,8 @@ export const KEY_HELP: { keys: string[]; action: string; modes: KeyHelpMode[] }[
   { keys: ["o"], action: "Open the frame standalone in a new tab", modes: ["presenter", "reader"] },
   { keys: ["b", "."], action: "Blank the audience window", modes: ["presenter"] },
   { keys: ["t"], action: "Start or pause the talk timer", modes: ["presenter"] },
-  { keys: ["s"], action: "Open or focus the speaker window", modes: ["presenter"] },
-  { keys: ["g"], action: "Speaker view: go to a slide number", modes: ["presenter"] },
+  { keys: ["s"], action: "Open or focus the other window", modes: ["presenter"] },
+  { keys: ["g"], action: "Speaker window: go to a slide number", modes: ["presenter"] },
   { keys: ["f"], action: "Toggle fullscreen", modes: ["presenter", "reader"] },
   { keys: ["Tab"], action: "Move past the demo", modes: ["reader"] },
   { keys: ["?"], action: "This help", modes: ["presenter", "reader"] },

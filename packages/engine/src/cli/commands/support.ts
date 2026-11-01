@@ -48,7 +48,7 @@ async function fetchToolDates(root: string, ctx: Ctx): Promise<ExitCode> {
         if (!res.ok) throw new Error(`the registry answered ${res.status}`);
         times = ((await res.json()) as { time: Record<string, string> }).time;
       } catch (error) {
-        throw environment(`Could not read ${p.npm} from the npm registry: ${(error as Error).message}.`, "Check the network. `support --tools` is the one tier 0 step that needs it.");
+        throw environment(`Could not read ${p.npm} from the npm registry: ${(error as Error).message}.`, "Check the network. `support --tools` is the one authoring step that needs it.");
       }
       if (!times[version]) throw new UsageError(`npm has no ${key}. Fix the version in demos/${demo.id}/demo.ts.`);
       toolDates[key] = times[version].slice(0, 10);

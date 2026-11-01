@@ -13,15 +13,41 @@ after: {
 },
 ```
 
-| Field     | What it does                                                                                              |
-| --------- | --------------------------------------------------------------------------------------------------------- |
-| `id`      | The shell. The engine has `bare` and `terminal-window`. A terminal page gets `terminal-window` by itself. |
-| `outside` | Ids to lift out of the shown block, such as overlay roots.                                                |
-| `scrolls` | `true` lets the frame scroll. Most demos should not.                                                      |
+| Field     | What it does                                                                                                                             |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`      | The shell. The engine has `bare` and `terminal-window`, and your deck can add its own. A terminal page gets `terminal-window` by itself. |
+| `outside` | Ids to lift out of the shown block, such as overlay roots.                                                                               |
+| `scrolls` | `true` lets the frame scroll. Most demos should not.                                                                                     |
 
-A deck's own shells are planned for a later release. Until then, the `wrapper-unknown` rule lists the ids you can use.
+The shown markup goes inside the shell exactly as you wrote it. The engine never reparses it. If `check` does not know an id, the `wrapper-unknown` rule lists the ids it does know.
 
-The shown markup goes inside the shell exactly as you wrote it. The engine never reparses it.
+## Write your own
+
+Add one file per shell to a `shells/` folder in your deck. The engine picks it up on the next run, and the file's `id` is what a page names.
+
+```ts
+// shells/harbor.ts
+import { defineShell } from "@live-ish/engine/config";
+
+export default defineShell({
+  id: "harbor",
+  before: '<div class="wrap"><div class="wrap-bar">Gauges</div><div class="wrap-body">',
+  after: "</div></div>",
+  styles: ["/shells/harbor.css"],
+});
+```
+
+| Field        | What it does                                                                 |
+| ------------ | ---------------------------------------------------------------------------- |
+| `id`         | The name a page uses in `shell: { id }`.                                     |
+| `before`     | Markup before the shown block.                                               |
+| `after`      | Markup after the shown block.                                                |
+| `styles`     | Root-relative stylesheets under `public/`, in `@layer wrapper`.              |
+| `scripts`    | Root-relative scripts, loaded as instrumentation.                            |
+| `shownClass` | A class on the slot that holds the shown block.                              |
+| `banned`     | `{ name, pattern }` entries this shell must never use, for `wrapper-banned`. |
+
+`check` lints your shell against the rules below. `examples/conformance/shells/harbor.ts` is a working example.
 
 ## The rules
 

@@ -8,8 +8,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const major = Number.parseInt(process.versions.node, 10);
 if (major < 22) {
-  console.error(`live-ish needs Node 22 or newer. This is Node ${process.versions.node}.`);
-  process.exit(1);
+  console.error(`live-ish needs Node 22 or later. This is Node ${process.versions.node}.`);
+  process.exit(3);
 }
 
 const here = path.dirname(fileURLToPath(import.meta.url));

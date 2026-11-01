@@ -34,7 +34,7 @@ The hooks run `pnpm scan:private` before each commit and check the commit messag
 | `pnpm test:e2e`          | Builds the starter and walks it in Chromium.                  |
 | `pnpm --filter docs dev` | The docs site, with a live copy of the starter, on port 3100. |
 
-CI runs all of these and more. The [contributing page](docs/content/contributing.mdx) lists every job.
+CI runs all of these and more. The [contributing page](docs/content/contributing.mdx) lists every job and what each one blocks.
 
 ## Make a change
 
