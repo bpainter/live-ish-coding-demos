@@ -1,0 +1,35 @@
+{
+  "name": "@live-ish/verify",
+  "version": "0.0.0",
+  "description": "Browser checks for Live-ish decks. Ships Playwright, so a deck installs it on demand.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bpainter/live-ish-coding-demos.git",
+    "directory": "packages/verify"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    "./parity": "./src/parity/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:parity": "node --conditions=react-server --import tsx --test src/parity/*.test.ts"
+  },
+  "dependencies": {
+    "@live-ish/engine": "workspace:*",
+    "playwright": "1.58.2"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
