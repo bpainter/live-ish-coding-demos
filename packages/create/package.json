@@ -1,12 +1,16 @@
 {
   "name": "create-live-ish",
-  "version": "0.0.0",
+  "version": "0.1.0-next.0",
   "description": "Scaffolds a Live-ish deck: scripted demos of code and UI, driven by a clicker.",
   "license": "MIT",
+  "homepage": "https://live-ish.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bpainter/live-ish-coding-demos.git",
     "directory": "packages/create"
+  },
+  "bugs": {
+    "url": "https://github.com/bpainter/live-ish-coding-demos/issues"
   },
   "type": "module",
   "engines": {
@@ -21,5 +25,12 @@
   ],
   "scripts": {
     "prepack": "node scripts/bundle-starter.mjs"
+  },
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "next"
   }
 }

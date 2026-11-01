@@ -1,0 +1,78 @@
+---
+title: Speaker notes and rehearsal
+outcome: When you finish this page, you will have notes you can read at a glance, and you will know how to time a run and catch a broken step before the talk.
+---
+
+Notes live in the same file as the slide or step they belong to. Only the speaker window shows them, unless you turn on [notes in the reader](/reader-view).
+
+## Notes syntax
+
+Notes are plain strings with light Markdown.
+
+| Write                          | Get               |
+| ------------------------------ | ----------------- |
+| A blank line                   | A new paragraph   |
+| `> ` at the start of each line | A quotation       |
+| `- ` at the start of each line | A list            |
+| `` `code` ``                   | Code              |
+| `**bold**`                     | Bold              |
+| `*words*`                      | A stage direction |
+
+```ts
+notes: "Here is a pattern most of us have built by hand.\n\n*Pause.*\n\nOnly one answer stays open at a time.",
+```
+
+A step's `notes` is an array, one string per paragraph. A page's `notes` is one string, said on arrival.
+
+```ts
+notes: ["Both elements share the name faq.", "The first answer closed, and we wrote no code to close it."],
+```
+
+A demo can also set `cautions`. They show on the last step of the page, in the speaker window only. Use them for what a careful reviewer would ask.
+
+## The speaker window
+
+Press `s` in the audience window to open it. It holds:
+
+- The current slide, and a small preview of the next one.
+- The page title, "Step n of m" with the step's label, and "Next step" with the next label. Press `d` here to add that step's actions.
+- A status pill. It reads, first match wins: "No audience", "Frame error", "Poster shown", "Loading", "Playing", "Ready".
+- The notes, the only part that scrolls.
+- References, collapsed on every slide change.
+- Controls and a timer at the foot.
+
+Do not press Next on "Playing". A press finishes the step, which skips what you meant to show.
+
+## Rehearse
+
+Press `d` in the audience window for the rehearsal overlay. It shows the step id, the digest, the duration, any failed asserts and the 95th percentile frame time. The stage-day target for that frame time is 20 ms. Press `d` again to hide it.
+
+In `dev`, a tool hint that would have reached the stage shows here and in the terminal instead. A slide with no poster or no support data never prints a tool's name to the audience.
+
+Add `?rehearse=1` to the speaker window's address to keep a log. An "Export log" control appears, and the log records stuck playback and forced spotlights.
+
+## Timing
+
+Set `minutes` on each slide and beat. The total is computed, so you never type a running total.
+
+```ts
+minutes: 1.5,
+```
+
+Set a target for the whole talk in `deck.config.ts`. `check` warns through the `timing` rule when your minutes exceed it.
+
+```ts
+timing: { target: 25 },
+```
+
+Press `t` in the speaker window to start or pause the timer. The window shows elapsed time, and how far you are over or under the slide's target. [Pacing a demo](/pacing) has the numbers to plan with.
+
+## Write notes you can read on stage
+
+- Start with what the audience sees. You can say that first line while the step plays, without looking at the code.
+- Keep sentences to about 12 words.
+- Name things by their visible text and role: "the Actions button", not an id.
+- Do not read line numbers aloud. The highlight is the pointer.
+- Define a new term once, in the same sentence.
+
+To have `check` hold you to this, turn on the `plain` writing preset. See [how tiers work](/verification#rule-tiers).

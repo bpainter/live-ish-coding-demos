@@ -1,0 +1,202 @@
+---
+title: Web demos
+outcome: When you finish this page, you will understand the starter's FAQ demo line by line, and you will have a demo of your own that plays with the arrow keys.
+---
+
+A web demo is a real HTML page in a frame, with the code that runs it beside it. Each press plays one step: the code highlights first, then the page moves.
+
+The starter's demo is `demos/faq/`. It shows a question list two ways: built by hand with script, then built with the `details` element.
+
+## The folder
+
+```text
+demos/faq/
+  demo.ts          The script: pages, steps, notes
+  hooks.js         Functions the steps can call. Not shown on the slide
+  before/          The old way, as plain files
+    index.html
+    faq.css
+    accordion.js
+  after/           The new way
+    index.html
+    faq.css
+```
+
+One folder and one line in `order` are all a demo needs. The folder gives you three slides: `faq-intro`, `faq-before` and `faq-after`.
+
+## The demo
+
+```ts
+import { defineDemo, excerpt, shown } from "@live-ish/engine/config";
+
+export default defineDemo({
+  id: "faq",
+  title: "Exclusive accordions",
+  scenario: "A question list where only one answer stays open at a time.",
+  support: { kind: "web-features", id: "details-name" },
+```
+
+- `id` matches the folder name and the entry in `order`.
+- `title` shows on every page of the demo.
+- `scenario` is one sentence for the speaker window. The audience never sees it.
+- `support` names a `web-features` id. The intro slide prints real browser versions from your installed data. Find ids with `live-ish support details`. There is no free-text field, so a slide cannot state support from memory.
+
+## The intro beat
+
+```ts
+  intro: {
+    description: "The details element gives you an accordion. One attribute makes it exclusive.",
+    visual: { alt: "The question list with one answer open.", capture: { beat: "after", step: "s2" } },
+    notes: "Here is a pattern most of us have built by hand: a question list.",
+    minutes: 0.25,
+  },
+```
+
+The intro slide has no frame. `visual` names a still that `live-ish capture` takes from the `after` beat at step `s2`. With no still yet, the slide lays out without one.
+
+## The before beat
+
+```ts
+  before: {
+    notes: "Here is the list, built with buttons and panels.",
+    files: [shown("index.html"), excerpt("accordion.js", [[14, 20], [30, 45]])],
+    hooks: ["reset"],
+    minutes: 1,
+```
+
+- `files` lists what the code panel shows. `shown()` is a whole file. `excerpt()` is parts of one, joined by generated elision lines, and `check` confirms them line by line against the source.
+- `hooks` names the functions this beat's page defines on `window.demoHooks`.
+
+Each step is one press.
+
+```ts
+      {
+        id: "s1",
+        label: "Open a question",
+        actions: [
+          { type: "pointer", to: "#q1" },
+          { type: "click", target: "#q1" },
+          { type: "assert", target: "#a1", expect: "visible" },
+        ],
+        code: { file: "accordion.js", lines: [[17, 25]] },
+        spotlight: ["#q1", "#a1"],
+        notes: ["Press the first question. Our click handler reads the state and opens the panel."],
+      },
+```
+
+- `label` is short, and only the speaker sees it.
+- `actions` run in order. `pointer` glides the ghost cursor. `click` presses the element. `assert` checks the page and shows nothing. All 15 actions are in [steps and actions](/steps-and-actions).
+- `code` picks the file tab and the lines to highlight.
+- `spotlight` rings elements in the frame.
+- `notes` are what you say on this step.
+
+Step `s0` is the page as it arrives. It takes no press and needs no actions.
+
+```ts
+      {
+        id: "s3",
+        label: "Count the script",
+        key: true,
+        actions: [
+          { type: "wait", ms: 300 },
+          { type: "reveal", target: "#note" },
+        ],
+        code: { file: "accordion.js", lines: [[2, 8]] },
+        spotlight: ["#note"],
+        meter: { label: "JavaScript", value: "43 lines", source: "before/*.js" },
+        notes: ["That is 43 lines of JavaScript for a list of questions. Keep that number in mind."],
+      },
+```
+
+- `key: true` marks the one step to stress. The speaker window sets its notes in bold.
+- `meter` shows a number at the top right. `check` recounts `source` and fails if the number is wrong, so the slide cannot drift from the code.
+
+## The after beat
+
+```ts
+  after: {
+    notes: "Same list, same task. This time the markup does the work.",
+    files: [shown("index.html"), shown("faq.css")],
+    flags: { "enhance-css": true },
+    hooks: ["reset"],
+    minutes: 2,
+```
+
+`flags` declares the switches this beat understands, with their first values. Here, `enhance-css` turns the page's styles on and off.
+
+```ts
+      {
+        id: "s3",
+        label: "The keyboard works",
+        actions: [
+          { type: "focus", target: "#q1 summary", visible: true },
+          { type: "key", key: "Enter", target: "#q1 summary", via: "el.click()" },
+          { type: "assert", target: "#q1", expect: "attr:open" },
+          { type: "assert", target: "#q2", expect: "no-attr:open" },
+        ],
+        code: { file: "index.html", lines: [5, 9] },
+        spotlight: ["#q1 summary"],
+        ifKeyboard: "Press Tab to the first question, then Enter. Then press Next once to sync the frame.",
+        notes: ["Focus and Enter work with no extra code. The browser gives us that behavior."],
+      },
+```
+
+- A `key` action shows a keycap on screen. Script cannot press a real key, so `via` names the DOM call that does the same job. `check` confirms that the two go together.
+- `lines` takes numbers and ranges. `[5, 9]` highlights two separate lines, and `[[5, 9]]` highlights the range.
+- `ifKeyboard` tells you what to do by hand in hands-on mode.
+
+```ts
+      {
+        id: "s4",
+        label: "Turn the CSS off",
+        actions: [
+          { type: "toggle", flag: "enhance-css", on: false },
+          { type: "assert", target: "#q1", expect: "attr:open" },
+        ],
+        code: { file: "faq.css", lines: [], off: true },
+        spotlight: ["#q1"],
+        notes: ["Here the styles are off. It still works, because the behavior lives in the HTML."],
+      },
+```
+
+`off: true` dims the file and puts an "Off" chip on its tab. Styles off is a strong proof. Use it where it shows something the room has not seen.
+
+## Write your own
+
+```text
+pnpm live-ish new web-demo tabs
+```
+
+1. Put the old version in `before/` and the new one in `after/`, as plain files.
+2. Open `demo.ts`. Write one step at a time: the action, the code lines, the spotlight, the notes.
+3. Press the arrow keys in `pnpm dev`. Press `d` for the rehearsal overlay.
+4. Run `pnpm live-ish check`.
+5. Optional: run `pnpm live-ish add verify`, then `pnpm live-ish walk tabs` and `pnpm live-ish capture tabs`.
+
+A demo works with no posters, no support data and no meter.
+
+## Variants
+
+| Variant       | Set by                                                   | When                                                           |
+| ------------- | -------------------------------------------------------- | -------------------------------------------------------------- |
+| One page      | `beats: "single"`, or `live-ish new web-demo x --single` | A demo with no before and after. Add `files` for a code panel. |
+| Static        | `kind: "static"`, or `--static`                          | No flags. Good for a table or a chart revealed in steps.       |
+| Mixed         | `kind` on a beat                                         | `before` static, `after` terminal.                             |
+| Multi-page    | `pages` on a beat, and `route` on a step                 | Real navigations inside the frame.                             |
+| Server-backed | `kind: "server"`, or `--server`                          | [Its own app, on its own origin](/server-demos).               |
+
+## Routes a demo adds
+
+A `routes.ts` in the demo folder adds addresses to the frame's origin, such as an `/orders` route the shown code fetches. Each route has a `method`, a `path` and a `handler`. `check` fails on a clash with `/s`, `/present`, `/speaker`, `/_health` and the like, through the `reserved-route` rule.
+
+Keep `routes.ts` apart from `demo.ts`. If a `routes.ts` imports its own `demo.ts`, your notes reach the deployed build, and `live-ish build` fails.
+
+## Hooks
+
+`hooks.js` defines `window.demoHooks`. Steps call a function by name with a `hook` action. The file never shows on a slide, so it can hold test setup that would distract the room.
+
+```js
+window.demoHooks = { reset() {} };
+```
+
+A reset mounts a fresh document, so the starter's hook has nothing to clear. `reset`, `setNetwork` and `probes` have reserved meanings.

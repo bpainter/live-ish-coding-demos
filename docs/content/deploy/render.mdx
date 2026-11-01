@@ -1,0 +1,28 @@
+---
+title: Deploy to Render
+outcome: When you finish this page, you will have a deck running as a Node web service on Render.
+---
+
+**Status.** The engine detects Render through `RENDER` and reads its commit. It has not run there. It is the same `next start` the hosting harness ran locally, so it should need nothing special.
+
+## Settings
+
+| Setting                | Value                                                                      |
+| ---------------------- | -------------------------------------------------------------------------- |
+| Service type           | Web service                                                                |
+| Root directory         | The deck's folder                                                          |
+| Build command          | `corepack enable && pnpm install --frozen-lockfile && pnpm live-ish build` |
+| Start command          | `pnpm live-ish start --port=$PORT`                                         |
+| Node version           | 22                                                                         |
+| `LIVE_ISH_SITE_ORIGIN` | `https://talk.example.com`                                                 |
+
+There is no preset for the site address, so set it.
+
+## Check it
+
+```text
+curl -s https://talk.example.com/_health
+pnpm live-ish warmup --origin=https://talk.example.com
+```
+
+A free instance sleeps. Its first request after a nap can take many seconds, so warm it before you go on stage.

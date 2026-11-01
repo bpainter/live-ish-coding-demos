@@ -1,0 +1,52 @@
+---
+title: Reader view
+outcome: When you finish this page, you will know what a shared link shows, how the text view works, and how to control search and notes.
+---
+
+The reader view is what someone sees when you share a link. It works with no setup, on a phone too.
+
+## What it is
+
+- `/` shows slide 1, and `/s/<id>` shows one slide. Each has its own title, description, canonical address and structured data.
+- Demos play with the arrow keys, one step at a time, like the stage.
+- The presenter-only keys do nothing here: `s`, `t`, `b`, `.`, `d` and `g`.
+
+<Generated name="keys-reader" />
+
+## The text view
+
+Each reader page has a "Text view" control. It renders the slide as plain HTML: headings, code and citations. The choice lasts for the browser session.
+
+The text view is the accessible alternative to the stage, by design. The stage canvas is a fixed 1920 by 1080 image of a page, scaled to fit, so it does not honor text zoom. The text view does. Its body text stays at 16 px or larger, and nothing scrolls sideways except code. See the [accessibility statement](/accessibility).
+
+## Settings
+
+```ts
+reader: {
+  enabled: true,
+  notes: false,
+  index: true,
+},
+```
+
+| Field            | Default | What it does                                                         |
+| ---------------- | ------- | -------------------------------------------------------------------- |
+| `reader.enabled` | `true`  | `false` turns `/` and `/s/<id>` into 404s, and closes `robots.txt`.  |
+| `reader.index`   | `true`  | `false` closes `robots.txt`, empties the sitemap and adds `noindex`. |
+| `reader.notes`   | `false` | `true` prints speaker notes in the text view.                        |
+
+With `reader.notes` on, your notes are public and they sit in the page payload. A deployed build keeps them only when you set this or `presenter.onHost`. Otherwise `live-ish build` strips them, then reads the finished build back and fails if any note is left.
+
+## Sharing
+
+Metadata comes from `deck.config.ts` and each slide. `event` feeds the structured data, and an unset field is left out.
+
+```text
+pnpm live-ish og
+```
+
+`og` captures the share image from the cover. It needs `@live-ish/verify`, and it writes a hash beside the image. `check` warns through `og-stale` when the cover has changed. With no image, a shared link shows a text card.
+
+## Analytics
+
+Off by default. Set `analytics.provider` to `vercel` or `custom` in `deck.config.ts`. Analytics load on `/` and `/s/<id>` only, on deployed builds only. They never load in `/present`, in `/speaker` or in a frame, and they never run under automation or with `?capture=1`.

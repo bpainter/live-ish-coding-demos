@@ -1,0 +1,57 @@
+---
+title: Troubleshooting
+outcome: When you finish this page, you will have found what went wrong and the one thing to do about it.
+---
+
+Start with these two commands. `doctor` checks your machine and the deck's generated files. `check` runs the rules.
+
+```text
+pnpm live-ish doctor
+pnpm live-ish check
+```
+
+Each finding links to its [rule page](/errors), with the fix.
+
+## During dev
+
+| What you see                       | Why                                                   | Fix                                                                                                                     |
+| ---------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| A selector matches nothing         | A typo, or the element does not exist yet             | The [`selector`](/errors/selector) finding lists the nearest ids. If a script creates it, add it to `runtimeSelectors`. |
+| A hook named but not defined       | The name in `demo.ts` differs from `window.demoHooks` | See [`hook`](/errors/hook).                                                                                             |
+| `code.file` is not in `files`      | The step names a file the page does not show          | See [`code`](/errors/code).                                                                                             |
+| A line number past the end         | On an excerpt, `lines` counts shown lines             | See [`code`](/errors/code).                                                                                             |
+| An excerpt drifted from its source | You changed the file                                  | [`excerpt`](/errors/excerpt) prints the first differing line.                                                           |
+| A line over 44 columns             | The code card cannot fit it                           | Wrap it. See [`file-size`](/errors/file-size).                                                                          |
+| A demo in `order` has no folder    | The id and the folder differ                          | See [`nav`](/errors/nav). The finding prints the path it looked in.                                                     |
+| A `web-features` id is missing     | A typo in `support`                                   | [`support`](/errors/support) suggests close ids. Search with `live-ish support <query>`.                                |
+| An unknown theme id                | A typo, or a custom theme not in `chrome.custom`      | [`theme`](/errors/theme) lists the ids.                                                                                 |
+| A theme fails contrast             | A pair sits under its floor                           | [`theme-contrast`](/errors/theme-contrast) names the pair, the ratio and the floor.                                     |
+| A terminal range past the end      | The recording changed                                 | [`terminal-range`](/errors/terminal-range) names the step and the last line.                                            |
+| `record` stopped on a token        | A line looks like a secret                            | Remove it from the session. See [`terminal-token`](/errors/terminal-token).                                             |
+
+## On the stage
+
+| What you see                       | Why                                                               | Fix                                                                                     |
+| ---------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| A blank or failed frame            | A host mismatch, or the frame did not load                        | In `dev`, an overlay names the host mismatch and the config field. On stage, press `r`. |
+| A banner on `127.0.0.1`            | Frames are served from that address, so the presenter must not be | Follow the banner's link to `localhost`.                                                |
+| The pill reads "No audience"       | The audience window is gone, or runs another build                | The tooltip names both builds. Reload the stale window.                                 |
+| A key does nothing                 | Focus sits in a form control, or you are in hands-on mode         | Press `h` to leave hands-on mode.                                                       |
+| Space scrolls or presses a control | In the speaker window, Space presses the focused control          | Click the slide, or use the arrow keys.                                                 |
+| `s` does nothing                   | You are on the reader view                                        | Open `/present`.                                                                        |
+
+## At build
+
+| What you see                                  | Why                                                     | Fix                                                                                           |
+| --------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `live-ish: a deployed build needs hosts.site` | A deployed build has no canonical address               | Set `hosts.site` or `LIVE_ISH_SITE_ORIGIN`. To present from a laptop, use `live-ish present`. |
+| `Speaker notes reached the build`             | A `routes.ts` imports its `demo.ts`                     | Remove the import.                                                                            |
+| `Node 22 or later`                            | An old Node                                             | Install Node 22 or later. `live-ish` checks this first.                                       |
+| `There is no build to serve yet`              | `start` ran before `build`                              | Run `live-ish build`.                                                                         |
+| `Port 3000 is taken`                          | Another server is running                               | Stop it, or pass `--port=3001`.                                                               |
+| `ERR_PNPM_IGNORED_BUILDS`                     | A dependency has a build script pnpm was not told about | Run `pnpm permissions list`, read the script, then decide in `pnpm-workspace.yaml`.           |
+| `doctor` says a shell file was edited         | A file under `app/` changed                             | Run `live-ish upgrade --force`, after saving your change elsewhere.                           |
+
+## Still stuck
+
+Search the issues. For a demo that plays wrongly, open a demo engine bug with a minimal demo folder. For a question, use Discussions.

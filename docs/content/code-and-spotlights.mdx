@@ -1,0 +1,96 @@
+---
+title: Code and spotlights
+outcome: When you finish this page, you will be able to show the right lines of code, point at the right element, and keep both readable from the back of the room.
+---
+
+The stage is 1920 by 1080. A demo page splits its body into a frame card and a code card. Code and page move together, so the room sees which line caused which change.
+
+## Choose a split
+
+| Split                | Frame card | Code card | Frame viewport |
+| -------------------- | ---------- | --------- | -------------- |
+| `50/50`, the default | 880 px     | 880 px    | 640 by 628     |
+| `60/40`              | 1056 px    | 704 px    | 768 by 628     |
+| No code panel        | 1792 px    | None      | 1304 by 628    |
+
+Set `split` on a beat. You author at the viewport size, and the stage scales the frame up by 1.375. So a 16 px font in your page reads as 22 px on the stage.
+
+The viewport comes from the split, so you never set it by hand.
+
+## Show a file
+
+`files` on a beat lists the tabs.
+
+```ts
+files: [shown("index.html"), excerpt("accordion.js", [[14, 20], [30, 45]])],
+```
+
+- `shown("file")` is the whole file, as it runs.
+- `excerpt("file", ranges)` is parts of a file. Generated elision lines join the ranges, in the comment color. A gap under three lines is shown in full.
+
+Paths are relative to the beat's folder. On a terminal page they are relative to the demo's folder.
+
+**Shown code is run code.** The panel reads the same file the frame serves, so a slide cannot drift from what runs. `check` compares an excerpt line by line against its source.
+
+## Fit the card
+
+The code panel sets 24 px code, and shows 21 lines at once. It scrolls in whole lines, so no line is cut at either edge.
+
+Wrap shown code at 44 columns and keep a file to 40 lines. Forty-four columns fits the 704 px card. The `file-size` rule names the file, the line and the width. Moving to `60/40` narrows the code card, so it never fixes a long line.
+
+## Highlight lines
+
+```ts
+code: { file: "accordion.js", lines: [[17, 25]] },
+```
+
+- `file` picks the tab. When the code moves to another file, the tab changes before playback starts, so the room is not reading a tab switch and an interaction at once.
+- `lines` takes numbers and `[from, to]` ranges. `lines: [4, 8]` highlights two lines, and `lines: [[4, 8]]` highlights five.
+- `lines: []` shows the file with no highlight.
+- On an excerpt, `lines` counts shown lines. Shown line 2 can be source line 14.
+- `off: true` dims the file, with an "Off" chip on its tab, for a step that turns a flag off.
+
+Highlight 10 lines at most where you can. Twenty highlighted lines means nothing stands out.
+
+## Spotlight an element
+
+```ts
+spotlight: ["#q1", "#a1"],
+```
+
+A spotlight rings an element in the frame. The ring follows the element's own corner radii and stays on until the next step.
+
+Spotlight two elements at most: the control pressed and the surface it changed.
+
+- Boxes within 12 frame px merge into one.
+- Boxes only fade. They hide while anything moves, then fade in at the final geometry. A box that cannot settle within 2000 ms shows anyway.
+- A popover, a modal dialog and a full-screen element each paint over a spotlight below them, as they paint over the page.
+- A target at the frame's edge gets an inset ring.
+- With reduced motion on, the fades are instant.
+
+Set `spotlightClip` on a beat to keep a ring above a docked drawer. Set `keycap: "above-drawer"` to lift keycaps over it too.
+
+If a script creates the element, the file cannot show `check` that it exists. Add the selector to `runtimeSelectors` on the beat. The `selector` rule lists the nearest ids it found, so a typo is one line to fix.
+
+## Add a callout
+
+```ts
+callouts: [{ target: "#status", text: "Page is inert", side: "top" }],
+```
+
+A callout is a short label on the frame. The highlight and the spotlight already carry the explanation, so most steps need none. Use one for a state the room cannot see, in three words or fewer.
+
+## Show a number
+
+```ts
+meter: { label: "JavaScript", value: "43 lines", source: "before/*.js" },
+```
+
+The meter sits at the top right. Show one on the before page's last step, then its partner in the same slot on the after page. The room compares two numbers it can see, and does not have to recall one from a minute ago. `check` recounts `source`, so the number stays honest.
+
+## Stage legibility
+
+- The focus ring needs at least 3 px and high contrast.
+- Keycaps must read from the back of the room.
+- Glass panels wash out on a projector. Check contrast on the projector itself, and pick `flat` or `high-contrast` if the room is bright.
+- A frame a hook narrows shows the frame background and a dashed edge, so the room can see the page is smaller on purpose.

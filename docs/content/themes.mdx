@@ -1,0 +1,65 @@
+---
+title: Audience themes
+outcome: When you finish this page, you will have picked an audience theme for your deck, and you will know how to set a different one for a demo or a page.
+---
+
+A deck has two looks and one fixed style.
+
+| Surface            | Set by                             | Tokens       |
+| ------------------ | ---------------------------------- | ------------ |
+| Demo slides        | An audience theme                  | `--chrome-*` |
+| Copy slides        | The deck theme                     | `--deck-*`   |
+| The speaker window | Nothing. It keeps one fixed style. | Not public   |
+
+An audience theme changes what the room sees around a demo: the backdrop, the cards, the code panel, the spotlight, keycaps and callouts. It does not change your demo's own page.
+
+## The themes
+
+<Generated name="theme-table" />
+
+See them all in the [gallery](/themes/gallery).
+
+## Pick one
+
+```ts
+// deck.config.ts
+chrome: { theme: "flat" },
+```
+
+## Set one for a demo or a page
+
+```ts
+// deck.config.ts
+chrome: {
+  theme: "glass",
+  beats: { before: "early-web", after: "glass" },
+},
+
+// demos/faq/demo.ts
+chrome: "flat",
+before: { chrome: "early-web" },
+```
+
+The order is page, then beat default, then demo, then deck. A page's own `chrome` wins over everything. A `chrome.beats` default wins over a demo's `chrome`.
+
+Showing the old way in `early-web` and the new way in `glass` makes a point by itself, at no cost.
+
+## Preview without an edit
+
+Add `?chrome=<id>` to a slide's address, as in `/s/faq-after?chrome=flat`. This works for the built-in ids. A custom theme shows through your own config.
+
+In `dev`, previews show real fonts. On a production build, a preview of a theme the deck does not use falls back to its system stack.
+
+`live-ish themes` lists the ids. Add `--json` for a tool.
+
+## What a deck ships
+
+Only the themes your deck resolves to are linked. A slide change between themes fetches nothing. A deck receives only the font families its themes use, and each family carries its license.
+
+## For bright rooms
+
+Translucent panels wash out on a projector. `flat`, `swiss` and `high-contrast` use solid surfaces. Test on the real projector if you can.
+
+## Respecting the viewer
+
+Every theme has fallbacks for reduced motion, reduced transparency and forced colors. Every built-in theme must meet the contrast floors: 4.5:1 for text and 7:1 for code. `pnpm test:contrast` checks this in CI, and `theme-contrast` checks a custom theme.

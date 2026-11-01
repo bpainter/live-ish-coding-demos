@@ -1,0 +1,18 @@
+node_modules/
+.next/
+.next-*/
+.gen/
+next-env.d.ts
+*.tsbuildinfo
+
+# The live starter deck. `pnpm generate` copies these from examples/starter and the engine's shell.
+.live-ish/
+/deck.config.ts
+/live-ish.shell.json
+/slides/
+/demos/
+/app/(deck)/
+/app/demos/
+/app/live-ish-address/
+/app/%5Fhealth/
+/public/

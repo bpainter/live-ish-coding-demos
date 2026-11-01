@@ -1,0 +1,24 @@
+---
+title: Live starter deck
+outcome: When you finish this page, you will have played the starter deck in your browser, on this site, with nothing installed.
+---
+
+This site hosts a live copy of the starter deck, on one origin, as the proof that one host is enough. The docs and the deck are one Next.js app, one build and one process.
+
+## Open it
+
+- [Reader view](/s/title). Press the right arrow key to play. This is what a shared link shows.
+- [Audience window](/present?s=title). This is what the room sees. Press `s` to open the speaker window.
+- [Speaker window](/speaker?s=title). This holds the notes, the timer and the controls.
+
+The deck on this site is `examples/starter`, copied at build. Nothing about it is special, except one line: it sets `presenter.onHost: true`, so `/present` and `/speaker` exist on a deployed host. A deck leaves that off by default, because it makes speaker notes public. See [notes on a public host](/deploy#notes-on-a-public-host).
+
+The site loads no analytics.
+
+## Try a theme
+
+Add `?chrome=<id>` to any demo slide to preview an audience theme with no file edit. For example, [flat](/s/faq-after?chrome=flat) or [early web](/s/faq-after?chrome=early-web). The [gallery](/themes/gallery) lists all of them.
+
+## How it fits on one origin
+
+The engine's routes do not use a base path, so the deck keeps its own addresses: `/s/<id>`, `/present`, `/speaker`, `/demos/...` and `/_health`. The docs take every other address. Two root layouts keep the styles apart, so the docs and the deck share no CSS. The build runs `live-ish build`, so the deck goes through `check` and the note scan like any other.
