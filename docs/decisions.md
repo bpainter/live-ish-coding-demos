@@ -143,3 +143,63 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **The QR.** `QR_BOX` was 544, the plate's outer width, and the plate holds 496. The image shrank to fit, and modules landed on 15.03 px. `walk deck` caught it.
 
 **Captures stay out of the examples.** `public/posters`, `public/opt` and `public/intro` are ignored in `examples/*`. They are regenerated, and the binary allow-list stays short.
+## Server frames, parity and export
+
+**The deck names itself on the frame's address.** A server frame's first request carries `?presenter=<origin>&mount=1`. A server can't know the port a deck runs on, and `live-ish capture` or a second `present` may use another. `client.js` remembers the value in sessionStorage, because a `navigate` step loads a document with no such parameter. `frame-ancestors` comes from `LIVE_ISH_PRESENTER_ORIGIN`, or any local deck when that is unset, so a crafted address can't widen who may embed the app.
+
+**The runtime loads from the deck, not the app.** The talk's apps each carried a copy. Loading it from the deck means a frame always runs the runtime of the deck driving it, and an app needs no build step.
+
+**`index.html` belongs to the deck.** `frameUrl` drops it for a server route, so an app answers its real path and `path: "/"` means `/`.
+
+**A stopped app is asked about by the deck's own server.** The acceptance line says no request goes to a dead origin, and a browser can't test an origin without logging a failed request. So the frame mounts only after `/demos/live-ish-server/<app>` says yes. That route lives under the frames catch-all because `/_health` is `force-static`, and it adds no shell file. It opens a bare connection and sends nothing, because an app may log every request, and only answers for an app the deck names. If an app dies during a page, the next document fails in the browser as usual, and the status pill says so.
+
+**A bridge page counts as multi-page.** `client.js` sets `data-pages`, so the runtime waits for a load to finish before it navigates. Without it, an instant replay's navigate replaces the entry and `history.length` differs from the forward run, which changes the digest.
+
+**A deployed build drops an app at localhost.** `externalOrigins` leaves it out, so a stranger's browser never asks their own machine.
+
+**`window.name` keeps a session, so WebKit's Back guard has no count on a server frame.** The runtime only keeps its history count while the name is empty or its own. Chromium answers from the Navigation API. `examples/server` uses `navigate` with a URL and no `history`.
+
+**Parity compares outcomes and facts.** A row's facts are booleans about behavior, with no timing, id or deck text. `n/a` does not equal `pass`, so a deck with no demos differs on every row that needs one, and that is the honest result. Digests hold what a deck shows, so they compare only between two runs of one target.
+
+**Local runs say nothing about deployed defaults.** The suites run on local builds, where E-3 to E-7 do not apply. Those exceptions are not exercised by a comparison of two local builds.
+
+**The matrix is generated once, then owned here.** The parser read a private document, so it stays outside the repo. Edit `parity/matrix.json` from now on, then run `pnpm parity:docs`.
+
+**`live-ish export` crawls a real build.** `output: "export"` refuses the frame route handlers, which read the request, and it would need a second shell. A normal build served on a private port writes down what it answers, so an export can't drift from what a host would serve. An export is reader-only whatever `presenter.onHost` says, and `prepareDeck` takes an `export` target so notes stay out in that case too.
+
+**Each flag combination is a file.** A static host ignores a query, so `frameDocument` maps flags to `index.off-<flag>.html` beside the entry, which keeps relative links working. Only what is off is in the name, so the default stays `index.html`. `flagCombinations` walks `segments()` as well as `flagsAt()`, because a reloading toggle can mount a mid-step state that no step ends on.
+
+**A slide move is a full load on a static host.** RSC payloads vary by a request header no static host can see, so Next falls back to a document load. Reader step state lives in the URL, so nothing is lost, and the console stays clean.
+
+**An export needs the site root.** There is no `basePath`, so a project page on a subpath does not work yet. A custom domain or a user page does.
+
+**A `<meta>` CSP is weaker than the header.** `frame-ancestors` and reporting can't be set from one, which is why `csp-enforce` demos fall back to posters. Any page can embed an exported frame.
+## AI tooling
+
+**Next's agent rules stay off, and ours are canonical.** `next dev` adds a block of its own to `AGENTS.md` when it detects an agent, and restores it if removed. A deck's `AGENTS.md` is the deck's: its rules say to edit no Next.js code, so the block would point agents the wrong way. `withDeck()` sets `agentRules: false`, now after the `next` option spread, so a deck cannot turn it back on by accident. With it off, `next dev` only strips Next's own marked block, if one is there, and writes nothing else. `pnpm skills:fresh` runs a real `next dev` with an agent detected and compares the file byte for byte. Nothing ignores `AGENTS.md`. `add agents` puts our block above any text a file already holds, so an older Next block stays as the author's text until the next `next dev` removes it.
+
+**The block's markers follow Next's form**: `<!-- BEGIN:live-ish -->` and `<!-- END:live-ish -->`. `upgrade` replaces what sits between them, so an edit inside the block is lost, as the marker line says. A file with no markers, or with them out of order, is left alone with one printed line.
+
+**The shell tracks the lock.** `.live-ish/` is ignored, but `skills.lock` is what remembers a deletion and tells an edit from an old file, so a fresh clone needs it. The shell's `.gitignore` is now `.live-ish/*` with `!.live-ish/skills.lock`.
+
+**Deletions are per copy.** `deleted` in the lock holds `.claude/skills/deploy-deck`, not `deploy-deck`, since an author may use one tool. A folder the lock knew and the disk lacks is a deletion. Deleting `.claude/` or `.agents/` whole counts for every skill in it, new ones included. `add agents` and `skills sync --force` are the two ways back.
+
+**`skills sync` in a deck keeps edits, as `upgrade` does.** `--check` still reports an edit as a difference, `--force` restores everything. `upgrade --force` does not touch skills: it is about the shell, and `create-live-ish` calls it. In the monorepo, every file in the two folders is generated, so `sync` rewrites them and an extra file is drift. In a deck, those folders may hold the author's own skills, so only the engine's skill names and the lock's files count.
+
+**`skills-incoming/<name>/` splits by tool**: `claude/` and `agents/`. A manual skill's two copies differ in frontmatter, so one path could not hold both. The folder is rewritten on each sync, so it only ever holds what is waiting.
+
+**`skills-stale` also reads the files.** `check` runs the sync comparison in a deck, as section 17.4 says, but as a Fit warning with a line per edited file, so a kept edit never fails an ordinary run. Files that are missing are no finding: nothing may require agent files.
+
+**A contributor skill says so in its metadata**, `live-ish-audience: contributor`. It lives beside the others, and `renderSkills("deck")` leaves it out.
+
+**The lock's schema is the oldest on disk.** `live-ish-schema` at the top of the lock is the minimum over the `SKILL.md` files actually there, so a kept edit of an old skill keeps `skills-stale` honest. `skills-stale` still reads the older `schema` key.
+
+**`skills-ref` is the PyPI package, at 0.1.1.** It installs on Python 3.11 or later, and its command is `agentskills`. An npm package of the same name comes from another author, so it is not used. It stays out of `pnpm test`, because that would add Python to every contributor's setup. `test/skills-lint.ts` holds the same limits with no install. It refuses `disable-model-invocation`, which the spec's own frontmatter merge needs, because it knows portable fields only. `pnpm skills:ref` checks those three Claude copies with that key removed, and prints that it did.
+
+**A golden task carries a scripted solution.** `pnpm test` plays it through the judge the agents face, so the prompt, its setup, every command and the judge are proven on each PR with no API cost.
+
+**`pnpm evals:claude` spends nothing without `--run`.** Runs use `--setting-sources project` and `--strict-mcp-config`, so a machine's own skills and servers cannot change a result, and a golden run may only edit files and call the CLI.
+
+**`--json` failures are documents.** A misuse or environment failure used to leave stdout empty, so a script had nothing to parse. It now prints `{ version, ok: false, error: { code, message, fix } }` on stdout, and the same words on stderr.
+
+**`create-live-ish` names `packages` in `pnpm-workspace.yaml`.** pnpm 9 stops on that file without it. Newer pnpm reads the same file.

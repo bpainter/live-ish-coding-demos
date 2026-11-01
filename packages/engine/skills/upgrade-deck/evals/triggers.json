@@ -1,0 +1,11 @@
+{
+  "skill": "upgrade-deck",
+  "invocation": "manual",
+  "should": [],
+  "should_not": [
+    "Fix the failing check.",
+    "Add a slide about upgrades.",
+    "What version of the engine is this?",
+    "This shell file looks out of date."
+  ]
+}

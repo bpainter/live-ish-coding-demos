@@ -15,7 +15,7 @@ const routes = {
     "application/json",
     JSON.stringify({ message: "Hello" }),
   ],
-  "/index.html": async () => [
+  "/": async () => [
     "text/html",
     String(await read("page.html"))
       .replace("DECK_ORIGIN", deck),

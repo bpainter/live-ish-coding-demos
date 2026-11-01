@@ -1,0 +1,16 @@
+{
+  "skill": "add-terminal-demo",
+  "invocation": "model",
+  "should": [
+    "Add a terminal demo showing how to run this script.",
+    "Show the output of pnpm build on a slide, recorded.",
+    "Walk through this CLI, one command at a time.",
+    "Record the session in these commands and put it in the deck."
+  ],
+  "should_not": [
+    "Add a demo of the dialog element in a browser.",
+    "Add a slide about our release process.",
+    "Write notes for the opening slide.",
+    "Run the checks on this deck."
+  ]
+}

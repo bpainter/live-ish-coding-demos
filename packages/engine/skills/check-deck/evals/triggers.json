@@ -1,0 +1,17 @@
+{
+  "skill": "check-deck",
+  "invocation": "model",
+  "should": [
+    "This deck has a broken selector. Fix it.",
+    "Is this deck ready for the talk?",
+    "What does the terminal-range finding mean?",
+    "live-ish check is failing. Sort it out.",
+    "Run the checks."
+  ],
+  "should_not": [
+    "Add a slide about checks.",
+    "Update the engine to the latest version.",
+    "Deploy this deck.",
+    "Write notes for the closing slide."
+  ]
+}
