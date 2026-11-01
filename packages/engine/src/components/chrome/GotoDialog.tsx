@@ -9,7 +9,7 @@ interface Props {
   onClose: () => void;
 }
 
-/** `g`: type a slide number, Enter to jump (speaker view only). */
+/** `g`: type a slide number, Enter to jump (speaker window only). */
 export function GotoDialog({ open, total, onGo, onClose }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const [value, setValue] = useState("");

@@ -7,7 +7,8 @@ import type { Report } from "../lib/report";
 /**
  * The keyboard contract: Tab passes the frame in the reader, Space and Enter press the focused
  * control in the reader and speaker windows, letters act only from the stage, the help dialog holds
- * the keys, and the audience key matrix works from the stage and from inside a frame.
+ * the keys, `s` reaches the other window, and the audience key matrix works from the stage and from
+ * inside a frame.
  */
 
 const READER_STEP = `(() => { const n = new URLSearchParams(location.search).get("step"); return n === null ? 0 : Number(n); })()`;
@@ -214,6 +215,56 @@ async function speakerControls(session: Session, report: Report, t: Target) {
   await ctx.close();
 }
 
+/**
+ * `s` reaches the other window from each one. A second press leaves an open window alone, because a
+ * reload there would restart the demo in front of the room.
+ */
+async function otherWindow(session: Session, report: Report, t: Target) {
+  report.log("\n  presenter: s opens the other window");
+  const ctx = await session.context({ viewport: { width: 1440, height: 900 } });
+  const press = async (from: Page) => {
+    const opened = ctx.waitForEvent("page", { timeout: 5000 }).catch(() => null);
+    await from.bringToFront();
+    await from.keyboard.press("s");
+    return opened;
+  };
+  const speaker = await ctx.newPage();
+  await speaker.goto(session.speaker(t.page.id));
+  await speaker.waitForSelector(".speaker__controls", { timeout: 20000 }).catch(() => null);
+  await speaker.waitForTimeout(800);
+  const audience = await press(speaker);
+  await audience?.waitForURL(/\/present/, { timeout: 10000 }).catch(() => null);
+  if (!audience || !audience.url().includes("/present")) {
+    report.fail("keys s", `from the speaker window: ${audience ? `opened ${audience.url()}` : "opened nothing"}, wanted /present`);
+    return ctx.close();
+  }
+  report.pass("keys s: from the speaker window, opens the audience window");
+  await audience.waitForSelector("#stage", { timeout: 20000 }).catch(() => null);
+  await audience.evaluate(`window.__noReload = 1`);
+  const again = await press(speaker);
+  const survived = (await audience.evaluate(`window.__noReload === 1`).catch(() => false)) as boolean;
+  if (again || !survived) report.fail("keys s", `a second press ${again ? "opened another window" : "reloaded the audience window"}`);
+  else report.pass("keys s: a second press leaves the audience window where it is");
+  const back = await press(audience);
+  if (back) report.fail("keys s", `from the audience window: opened ${back.url()}, wanted the open speaker window`);
+  else report.pass("keys s: from the audience window, finds the open speaker window");
+  await ctx.close();
+
+  // The way a quick start goes: the audience window first, with no speaker window to find.
+  const first = await session.context({ viewport: { width: 1440, height: 900 } });
+  const alone = await first.newPage();
+  await alone.goto(session.present(t.page.id));
+  await alone.waitForSelector("#stage", { timeout: 20000 }).catch(() => null);
+  await alone.waitForTimeout(800);
+  const opened = first.waitForEvent("page", { timeout: 5000 }).catch(() => null);
+  await alone.keyboard.press("s");
+  const notes = await opened;
+  await notes?.waitForURL(/\/speaker/, { timeout: 10000 }).catch(() => null);
+  if (!notes || !notes.url().includes("/speaker")) report.fail("keys s", `from the audience window: ${notes ? `opened ${notes.url()}` : "opened nothing"}, wanted /speaker`);
+  else report.pass("keys s: from the audience window, opens the speaker window");
+  await first.close();
+}
+
 /** The audience key matrix, from the stage and from inside a frame. */
 async function audienceMatrix(session: Session, report: Report, t: Target) {
   report.log("\n  audience: the key matrix");
@@ -339,6 +390,7 @@ export async function walkKeys(session: Session, serversUp: Set<string>) {
     await readerControls(session, report, first);
   }
   await speakerControls(session, report, first);
+  await otherWindow(session, report, first);
   await audienceMatrix(session, report, first);
   await liveKey(session, report);
 }
