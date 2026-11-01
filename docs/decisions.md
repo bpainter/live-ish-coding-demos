@@ -314,3 +314,7 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **This file was rewritten once so each entry stands alone.** It is otherwise append only. References to documents a reader can't see were replaced by the reasoning they stood for.
 
 **`s` opens the other window.** In the audience window it opens the speaker window, and in the speaker window it opens the audience window. A press with that window already open focuses it and does not reload it, so a stray key on stage cannot restart a demo.
+
+**WebKit walks run on macOS runners.** On Ubuntu, Playwright's WebKit timed out on animation-frame waits and sampled no frames on demo slides, while the same walks passed on macOS. Safari only ships on Apple systems, so macOS is the closer proof. macOS minutes are free on a public repo and cost more on a private one.
+
+**An inner document can load after the runtime is ready.** The runtime is ready at `DOMContentLoaded`, so a step that reads an inner `<iframe>` first waits for its `load`, through a hook that returns a promise.

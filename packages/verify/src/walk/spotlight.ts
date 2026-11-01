@@ -171,6 +171,7 @@ async function timeline(page: Page, frame: Frame, index: number, sel: string, ho
   const boxes = (await page.evaluate(BOX_SAMPLER_STOP)) as BoxSample[];
   const { samples } = (await frame.evaluate(FRAME_SAMPLER_STOP)) as { samples: FrameSample[] };
   const rectAt = (f: FrameSample) => f.rects[0]?.[0];
+  if (!samples.length) return null;
   const first = rectAt(samples[0]);
   let t0: number | null = null;
   let t1: number | null = null;
@@ -287,7 +288,7 @@ export async function walkFixture(session: Session) {
         }
         const tl = await timeline(page, frame, targets.indexOf(sel), sel, hook);
         if (!tl) {
-          report.fail(where, `${label}${sel}: the target never moved`);
+          report.fail(where, `${label}${sel}: the target never moved, or no animation frame ran`);
           continue;
         }
         const problems: string[] = [];

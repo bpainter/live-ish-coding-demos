@@ -16,7 +16,8 @@ concurrency:
 
 jobs:
   cross-browser:
-    runs-on: ubuntu-24.04
+    # WebKit runs on macOS, the closest a runner gets to Safari.
+    runs-on: ${{ matrix.browser == 'webkit' && 'macos-15' || 'ubuntu-24.04' }}
     timeout-minutes: 45
     strategy:
       fail-fast: false
