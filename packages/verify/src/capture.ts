@@ -23,7 +23,7 @@ import { FRAME_VISIBLE, waitForResult } from "./lib/watch";
 const CAPTURE_CSS = ".overlay, nextjs-portal { display: none !important; } .page-frame, .page-frame__scaled, .page-frame__slot, .page-frame__iframe { border-radius: 0 !important; }";
 const DIST = ".next-capture";
 
-/** A stable name for a deck's own tsconfig: Next adds its build directory's types to it. */
+/** Next adds its build directory's types to the deck's tsconfig, so this one puts the file back. */
 function keepingTsconfig(root: string, body: () => number): number {
   const file = path.join(root, "tsconfig.json");
   const before = existsSync(file) ? readFileSync(file, "utf8") : null;
@@ -58,7 +58,7 @@ async function up(url: string): Promise<boolean> {
   return false;
 }
 
-/** Shoots the frame at a step, or returns why it could not. */
+/** Opens a step for its shot. False when the frame never finished it. */
 async function reach(session: Session, page: Page, t: Target, index: number): Promise<boolean> {
   const step = t.page.steps[index];
   await page.goto(session.present(t.page.id, index, { capture: "1" }));

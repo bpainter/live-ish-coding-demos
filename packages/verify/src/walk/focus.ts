@@ -157,6 +157,9 @@ export async function walkFocus(session: Session, only: string | undefined, hold
     const ph = presses.filter((p) => p.hold === h);
     report.log(`    hold ${h} ms: ${ph.filter((p) => !p.advanced).length} lost of ${ph.length}; by delay: ${delays.map((d) => `${d} ms ${ph.filter((p) => p.delay === d && !p.advanced).length}`).join(", ")}`);
   }
+  // A press that never happened is not a press that advanced.
+  const planned = intros.length * delays.length * holds.length;
+  if (presses.length < planned) report.fail("focus", `${presses.length} of ${planned} presses were made: an intro never arrived`);
   if (lost.length > budgets.focus.lostPresses.limit) report.fail("focus", `${lost.length} of ${presses.length} presses lost: ${lost.map((p) => `${p.intro} +${p.delay} ms (hold ${p.hold}, focus ${p.focusAtPress})`).join("; ")}`);
   else report.pass(`focus: all ${presses.length} presses advanced`);
   const warm = new Map<string, number>();

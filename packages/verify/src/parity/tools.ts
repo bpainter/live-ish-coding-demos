@@ -240,6 +240,7 @@ const READERS: Record<string, Reader> = {
   "PF-3": fromPerf("frame"),
   "PF-4": fromPerf("walk"),
   "PF-5": fromPerf("headers"),
+  "PF-6": fromPerf("lighthouse --form=desktop --only=/"),
   "PF-7": fromPerf("functions"),
   "PF-8": fromPerf("frame --profile=venue --label=parity"),
   "PF-9": fromPerf("load"),

@@ -85,9 +85,15 @@ async function checkTransition(w: StepWalk, where: string, label: string, page: 
   for (let k = i - 1; k >= 0 && !prev; k--) prev = page.steps[k].route;
   if (!step.route || !prev || prev === step.route) return;
   const f = await visibleFrame(w.page);
-  const s = f ? ((await f.evaluate(`({ pages: document.documentElement.hasAttribute("data-pages"), asks: [...document.styleSheets].some((sheet) => { try { return [...sheet.cssRules].some((r) => r.cssText.startsWith("@view-transition")); } catch (e) { return false; } }), reveal: window.__walkReveal || null })`).catch(() => null)) as { pages: boolean; asks: boolean; reveal: { supported: boolean; vt: string } | null } | null) : null;
+  const read = async () => (f ? ((await f.evaluate(`({ pages: document.documentElement.hasAttribute("data-pages"), asks: [...document.styleSheets].some((sheet) => { try { return [...sheet.cssRules].some((r) => r.cssText.startsWith("@view-transition")); } catch (e) { return false; } }), reveal: window.__walkReveal || null })`).catch(() => null)) as { pages: boolean; asks: boolean; reveal: { supported: boolean; vt: string } | null } | null) : null);
+  let s = await read();
   if (!s?.pages || !s.asks) return;
-  if (!s.reveal) return report.fail(where, `${label}: the document's reveal was not observed`);
+  // `pagereveal` fires at the first frame, and a document can report its step before that.
+  for (let i = 0; i < 20 && s?.reveal?.supported && s.reveal.vt === "none"; i++) {
+    await w.page.waitForTimeout(50);
+    s = await read();
+  }
+  if (!s?.reveal) return report.fail(where, `${label}: the document's reveal was not observed`);
   if (!s.reveal.supported) return report.pass(`${label}: a plain load (no cross-document view transitions here)`);
   if (s.reveal.vt === "running" || s.reveal.vt === "finished") report.pass(`${label}: the view transition played (${s.reveal.vt})`);
   else report.fail(where, `${label}: no view transition on a forward run (${s.reveal.vt})`);
@@ -123,7 +129,8 @@ async function replayThenNext(w: StepWalk, where: string, page: FramePage, i: nu
 /** Every frame carries the base: `--frame-surface` is set on its root. */
 async function checkTheme(w: StepWalk, where: string, page: FramePage, stepId: string) {
   const { report } = w.session;
-  if (page.frame.base === false) return;
+  // A server frame is its own app, and the base is the deck's.
+  if (page.frame.base === false || page.frame.kind === "server") return;
   const frames = w.page.frames().filter((f) => f !== w.page.mainFrame() && /^https?:/.test(f.url()));
   // A nested frame that is not rendered yet has no computed style in Firefox, so it is checked once
   // it shows. A direct child of the presenter may be cross-origin, so its frameElement is never read:
