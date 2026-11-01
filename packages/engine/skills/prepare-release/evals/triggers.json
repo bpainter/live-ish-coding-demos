@@ -1,0 +1,11 @@
+{
+  "skill": "prepare-release",
+  "invocation": "manual",
+  "should": [],
+  "should_not": [
+    "Commit this change.",
+    "Open a pull request for this branch.",
+    "Update the changelog entry for this fix.",
+    "What is the current version?"
+  ]
+}

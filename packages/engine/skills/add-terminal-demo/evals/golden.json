@@ -1,0 +1,53 @@
+{
+  "skill": "add-terminal-demo",
+  "tasks": [
+    {
+      "id": "terminal-demo",
+      "prompt": "Add a terminal demo showing how to run this script: tools/greet.mjs",
+      "setup": [
+        {
+          "write": "tools/greet.mjs",
+          "text": "console.log(\"hello from the script\");\n"
+        }
+      ],
+      "solution": [
+        {
+          "run": [
+            "new",
+            "terminal-demo",
+            "greet",
+            "--json"
+          ]
+        },
+        {
+          "write": "demos/greet/greet.mjs",
+          "text": "console.log(\"hello from the script\");\n"
+        },
+        {
+          "write": "demos/greet/session.txt",
+          "text": "cat items.txt\nnode count.mjs items.txt\nnode greet.mjs\n"
+        },
+        {
+          "run": [
+            "record",
+            "greet",
+            "--json"
+          ]
+        },
+        {
+          "run": [
+            "check",
+            "--json"
+          ]
+        }
+      ],
+      "pass": {
+        "changed": [
+          "demos/",
+          "deck.config.ts"
+        ],
+        "walk": true
+      }
+    }
+  ]
+}

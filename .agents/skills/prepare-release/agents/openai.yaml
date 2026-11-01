@@ -1,0 +1,5 @@
+interface:
+  display_name: "Prepare release"
+  short_description: "Walk the Live-ish release runbook up to the human approval"
+policy:
+  allow_implicit_invocation: false

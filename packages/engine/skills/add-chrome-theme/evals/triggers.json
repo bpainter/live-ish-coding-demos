@@ -1,0 +1,14 @@
+{
+  "skill": "add-chrome-theme",
+  "invocation": "model",
+  "should": [
+    "Add a built-in theme called sepia to the engine.",
+    "We should ship a new theme with Live-ish. Add it, with the contrast and conformance runs.",
+    "Add a built-in solarized-style theme to packages/engine/themes."
+  ],
+  "should_not": [
+    "Make a dark blue theme for this deck.",
+    "Use the flat theme.",
+    "Fix the contrast of the glass theme token in my deck."
+  ]
+}
