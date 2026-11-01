@@ -14,9 +14,11 @@ import { writeSchemas } from "./schema";
 
 const PRESENT_DIST = ".next-present";
 
-/** `next dev` leaves route types behind, and a production build type-checks them against the routes it builds. */
+/** `next dev` and `present` leave route types behind, and a production build type-checks them against the routes it builds. */
 function clearDevTypes(root: string): void {
-  rmSync(path.join(root, ".next", "dev", "types"), { recursive: true, force: true });
+  for (const dir of [path.join(".next", "dev", "types"), path.join(PRESENT_DIST, "types"), path.join(PRESENT_DIST, "dev", "types")]) {
+    rmSync(path.join(root, dir), { recursive: true, force: true });
+  }
 }
 
 const STAMP = "live-ish.json";
