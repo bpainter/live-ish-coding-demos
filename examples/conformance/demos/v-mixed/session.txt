@@ -1,0 +1,2 @@
+cat readings.txt
+wc -l readings.txt

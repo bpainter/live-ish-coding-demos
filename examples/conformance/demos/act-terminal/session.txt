@@ -1,0 +1,2 @@
+cat tides.txt
+wc -l tides.txt

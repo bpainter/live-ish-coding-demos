@@ -1,0 +1,7 @@
+@view-transition {
+  navigation: auto;
+}
+
+.panel {
+  view-transition-name: panel;
+}

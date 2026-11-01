@@ -3,6 +3,7 @@ import { defineSlide } from "@live-ish/engine/config";
 export default defineSlide({
   id: "section",
   layout: "section",
+  background: "/backgrounds/slack-water.svg",
   label: "Part two",
   title: "When the forecast misses",
   legend: [

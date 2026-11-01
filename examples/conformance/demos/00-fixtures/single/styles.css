@@ -1,0 +1,72 @@
+/* Targets with every radius shape, a width transition and a scale-in. */
+body {
+  margin: 0;
+  padding: 32px;
+  font: 15px/20px system-ui, sans-serif;
+}
+.fx {
+  display: grid;
+  gap: 40px;
+}
+.fx-row {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+.fx-t {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 64px;
+  background: #dfe6f5;
+}
+.fx-r0 {
+  border-radius: 0;
+}
+.fx-r8 {
+  border-radius: 8px;
+}
+.fx-r16 {
+  border-radius: 16px;
+}
+.fx-pill {
+  border-radius: 999px;
+}
+.fx-mixed {
+  width: 120px;
+  border-radius: 12px 12px 0 0;
+}
+.fx-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+.fx-grow {
+  width: 120px;
+  height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: #0f1c41;
+  color: #fff;
+  font: inherit;
+  transition: width 400ms linear;
+}
+.fx-grow.is-wide {
+  width: 320px;
+}
+.fx-panel {
+  width: 240px;
+  height: 80px;
+  border-radius: 12px;
+  background: #dfe6f5;
+  display: grid;
+  place-items: center;
+}
+.fx-panel.is-in {
+  animation: fx-scale-in 200ms ease-out both;
+}
+@keyframes fx-scale-in {
+  from {
+    transform: scale(0.6);
+  }
+}
