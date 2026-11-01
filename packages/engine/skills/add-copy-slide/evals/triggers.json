@@ -1,0 +1,17 @@
+{
+  "skill": "add-copy-slide",
+  "invocation": "model",
+  "should": [
+    "Add a slide about why teams write tests.",
+    "I need a quote slide with these two quotes.",
+    "Put a title slide at the front of this deck.",
+    "Make a table slide comparing the three plans.",
+    "Add a closing slide with a link to the repo."
+  ],
+  "should_not": [
+    "Add a demo comparing a hand-built tooltip to the popover attribute.",
+    "Record a terminal demo of the build script.",
+    "Tighten the notes on slide three.",
+    "Switch this deck to the flat theme."
+  ]
+}

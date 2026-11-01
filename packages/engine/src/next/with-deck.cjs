@@ -71,14 +71,14 @@ function withDeck(options = {}) {
     reactStrictMode: true,
     // No dev badge on stage or in captures.
     devIndicators: false,
-    // A deck's AGENTS.md is its own (`live-ish add agents`), so `next dev` must not edit it.
-    agentRules: false,
     // A second build directory lets a production build run beside `next dev`.
     distDir: process.env.NEXT_DIST_DIR ?? ".next",
     images: { unoptimized: true },
     // tsconfig lists every build folder, and another's types name routes an export leaves out.
     ...(exported ? { typescript: { ignoreBuildErrors: true } } : {}),
     ...next,
+    // After the spread: a deck's AGENTS.md is the deck's, and `next dev` must never add to it.
+    agentRules: false,
     // The one way to leave a page out of a build, with no route, no chunk and no payload.
     pageExtensions: [...(presenter ? [PRESENTER_EXTENSION] : []), ...(next.pageExtensions ?? NEXT_EXTENSIONS)],
     transpilePackages: ["@live-ish/engine", ...(next.transpilePackages ?? [])],

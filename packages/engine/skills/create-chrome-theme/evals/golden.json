@@ -1,0 +1,60 @@
+{
+  "skill": "create-chrome-theme",
+  "tasks": [
+    {
+      "id": "custom-theme",
+      "prompt": "Make a dark blue theme for this deck.",
+      "setup": [],
+      "solution": [
+        {
+          "run": [
+            "theme",
+            "new",
+            "midnight",
+            "--from",
+            "high-contrast",
+            "--json"
+          ]
+        },
+        {
+          "run": [
+            "schema",
+            "--json"
+          ]
+        },
+        {
+          "replace": "themes/midnight.json",
+          "find": "\"tokens\": {}",
+          "with": "\"tokens\": { \"--chrome-backdrop\": \"#0a1a3a\", \"--chrome-backdrop-light\": \"#0a1a3a\", \"--chrome-backdrop-dark\": \"#0a1a3a\" }"
+        },
+        {
+          "replace": "deck.config.ts",
+          "find": "  speaker: { name: \"Your Name\" },",
+          "with": "  speaker: { name: \"Your Name\" },\n  chrome: { theme: \"midnight\", custom: [\"./themes/midnight.json\"] },"
+        },
+        {
+          "run": [
+            "explain",
+            "theme-contrast"
+          ]
+        },
+        {
+          "run": [
+            "check",
+            "--json"
+          ]
+        }
+      ],
+      "pass": {
+        "changed": [
+          "themes/",
+          "deck.config.ts"
+        ],
+        "noRules": [
+          "theme-contrast",
+          "theme-lint"
+        ]
+      }
+    }
+  ]
+}

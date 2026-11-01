@@ -1,0 +1,17 @@
+{
+  "skill": "apply-chrome-theme",
+  "invocation": "model",
+  "should": [
+    "Use the early web theme on the before beat only.",
+    "Switch the whole deck to flat.",
+    "What themes are there?",
+    "Make the faq demo look brutalist.",
+    "Preview this slide in the phosphor theme."
+  ],
+  "should_not": [
+    "Make a dark blue theme for this deck.",
+    "Add a slide about color.",
+    "Change the brand color on the title slide.",
+    "Fix the contrast finding in my custom theme."
+  ]
+}

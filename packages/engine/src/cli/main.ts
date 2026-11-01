@@ -1,5 +1,5 @@
 import { nearest, parseArgs, UsageError, type FlagSpec } from "./args";
-import { CliError, EXIT, engineVersion, makeCtx, requireDeck, type Ctx } from "./io";
+import { CliError, EXIT, engineVersion, makeCtx, printJson, requireDeck, type Ctx } from "./io";
 import { exportDeck } from "../export/run";
 import { prepareDeck } from "../prepare";
 import { isDeckError } from "../schema/errors";
@@ -43,10 +43,10 @@ const COMMANDS: Record<string, Command> = {
   explain: { usage: "explain <rule> [--json]", summary: "Print a rule's docs, offline.", flags: JSON_FLAG, run: explain },
   actions: { usage: "actions [--json]", summary: "List action types and the assert grammar.", flags: JSON_FLAG, run: actions },
   doctor: { usage: "doctor [--json]", summary: "Check this machine and the deck's generated files.", flags: JSON_FLAG, run: doctor },
-  upgrade: { usage: "upgrade [--force] [--json]", summary: "Refresh the shell from the installed engine and run schema codemods.", flags: { force: "boolean", ...JSON_FLAG }, run: upgrade },
+  upgrade: { usage: "upgrade [--force] [--json]", summary: "Refresh the shell and agent files from the installed engine, and run schema codemods.", flags: { force: "boolean", ...JSON_FLAG }, run: upgrade },
   "add verify": { usage: "add verify [--dry-run] [--json]", summary: "Install @live-ish/verify at this version and one Chromium.", flags: { "dry-run": "boolean", ...JSON_FLAG }, run: addVerify },
   "add agents": { usage: "add agents [--json]", summary: "Add AGENTS.md, CLAUDE.md and skills to the deck.", flags: JSON_FLAG, run: addAgents },
-  "skills sync": { usage: "skills sync [--check] [--json]", summary: "Regenerate agent skills.", flags: { check: "boolean", ...JSON_FLAG }, run: skillsSync },
+  "skills sync": { usage: "skills sync [--check] [--force] [--json]", summary: "Regenerate agent skills.", flags: { check: "boolean", force: "boolean", ...JSON_FLAG }, run: skillsSync },
   fonts: { usage: "fonts [--check] [--next] [--json]", summary: "Subset the fonts under public/fonts/.", flags: { check: "boolean", next: "boolean", ...JSON_FLAG }, run: fonts },
   images: { usage: "images [--only] [--force] [--json]", summary: "Encode images to AVIF and WebP.", flags: { only: "string", force: "boolean", ...JSON_FLAG }, run: images },
 };
@@ -146,21 +146,19 @@ async function main(argv: string[]): Promise<number> {
   return found.command.run(makeCtx(parsed));
 }
 
+/** A failure for the person, and under `--json` a document too, so a script never parses nothing. */
+function fail(message: string, code: number, fix?: string): number {
+  process.stderr.write(`live-ish: ${message}\n`);
+  if (fix) process.stderr.write(`  ${fix}\n`);
+  if (process.argv.includes("--json")) printJson({ ok: false, error: { code, message, ...(fix ? { fix } : {}) } });
+  return code;
+}
+
 function report(error: unknown): number {
-  if (error instanceof UsageError) {
-    process.stderr.write(`live-ish: ${error.message}\n`);
-    return EXIT.misuse;
-  }
-  if (error instanceof CliError) {
-    process.stderr.write(`live-ish: ${error.message}\n`);
-    if (error.fix) process.stderr.write(`  ${error.fix}\n`);
-    return error.code;
-  }
+  if (error instanceof UsageError) return fail(error.message, EXIT.misuse);
+  if (error instanceof CliError) return fail(error.message, error.code, error.fix);
   // An author's mistake gets its sentence, with no stack.
-  if (isDeckError(error)) {
-    process.stderr.write(`live-ish: ${error.message}\n`);
-    return EXIT.findings;
-  }
+  if (isDeckError(error)) return fail(error.message, EXIT.findings);
   process.stderr.write(`${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`);
   return EXIT.environment;
 }
