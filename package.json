@@ -26,6 +26,7 @@
     "lint": "pnpm -r --if-present lint",
     "parity:docs": "node parity/render.mjs",
     "smoke": "node --import tsx scripts/smoke.mts",
+    "export:walk": "node --import tsx scripts/export.mts",
     "hosting": "node --import tsx scripts/hosting.mts",
     "server": "node --import tsx scripts/server.mts",
     "test:e2e": "pnpm build && pnpm smoke",

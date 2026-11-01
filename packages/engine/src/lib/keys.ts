@@ -100,7 +100,8 @@ export function isCharacterKey(key: string): boolean {
 export function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
-  return ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+  // WebKit can leave focus on a field in a dialog that just closed. A hidden field takes no text.
+  return ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) && target.checkVisibility?.() !== false;
 }
 
 /**
