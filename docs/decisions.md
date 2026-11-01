@@ -312,3 +312,5 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **The parity matrix has no `source` column.** A row names a capability and the check that proves it, and where the behavior came from helps no reader. Rows and exceptions about things that never reached this repo are gone too, and the ids that remain did not change, so a gap in the numbering is expected.
 
 **This file was rewritten once so each entry stands alone.** It is otherwise append only. References to documents a reader can't see were replaced by the reasoning they stood for.
+
+**`s` opens the other window.** In the audience window it opens the speaker window, and in the speaker window it opens the audience window. A press with that window already open focuses it and does not reload it, so a stray key on stage cannot restart a demo.

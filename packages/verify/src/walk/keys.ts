@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 import { pageWithSteps, stepKey, liveFrames, type Target } from "../lib/deck";
-import type { Session } from "../lib/session";
+import { tabKey, type Session } from "../lib/session";
 import { describeActive } from "../lib/watch";
 import type { Report } from "../lib/report";
 
@@ -40,7 +40,7 @@ async function tabPast(session: Session, report: Report, first: Target, second: 
         // The pill fades after 2.5 s idle, and a Tab the frame forwards wakes it.
         await page.waitForTimeout(3000);
         const idleBefore = (await page.evaluate(`document.querySelector(".stage")?.dataset.idle`)) as string;
-        await page.keyboard.press("Tab");
+        await page.keyboard.press(tabKey(session));
         await page.waitForTimeout(150);
         const idleAfter = (await page.evaluate(`document.querySelector(".stage")?.dataset.idle`)) as string;
         const after = (await page.evaluate(describeActive)) as string;
@@ -56,7 +56,7 @@ async function tabPast(session: Session, report: Report, first: Target, second: 
     // A person's pace: presses 100 ms apart.
     for (let i = 0; i < 30 && reached < 0; i++) {
       await page.waitForTimeout(100);
-      await page.keyboard.press("Tab");
+      await page.keyboard.press(tabKey(session));
       const a = (await page.evaluate(describeActive)) as string;
       if (a.startsWith("iframe")) trapped++;
       if (a.includes("reader-controls__button")) reached = i + 1;
@@ -68,10 +68,12 @@ async function tabPast(session: Session, report: Report, first: Target, second: 
     let last = "";
     for (let i = 0; i < 30 && back < 0; i++) {
       await page.waitForTimeout(100);
-      await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press(tabKey(session, true));
       last = (await page.evaluate(describeActive)) as string;
       const firstLink = (await page.evaluate(`(() => { const l = document.querySelector("#stage a[href]"); return l ? document.activeElement === l : false; })()`)) as boolean;
-      if (firstLink || last === "body" || last.startsWith("div#stage")) back = i + 1;
+      // Firefox moves on from the first stop into its own window, so `activeElement` never changes.
+      const atStart = (await page.evaluate(`document.activeElement === [...document.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, summary, [tabindex]')].find((e) => e.tabIndex >= 0 && e.checkVisibility())`)) as boolean;
+      if (firstLink || atStart || last === "body" || last.startsWith("div#stage")) back = i + 1;
     }
     if (back < 0) report.fail(where, `30 Shift+Tabs never reached the slide's first link or the stage (focus on ${last})`);
     else report.pass(`${where}: Shift+Tab reaches ${last === "body" ? "the start of the page" : last} in ${back} press(es)`);
@@ -341,7 +343,7 @@ async function audienceMatrix(session: Session, report: Report, t: Target) {
     if ((await step()) !== before) problems.push("F5 or Escape moved the deck");
     if (from === "frame") {
       // Tab and Escape forwarded from a frame are ignored here: focus stays in the frame.
-      await page.keyboard.press("Tab");
+      await page.keyboard.press(tabKey(session));
       await page.waitForTimeout(200);
       const a = (await page.evaluate(describeActive)) as string;
       if (!a.includes("page-frame__iframe")) problems.push(`Tab moved focus out of the frame to ${a}`);

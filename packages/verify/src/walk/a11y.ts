@@ -4,7 +4,7 @@ import type { Page } from "@playwright/test";
 import { keyHelpFor, type Slide } from "@live-ish/engine/verify";
 import { liveFrames, pageWithSteps, plainRun, type Target } from "../lib/deck";
 import { loadSharp, luminance } from "../lib/pixels";
-import type { Session } from "../lib/session";
+import { tabKey, type Session } from "../lib/session";
 import { describeActive } from "../lib/watch";
 
 /**
@@ -36,7 +36,7 @@ async function codeTabs(session: Session, pages: Target[]) {
     await page.evaluate(`document.activeElement && document.activeElement.blur && document.activeElement.blur()`);
     let reached = -1;
     for (let i = 0; i < 20 && reached < 0; i++) {
-      await page.keyboard.press("Tab");
+      await page.keyboard.press(tabKey(session));
       if (((await page.evaluate(describeActive)) as string).includes("code__tab")) reached = i + 1;
     }
     if (reached < 0) {
@@ -176,7 +176,7 @@ async function pillRing(session: Session, slides: Slide[]) {
     await openReader(session, page, id);
     // A keyboard move onto Keyboard help, enabled on every slide, so :focus-visible matches.
     await page.focus('[data-control="text"]');
-    await page.keyboard.press(session.browserName === "webkit" ? "Alt+Tab" : "Tab");
+    await page.keyboard.press(tabKey(session));
     await page.waitForTimeout(400);
     const box = await page.locator('[data-control="help"]').boundingBox();
     const focused = (await page.evaluate(`document.activeElement.dataset.control`)) as string;

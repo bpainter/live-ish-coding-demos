@@ -193,3 +193,6 @@ export async function withSession<T>(deck: DeckData, options: SessionOptions, re
     await session.stop();
   }
 }
+
+/** The key that moves focus. WebKit's Tab skips links and buttons unless Alt is held, as Safari's does by default. */
+export const tabKey = (session: Pick<Session, "browserName">, shift = false) => `${session.browserName === "webkit" ? "Alt+" : ""}${shift ? "Shift+" : ""}Tab`;
