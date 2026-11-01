@@ -1,7 +1,7 @@
 {
   "engine": "0.0.0",
   "files": {
-    ".gitignore": "ab153740a92d6e9a",
+    ".gitignore": "2e2cc5cf9a0677e8",
     "app/%5Fhealth/route.ts": "fc0d53c34994122e",
     "app/demos/[demo]/[build]/[[...path]]/route.ts": "0c8942dfa227d190",
     "app/layout.tsx": "87843b4951993135",

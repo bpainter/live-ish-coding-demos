@@ -1,0 +1,5 @@
+{
+  "skill": "prepare-release",
+  "why": "Manual only, and it stops at a human approval, so no agent runs it unattended.",
+  "tasks": []
+}

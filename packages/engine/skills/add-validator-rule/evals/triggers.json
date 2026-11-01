@@ -1,0 +1,14 @@
+{
+  "skill": "add-validator-rule",
+  "invocation": "model",
+  "should": [
+    "Add a rule that catches a demo with no citations.",
+    "live-ish check should warn on a slide with no notes. Add that rule.",
+    "Add a new validator with a broken fixture and an error page."
+  ],
+  "should_not": [
+    "Fix the selector finding in my deck.",
+    "What does the callouts rule check?",
+    "Turn off the todo rule in my deck."
+  ]
+}

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Deploy deck"
+  short_description: "Build a Live-ish deck and deploy it to your host"
+policy:
+  allow_implicit_invocation: false
