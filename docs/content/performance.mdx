@@ -1,0 +1,72 @@
+---
+title: Performance budgets
+outcome: When you finish this page, you will know which numbers Live-ish promises, where they apply, and how to measure your own deck.
+---
+
+A press on stage must feel instant, and no press may be lost. These budgets back that up.
+
+## Where a budget applies
+
+**A public budget applies to the reference environment, and only there.**
+
+| Field   | Reference environment                                                           |
+| ------- | ------------------------------------------------------------------------------- |
+| Server  | A production build under `next start`, on the same machine as the browser       |
+| Browser | Playwright Chromium, 1920 by 1080, device pixel ratio 1                         |
+| Network | The `venue` profile: 20 Mbit/s down, 5 up, 60 ms round trip                     |
+| Deck    | `examples/conformance`, sized to give at least 50 arrivals per window           |
+| Theme   | Every built-in audience theme, one run each, nightly. `glass` on pull requests. |
+| Result  | Median of 3 runs, each computing the 90th percentile                            |
+
+Three limits follow from that.
+
+- **`next dev` is out of scope.** A dev server number says nothing about the stage. `walk --mode=underlay` still runs there, prints "dev server: budget not applied" and exits 0.
+- **"Production" means a production build.** It does not mean a deployed host.
+- **A deployed host is out of the project's hands.** Its CDN, its region and the venue's Wi-Fi decide the number. Measure your own with `live-ish perf`. For a deployment, these are targets.
+
+## The budgets
+
+This table is rendered from `packages/verify/budgets.json`, the same file the checks read.
+
+<Generated name="budgets" />
+
+## Promise tiers
+
+| Tier         | Meaning                |
+| ------------ | ---------------------- |
+| Guarantee    | Blocks a release.      |
+| Target       | Tracked and reported.  |
+| Not promised | Deliberately left out. |
+
+Guarantees cover presses on arrival, leaving a framed page, key to frame content, no loading state on a page with a poster, posters that match the live frame, and cache headers under `next start`. Targets cover slide paint, Back replay, layout shift and revalidations on a warm walk.
+
+Three things are not promised: whole-deck bytes, Lighthouse scores and function size. They depend on your deck or your host.
+
+Frame time on stage is a stage-day check through the rehearsal overlay, never a promise.
+
+## Measure your own
+
+```text
+pnpm live-ish perf load --origin=https://talk.example.com
+pnpm live-ish perf nav --origin=https://talk.example.com
+pnpm live-ish perf frame --origin=https://talk.example.com
+```
+
+| Task         | Measures                                                       |
+| ------------ | -------------------------------------------------------------- |
+| `load`       | First load, cold then warm                                     |
+| `nav`        | Key to paint, background, still and first frame                |
+| `frame`      | Back replays and requests per frame mount                      |
+| `walk`       | The whole deck, cold then warm: bytes, requests, revalidations |
+| `headers`    | Cache headers per rule                                         |
+| `lighthouse` | Lighthouse, desktop and mobile                                 |
+| `functions`  | Traced size per route of the last build                        |
+
+Add `--profile=venue` or `--profile=poor` to throttle. `poor` is 5 Mbit/s down, 1 up and 150 ms round trip.
+
+## How promises stay honest
+
+- Budgets live in one file, read by the checks and rendered here.
+- Changing a guarantee needs a changelog entry. A loosened guarantee is a breaking change.
+- The plan is for CI to upload raw results per release, so each number has a file behind it. It does not do this yet.
+- The first CI run sets a baseline on GitHub's runners. If runners cannot hold a number, the number stays, marked as laptop-class hardware with the reason. It is not quietly raised.

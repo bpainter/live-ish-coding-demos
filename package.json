@@ -20,25 +20,37 @@
     "export:talk": "node scripts/export/run.mjs",
     "build": "pnpm --filter starter exec next build",
     "build:conformance": "pnpm --filter conformance build",
-    "test": "pnpm --filter @live-ish/engine test && pnpm --filter @live-ish/bridge test && pnpm --filter @live-ish/verify test && node --test parity/*.test.mjs",
+    "test": "pnpm --filter @live-ish/engine test && pnpm --filter @live-ish/bridge test && pnpm --filter @live-ish/verify test && node --test parity/*.test.mjs && node --import tsx --test scripts/test/*.test.mts",
     "test:contrast": "pnpm --filter @live-ish/engine test:contrast",
     "gen:themes": "pnpm --filter @live-ish/engine gen:themes",
-    "typecheck": "pnpm --filter @live-ish/engine typecheck && pnpm --filter starter typecheck && pnpm --filter conformance typecheck && pnpm --filter server typecheck && pnpm --filter @live-ish/verify typecheck",
-    "lint": "pnpm --filter @live-ish/engine lint && pnpm --filter @live-ish/verify lint",
+    "typecheck": "pnpm prepare:decks && pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
     "parity:docs": "node parity/render.mjs",
     "smoke": "node --import tsx scripts/smoke.mts",
     "hosting": "node --import tsx scripts/hosting.mts",
     "server": "node --import tsx scripts/server.mts",
-    "export:walk": "node --import tsx scripts/export.mts"
+    "export:walk": "node --import tsx scripts/export.mts",
+    "test:e2e": "pnpm build && pnpm smoke",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "changeset": "changeset",
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs build",
+    "gen:readme": "node --import tsx scripts/gen-readme.mts",
+    "ci:pack": "node --import tsx scripts/ci/pack.mts",
+    "ci:matrix": "node --import tsx scripts/ci/matrix.mts",
+    "prepare:decks": "pnpm --filter starter exec live-ish prepare && pnpm --filter conformance exec live-ish prepare && pnpm --filter server exec live-ish prepare"
   },
   "packageManager": "pnpm@12.16.1+sha512.091d1dee7927575661b25dab3c2ae31cafc1c54d6b71ed6a6600cf0c1cb10434a447eae14015f1b23e2e6bedeed79df94a932e2164d2832280dce3fb32f656d1",
   "devDependencies": {
-    "@live-ish/verify": "workspace:*",
+    "@changesets/cli": "3.0.3",
     "@playwright/test": "1.58.2",
     "@tailwindcss/postcss": "4.3.3",
     "postcss": "8.5.31",
+    "prettier": "3.9.10",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.15",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "yaml": "2.9.1"
   }
 }

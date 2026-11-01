@@ -1,0 +1,34 @@
+# Scaffolds from the tarballs with pnpm and npm, builds, starts and walks in Chromium. @live-ish/verify stays out of the deck until the walk step. Blocks merge.
+name: starter
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: starter-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  starter:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        pm: [pnpm, npm]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
+      - run: node --import tsx scripts/ci/starter.mts --pm "$PM"
+        env:
+          PM: ${{ matrix.pm }}

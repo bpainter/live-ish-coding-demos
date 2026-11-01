@@ -1,0 +1,76 @@
+---
+title: Custom themes
+outcome: When you finish this page, you will have your own audience theme in a token file, passing the contrast checks.
+---
+
+A theme is a token file. You do not change any code.
+
+## Create one
+
+```text
+pnpm live-ish theme new harbor --from flat
+```
+
+This writes `themes/harbor.json`.
+
+```json
+{
+  "$schema": "../.live-ish/schema/chrome-theme.json",
+  "schemaVersion": 1,
+  "id": "harbor",
+  "name": "Harbor",
+  "extends": "flat",
+  "traits": ["Calm blue surfaces", "No shadows"],
+  "tokens": { "--chrome-accent": "#0b5c8a" },
+  "code": { "ink": "#10203f", "keyword": "#0b4f78" },
+  "fonts": { "sans": "system-ui", "mono": "ui-monospace" },
+  "motion": { "effect": "none" }
+}
+```
+
+`extends` names the base. A token you leave out comes from it, so a later fix to the base reaches your theme.
+
+## Use it
+
+Add the file to `chrome.custom`, and name the id.
+
+```ts
+chrome: {
+  theme: "harbor",
+  custom: ["./themes/harbor.json"],
+},
+```
+
+Then run `pnpm live-ish check`.
+
+## What you can set
+
+| Field           | What it holds                                                                                                                      |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `tokens`        | `--chrome-*` and `--term-*` values for the backdrop, cards, code panel, step indicator, spotlight, callouts, keycaps and terminal. |
+| `code`          | Colors for `ink`, `keyword`, `string`, `comment`, `number` and `property`.                                                         |
+| `fonts`         | `sans` and `mono`: a system stack, or a file under `public/fonts/` with its license named.                                         |
+| `motion.effect` | One name from a closed list, such as `none`.                                                                                       |
+| `details`       | Named details from a closed list.                                                                                                  |
+
+The schema in `.live-ish/schema/chrome-theme.json` lists every token. `live-ish schema` writes it, and your editor reads it through `$schema`.
+
+The file allows no raw CSS, no selectors and no scripts. A theme cannot add a look of its own beyond the tokens.
+
+## Pass the checks
+
+`theme-contrast` prints each failing pair with its ratio and its floor.
+
+| Pair                   | Floor |
+| ---------------------- | ----- |
+| Text on its surface    | 4.5:1 |
+| Code on the code panel | 7:1   |
+| Focus ring             | 3:1   |
+
+`theme-lint` covers the rest of the file. An unknown theme id fails the `theme` rule, which lists the ids it knows.
+
+## Fonts
+
+Run `pnpm live-ish fonts` to subset the files under `public/fonts/`. Check a font's license before you subset it. A subset counts as a modified version, and a Reserved Font Name may stop it from keeping its name.
+
+Keep the font weight of a code tab in mind. A theme that loads a mono bold adds weight to every demo page.

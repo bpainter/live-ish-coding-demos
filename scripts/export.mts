@@ -52,7 +52,12 @@ const server = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "1
 const browser = await chromium.launch();
 try {
   const until = Date.now() + 10_000;
-  while (!(await fetch(`${BASE}/`).then((r) => r.ok, () => false))) {
+  while (
+    !(await fetch(`${BASE}/`).then(
+      (r) => r.ok,
+      () => false,
+    ))
+  ) {
     if (Date.now() > until) throw new Error("the static server did not start");
     await new Promise((r) => setTimeout(r, 100));
   }
@@ -113,7 +118,6 @@ try {
     const back = await waitForDone(page, seen);
     check(back.type === "step-done" && (back.asserts ?? []).every((a) => a.pass), "Back replays in a fresh document");
     if (documents.some((d) => d.includes(".off-"))) console.log(`       ${[...new Set(documents)].join(", ")}`);
-
   }
 
   await page.goto(`${BASE}/`, { waitUntil: "load" });

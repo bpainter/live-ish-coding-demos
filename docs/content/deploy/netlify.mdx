@@ -1,0 +1,29 @@
+---
+title: Deploy to Netlify
+outcome: When you finish this page, you will have what you need to try a deck on Netlify, and you will know what has not been proven there.
+---
+
+**Status.** Best effort. The engine detects Netlify and reads its commit, and has not run there. Reports are welcome.
+
+The engine needs Node `fs` at request time, because frames are built from files on each request. A function must include `demos/**` and `.live-ish/**`. `withDeck()` lists them in `outputFileTracingIncludes`, and the host must honor those.
+
+## Settings
+
+| Setting                | Value                      |
+| ---------------------- | -------------------------- |
+| Base directory         | The deck's folder          |
+| Build command          | `pnpm live-ish build`      |
+| Publish directory      | `.next`                    |
+| Node version           | 22                         |
+| `LIVE_ISH_SITE_ORIGIN` | `https://talk.example.com` |
+
+There is no preset for the site address, so set it.
+
+## Check it
+
+Open a demo slide, not just the title. If the frame shows a poster or an error, the function likely has no demo files in it.
+
+```text
+curl -s https://talk.example.com/_health
+curl -sI https://talk.example.com/s/title
+```

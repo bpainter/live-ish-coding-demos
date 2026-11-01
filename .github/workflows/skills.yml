@@ -1,0 +1,33 @@
+# skills-ref validate, size limits, scripted commands on a fresh starter, and a run with all agent files removed. Blocks merge.
+name: skills
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: skills-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  skills:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SKILLS_REF_VERSION: "0.1.1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Validate each skill
+        run: |
+          for skill in packages/engine/skills/*/; do
+            pipx run --spec "skills-ref==$SKILLS_REF_VERSION" skills-ref validate "$skill"
+          done
+      - run: node --import tsx scripts/ci/skills.mts

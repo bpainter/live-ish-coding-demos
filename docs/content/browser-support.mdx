@@ -1,0 +1,36 @@
+---
+title: Browser support policy
+outcome: When you finish this page, you will know which browsers Live-ish tests, how often, and which one to present from.
+---
+
+Present from Chrome or Edge.
+
+## Tiers
+
+| Surface                      | Tier 1: tested on every pull request | Tier 2: tested nightly                                   | Notes                                                                                |
+| ---------------------------- | ------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Audience and speaker windows | Chromium, latest two stable          | WebKit (Safari 26.0 or later), Firefox latest two stable | Chrome or Edge is the recommendation.                                                |
+| Reader and text views        | Chromium                             | WebKit, Firefox, mobile emulation                        | Engine CSS keeps to Baseline widely available, with enhancements behind `@supports`. |
+| Demo frames                  | Your choice                          | Your choice                                              | `verify.browsers` runs a deck's walks where you want them.                           |
+
+## Status today
+
+Tier 2 is a target for now. It becomes a promise once the `cross-browser` job is green for 14 nights in a row.
+
+The hosting harness has passed in Chromium 145 and WebKit 26.0, the builds Playwright ships. It covered every step forward and back, keys, a cleared store, and Back and Forward in a multi-page demo.
+
+Firefox has not run that harness. Safari itself has not run it, only WebKit. Mobile browsers have not run it.
+
+## Your demos
+
+The engine's support says nothing about a feature your demo shows. A demo's frame runs in whichever browser you present from, and a feature it needs may be missing there. Run `live-ish support <query>` for real data, and set `verify.browsers` to walk the browsers you plan to use.
+
+```ts
+verify: { browsers: ["chromium", "webkit"] },
+```
+
+Some features sit behind a flag. Set `verify.chromiumArgs` to launch with it.
+
+## How this changes
+
+A new browser major joins the tier when it reaches stable. Dropping a browser from Tier 1 is a breaking change, with a changelog entry.
