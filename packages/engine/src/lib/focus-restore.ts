@@ -17,6 +17,12 @@ export function rememberPillFocus() {
   remembered = control?.dataset.control ? { name: control.dataset.control, visible: control.matches(":focus-visible") } : null;
 }
 
+/** Playwright's Firefox 157 ignores `focus()` here while a cross-origin frame holds focus, until the frame lets go. */
+export function releaseFrame() {
+  const a = document.activeElement;
+  if (a instanceof HTMLIFrameElement) a.blur();
+}
+
 /**
  * Focuses the recorded control in the current pill, once. Returns true when a control was recorded
  * (focused, or the fallback ran).
@@ -25,6 +31,7 @@ export function restorePillFocus(fallback: () => void): boolean {
   const r = remembered;
   remembered = null;
   if (!r) return false;
+  releaseFrame();
   const el = document.querySelector<HTMLButtonElement>(`.reader-controls [data-control="${r.name}"]`);
   if (el && !el.disabled && el.checkVisibility?.() !== false) el.focus({ preventScroll: true, focusVisible: r.visible } as FocusOptions);
   else fallback();

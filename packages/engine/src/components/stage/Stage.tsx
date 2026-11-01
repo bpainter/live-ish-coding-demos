@@ -13,7 +13,7 @@ import { usePresenter } from "../../lib/presenter/context";
 import { openOtherWindow } from "../../lib/presenter/open-window";
 import { readerHref, slideHref } from "../../lib/presenter/url";
 import { frameLive, frameUrl } from "../../lib/frames/origins";
-import { rememberPillFocus, restorePillFocus } from "../../lib/focus-restore";
+import { releaseFrame, rememberPillFocus, restorePillFocus } from "../../lib/focus-restore";
 import type { StepResult } from "../../lib/engine/frame";
 import { StageContext, type DemoStatus, type Playback, type StageState } from "../../lib/stage-context";
 import { ReaderControls } from "../chrome/ReaderControls";
@@ -90,6 +90,7 @@ function focusPastFrame(frame: Element | null, back: boolean, fallback: () => vo
   const list = tabbables().filter((el) => el !== frame && !el.classList.contains("frame-warm"));
   const target = back ? list.filter((el) => frame.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING).at(-1) : list.find((el) => frame.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
   if (!target) return fallback();
+  releaseFrame();
   // A keyboard move: the ring shows where the browser supports the option.
   target.focus({ preventScroll: true, focusVisible: true } as FocusOptions);
 }
@@ -586,7 +587,10 @@ export function Stage(props: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [passive, perform, gotoOpen, mode, presenter?.mode]);
 
-  const focusStage = useCallback(() => canvasRef.current?.focus({ preventScroll: true }), []);
+  const focusStage = useCallback(() => {
+    releaseFrame();
+    canvasRef.current?.focus({ preventScroll: true });
+  }, []);
 
   const dispatchKey = useCallback(
     (key: string, shiftKey: boolean) => {

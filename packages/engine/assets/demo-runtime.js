@@ -902,7 +902,7 @@
   // Counts this frame's entries: a document load that is a new navigation, then every same-document
   // push (the Navigation API's navigate event followed by navigatesuccess, which covers intercepted
   // links and pushState; without the API, the pushState wrapper). A frame's first document leaves
-  // the name alone until it is left, when `pagehide` writes the count (multi-page builds, below), so
+  // the name alone until it is left, when `beforeunload` writes the count (multi-page builds, below), so
   // a named load is one the frame made itself. Frames send no referrer, so nothing else can say.
   (function recordFrameEntries() {
     var type = (performance.getEntriesByType("navigation")[0] || {}).type;
@@ -1138,7 +1138,7 @@
   // waits here for pagehide, whose `unloading` names the next action, and the presenter resumes
   // the run in the new document. A same-document traversal (popstate) or a load that never comes
   // ends the wait. The load is counted as one of the frame's own entries, as any load the frame
-  // makes is: a link pressed in hands-on mode counts through `pagehide`.
+  // makes is: a link pressed in hands-on mode counts through `beforeunload`.
   var multiPage = document.documentElement.hasAttribute("data-pages");
   // Flags travel on the request, so no server instance has to remember them: a link or navigate to
   // another page of this build carries the document's flags in `?flags=`.
@@ -1159,7 +1159,8 @@
     return u.href;
   }
   if (multiPage) {
-    window.addEventListener("pagehide", markOwnLoad);
+    // Not `pagehide`: Chrome's RenderDocument commits the next document first, so a write there is lost.
+    window.addEventListener("beforeunload", markOwnLoad);
     document.addEventListener(
       "click",
       function (e) {

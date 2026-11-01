@@ -318,3 +318,9 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **WebKit walks run on macOS runners.** On Ubuntu, Playwright's WebKit timed out on animation-frame waits and sampled no frames on demo slides, while the same walks passed on macOS. Safari only ships on Apple systems, so macOS is the closer proof. macOS minutes are free on a public repo and cost more on a private one.
 
 **An inner document can load after the runtime is ready.** The runtime is ready at `DOMContentLoaded`, so a step that reads an inner `<iframe>` first waits for its `load`, through a hook that returns a promise.
+
+**The frame's history count is written on `beforeunload`.** Chrome's RenderDocument commits the next document before `pagehide` runs, so a `window.name` write there is lost. Playwright 1.58.2 switched RenderDocument off, which hid this from every walk. Playwright 1.64.1 leaves it on, so the walks now run Chrome the way an audience does.
+
+**The stage blurs a focused frame before it takes focus back.** Playwright's Firefox 157 ignored a parent `focus()` while a cross-origin frame held focus, and Firefox 146 did not. A blur first works in all three engines, so it costs nothing where the browser never needed it. A stock Firefox was not checked with a real focus state.
+
+**A WebKit keys walk notes a frame that refused focus.** WebKit gives a cross-origin frame focus only with a press behind it, and `?step=last` has none, so the forwarded Tab goes unchecked there and is not a failure.

@@ -39,3 +39,5 @@ jobs:
           deck: ${{ matrix.deck }}
           port: 3400
       - run: pnpm --filter "$DECK" exec live-ish walk --browser="$BROWSER" --origin=http://localhost:3400
+      - run: pnpm --filter "$DECK" exec live-ish walk --mode=keys --browser="$BROWSER" --origin=http://localhost:3400
+      - run: pnpm --filter "$DECK" exec live-ish walk --mode=a11y --browser="$BROWSER" --origin=http://localhost:3400

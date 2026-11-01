@@ -89,6 +89,8 @@ export function selfTestRows(deck: DeckData): Row[] {
       what: "the first frame and its poster arrive late",
       argv: ["underlay", ...(c ? [c.page.id] : []), "--runs=1", "--min-arrivals=0", "--profile=none"],
       sabotage: async (ctx) => {
+        // A prefetched poster can come from the cache, past any route, so it is hidden as well.
+        await styled("img.page-frame__poster { display: none !important; }")(ctx);
         await ctx.route(/\/(demos|posters|opt)\//, async (route) => {
           await new Promise((r) => setTimeout(r, 450));
           await route.continue().catch(() => {});
