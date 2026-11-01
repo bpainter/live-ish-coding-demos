@@ -236,3 +236,7 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **pnpm 9 needs `packages` in `pnpm-workspace.yaml`.** A blank folder runs whatever pnpm Corepack has as its default, and pnpm 9 refuses a workspace file without that field. The scaffolder now writes `packages: ["."]`.
 
 **Prettier covers only files that joined.** `.prettierignore` lists `packages/`, `examples/` and other workstreams' scripts, so `format:check` is real today without reformatting anyone's files.
+
+**S-1 passed: the engine ships source through `transpilePackages`.** A deck builds with `generateStaticParams` reached through a re-export, `server-only`, the `/*turbopackIgnore: true*/` paths and `outputFileTracingIncludes`, all from inside the package. The proof that stays true is `scripts/ci/starter.mts`, which scaffolds a deck from the packed tarballs with pnpm and npm, runs a production build and walks it. The S-1 fallback was not needed.
+
+**S-3 passed: themes reach syntax colors with no client JavaScript.** Shiki 4.5.0 renders each token with a sentinel color, and the theme's `colorReplacements` maps each sentinel to `var(--chrome-code-*)`. Sentinels stay on the outer `<pre>`, which `renderCodeFile` discards. Output stays server-rendered, so the per-theme render fallback was not needed.
