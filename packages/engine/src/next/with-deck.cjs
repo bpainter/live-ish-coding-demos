@@ -3,7 +3,7 @@
 const { execFileSync } = require("node:child_process");
 const { existsSync, readFileSync } = require("node:fs");
 const path = require("node:path");
-const { PROVIDERS, addressSource, assertHosting, detectProvider, headerRules, resolveBuildId, resolveHosting, resolveTarget } = require("./hosting.cjs");
+const { PROVIDERS, addressSource, assertHosting, detectProvider, externalOrigins, headerRules, resolveBuildId, resolveHosting, resolveTarget } = require("./hosting.cjs");
 
 const ENGINE = path.join(__dirname, "..", "..");
 /** `page.presenter.tsx` and `layout.presenter.tsx` are pages only when this is listed. */
@@ -85,7 +85,7 @@ function withDeck(options = {}) {
       // Only two hosts name an origin in client code. Local and one-host builds carry none.
       NEXT_PUBLIC_LIVE_ISH_PRESENTER_ORIGIN: mode === "two-hosts" ? site : "",
       NEXT_PUBLIC_LIVE_ISH_FRAMES_ORIGIN: frames,
-      NEXT_PUBLIC_LIVE_ISH_EXTERNAL: JSON.stringify(summary.hosts.external ?? {}),
+      NEXT_PUBLIC_LIVE_ISH_EXTERNAL: JSON.stringify(externalOrigins({ hosts: summary.hosts, target })),
       NEXT_PUBLIC_LIVE_ISH_PROVIDER: provider ?? "",
       // A preview cannot embed frames from a frames host that names production in `frame-ancestors`.
       NEXT_PUBLIC_LIVE_ISH_FRAMES_OFF: preview && mode === "two-hosts" ? "1" : "",

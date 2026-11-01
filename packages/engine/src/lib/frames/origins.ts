@@ -28,6 +28,8 @@ export const HOSTING: Hosting = {
 };
 const EXTERNAL: Record<string, string> = JSON.parse(process.env.NEXT_PUBLIC_LIVE_ISH_EXTERNAL ?? "{}") as Record<string, string>;
 const FRAMES_OFF = Boolean(process.env.NEXT_PUBLIC_LIVE_ISH_FRAMES_OFF);
+/** A server frame's route names its app: `/@shop/products/1`. */
+const SERVER_ROUTE = /^\/@([\w-]+)(\/.*)?$/;
 
 const LOCAL_PAIR: Record<string, string> = { localhost: "127.0.0.1", "127.0.0.1": "localhost" };
 
@@ -64,13 +66,27 @@ export function frameUrlFor(route: string, location: Place, hosting: Hosting = H
 
 /** The URL of a `Frame.route` on the origin that serves it. Browser only. */
 export function frameUrl(route: string): { origin: string; url: string } {
-  const server = /^\/@([\w-]+)(\/.*)?$/.exec(route);
+  const server = SERVER_ROUTE.exec(route);
   if (server) {
     const origin = EXTERNAL[server[1]] ?? "";
-    return { origin, url: `${origin}${server[2] ?? "/"}` };
+    // `index.html` is how the deck addresses its own builds. A server app answers its real path.
+    return { origin, url: `${origin}${(server[2] ?? "/").replace(/\/index\.html$/, "") || "/"}` };
   }
   return frameUrlFor(route, window.location);
 }
+
+/** The app a route belongs to, or null for a frame the deck serves itself. */
+export function serverApp(route: string): string | null {
+  return SERVER_ROUTE.exec(route)?.[1] ?? null;
+}
+
+/** The origin of an app in `hosts.external`, or "" when this build has none. */
+export function externalOrigin(app: string): string {
+  return EXTERNAL[app] ?? "";
+}
+
+/** Where the deck's own server says whether an app is up, so no browser asks a dead origin. */
+export const serverUpUrl = (app: string) => `/demos/live-ish-server/${app}`;
 
 /**
  * False when the route's app has no origin configured, and on a preview of a two-host deck, whose
@@ -78,23 +94,26 @@ export function frameUrl(route: string): { origin: string; url: string } {
  */
 export function frameLive(route: string): boolean {
   if (FRAMES_OFF) return false;
-  const server = /^\/@([\w-]+)/.exec(route);
-  return !server || Boolean(EXTERNAL[server[1]]);
+  const app = serverApp(route);
+  return !app || Boolean(EXTERNAL[app]);
 }
 
-/** What a poster says in place of a frame `frameLive` turned off. */
-export function offlineNote(): string {
+/** What a poster says in place of a frame that is off, or of an app that does not answer. */
+export function offlineNote(stopped = false): string {
+  if (stopped) return "Captured still. This live demo's server is not running.";
   return FRAMES_OFF ? "Captured still. Live demos run on the production address." : "Captured still. This live demo runs as its own app, which this site does not include.";
 }
 
 /**
  * The query of a frame document: `?flags=`, and `chrome=<id>` for a terminal frame, the one element
- * inside a frame that takes a theme. Server frames get their flags through the bridge.
+ * inside a frame that takes a theme. A server frame also says which deck embeds it, because a server
+ * can't know the port this deck runs on, and marks its first request. `@live-ish/bridge` reads them.
  */
 export function frameQuery(route: string, flags: Record<string, boolean> | undefined, terminalChrome?: string): string {
   const q = flagsQuery(flags);
-  const parts = [q ? `flags=${q}` : "", terminalChrome ? `chrome=${encodeURIComponent(terminalChrome)}` : ""].filter(Boolean);
-  return parts.length ? `?${parts.join("&")}` : "";
+  const server = serverApp(route) && typeof window !== "undefined" ? [`presenter=${encodeURIComponent(window.location.origin)}`, "mount=1"] : [];
+  const parts = [q ? `flags=${q}` : "", terminalChrome ? `chrome=${encodeURIComponent(terminalChrome)}` : "", ...server].filter(Boolean);
+  return parts.length ? `${route.includes("?") ? "&" : "?"}${parts.join("&")}` : "";
 }
 
 /** Flags as the `?flags=` query the frame routes read (`enhance-css:0,enhance-js:1`). */
