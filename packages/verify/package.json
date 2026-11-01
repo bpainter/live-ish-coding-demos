@@ -41,7 +41,7 @@
     "selftest": "node --conditions=react-server --import tsx src/selftest.ts"
   },
   "dependencies": {
-    "@playwright/test": "1.58.2",
+    "@playwright/test": "1.64.1",
     "axe-core": "4.14.0",
     "tsx": "4.23.15"
   },
@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@live-ish/engine": "workspace:*",
-    "@types/node": "26.6.5",
+    "@types/node": "26.6.6",
     "eslint": "10.13.0",
     "eslint-config-next": "16.4.3",
     "next": "16.4.3",
