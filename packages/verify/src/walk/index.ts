@@ -87,7 +87,8 @@ async function runMode(session: Session, mode: Mode | undefined, id: string | un
     case "underlay":
       return walkUnderlay(session, {
         only: id,
-        profile: profileOf(args.opt("profile"), budgets.reference.profile),
+        // Network conditions go through CDP, which only Chromium has.
+        profile: session.browserName === "chromium" ? profileOf(args.opt("profile"), budgets.reference.profile) : "none",
         noReader: args.flag("no-reader"),
         runs: numberOpt(args, "runs", budgets.reference.runs),
         min: numberOpt(args, "min-arrivals", id ? 0 : budgets.underlay.minArrivalsPerWindow),
@@ -140,9 +141,8 @@ export async function walk(argv: string[], context: WalkContext): Promise<number
   const args = parseArgs(argv, WALK_SPEC);
   const { mode, id } = modeAndId(args.words, args.opt("mode"));
   const options = { ...sessionOptions(args), sabotage: context.sabotage };
-  const profile = profileOf(args.opt("profile"), mode === "underlay" ? budgets.reference.profile : "none");
   // A network profile has to reach every frame, and that takes one process.
-  if (profile !== "none") options.isolationOff = true;
+  if (profileOf(args.opt("profile"), mode === "underlay" ? budgets.reference.profile : "none") !== "none") options.isolationOff = true;
   const report = context.report ?? new Report(`walk${mode ? ` ${mode}` : ""}`, args.flag("json"));
   const deck = context.deck ?? (await loadDeck(context.root));
   const code = await withSession(deck, options, report, async (session) => {

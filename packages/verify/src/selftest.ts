@@ -39,7 +39,7 @@ const everywhere = (script: string): Sabotage => async (ctx: BrowserContext) => 
 const styled = (css: string) => everywhere(`(() => { const add = () => { const s = document.createElement("style"); s.textContent = ${JSON.stringify(css)}; document.documentElement.append(s); }; if (document.documentElement) add(); else addEventListener("DOMContentLoaded", add); })()`);
 
 /** A key that dies before anything hears it, in the window and in every frame. */
-const eatKey = (key: string) => everywhere(`addEventListener("keydown", (e) => { if (e.key === ${JSON.stringify(key)}) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);`);
+const eatKey = (key: string) => everywhere(`addEventListener("keydown", (e) => { if (e.key === ${JSON.stringify(key)} && !e.shiftKey) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);`);
 
 /** The first page that clicks something, and what it clicks. */
 function clicker(deck: DeckData) {
@@ -92,7 +92,7 @@ export function selfTestRows(deck: DeckData): Row[] {
     { id: "WK-10", what: "a blank key dies", argv: ["keys"], sabotage: eatKey("b"), expect: /b blank/ },
     { id: "WK-11", what: "the pill's focus ring is gone", argv: ["a11y"], sabotage: styled('[data-control]:focus-visible { outline: none !important; box-shadow: none !important; }'), expect: /the ring measures/ },
   );
-  if (shell) out.push({ id: "WK-12", what: "a frame has two shown slots", argv: [shell, "--no-speaker"], sabotage: everywhere(`addEventListener("DOMContentLoaded", () => { if (document.documentElement.dataset.wrapper) document.body.append(Object.assign(document.createElement("div"), { hidden: true })).setAttribute("data-shown", ""); });`), expect: /2 \[data-shown\] slots/ });
+  if (shell) out.push({ id: "WK-12", what: "a frame has two shown slots", argv: [shell, "--no-speaker"], sabotage: everywhere(`addEventListener("DOMContentLoaded", () => { if (document.documentElement.dataset.wrapper) { const extra = document.createElement("div"); extra.hidden = true; extra.setAttribute("data-shown", ""); document.body.append(extra); } });`), expect: /2 \[data-shown\] slots/ });
   out.push(
     { id: "WK-13", what: "a browser that does not exist", argv: ["--browser=netscape"], expect: /must be chromium/, exit: EXIT.misuse },
     { id: "WK-13", what: "a channel that is not installed", argv: ["--channel=no-such-channel", "deck"], expect: /Could not start/, exit: EXIT.environment },

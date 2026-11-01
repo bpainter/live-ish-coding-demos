@@ -58,6 +58,8 @@ export async function walkDrawer(session: Session) {
     if (outside) report.fail("drawer", `Tab left the drawer ${outside} time(s)`);
     else report.pass(`drawer: Tab stays inside over ${linkCount + 3} presses`);
     const url = page.url();
+    // On a link: Space on the Close button presses it, which is what Space on a button should do.
+    await page.focus("#deck-nav a.nav-drawer__link");
     for (const key of ["ArrowRight", "ArrowLeft", "Space", "b", "."]) await page.keyboard.press(key);
     await page.waitForTimeout(400);
     if (page.url() !== url) report.fail("drawer", `clicker keys moved the deck with the drawer open (${page.url()})`);
@@ -66,7 +68,7 @@ export async function walkDrawer(session: Session) {
     await page.waitForTimeout(400);
     const afterPd = (await page.evaluate(`document.querySelector("#deck-nav")?.open ?? false`)) as boolean;
     if (afterPd) report.fail("drawer", "PageDown did not close the drawer");
-    else if (page.url() !== url) report.fail("drawer", "PageDown closed the drawer but moved the deck");
+    else if (page.url() !== url) report.fail("drawer", `PageDown closed the drawer but moved the deck, to ${page.url()}`);
     else report.pass("drawer: PageDown closes it without moving the deck");
     await page.focus(".reader-controls .nav-drawer-trigger");
     await page.keyboard.press("Enter");
