@@ -120,6 +120,25 @@ async function focusAndAnnouncements(session: Session, stepped: Target) {
   if (!a.startsWith("button[prev]")) report.fail("a11y focus", `Enter on Previous left focus on ${a}`);
   else report.pass("a11y focus: Enter on Previous keeps focus on Previous");
 
+  // Next on a demo slide plays a step in place. A step that focuses something takes focus into the
+  // frame, and the next Enter would then press the demo instead of Next.
+  const frames = liveFrames(deck).filter((t) => t.page.frame.kind !== "terminal" && !t.page.steps.some((s) => s.route));
+  const steps = frames.flatMap((t) => t.page.steps.slice(1).map((step, at) => ({ target: t, step, from: at })));
+  const has = (types: string[]) => steps.find(({ step }) => step.actions.some((a) => types.includes(a.type)));
+  const takesFocus = has(["focus", "type", "paste"]) ?? has(["click"]);
+  if (!takesFocus) report.log("    note no step here moves focus, so a pill press through a step went unchecked");
+  else {
+    const { target, step, from } = takesFocus;
+    await openReader(session, page, target.page.id, from);
+    await page.focus('[data-control="next"]');
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(`Boolean((window.__stepResults || {})[${JSON.stringify(step.id)}])`, null, { timeout: 15000 }).catch(() => null);
+    await page.waitForTimeout(400);
+    const onStep = (await page.evaluate(describeActive)) as string;
+    if (!onStep.startsWith("button[next]")) report.fail("a11y focus", `playing ${target.page.id} ${step.id} left focus on ${onStep}`);
+    else report.pass(`a11y focus: Enter on Next keeps focus on Next through ${target.page.id} ${step.id}`);
+  }
+
   // One live region, step sentences only.
   await openReader(session, page, stepped.page.id);
   await page.evaluate(`(() => {
@@ -157,7 +176,7 @@ async function pillRing(session: Session, slides: Slide[]) {
     await openReader(session, page, id);
     // A keyboard move onto Keyboard help, enabled on every slide, so :focus-visible matches.
     await page.focus('[data-control="text"]');
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(session.browserName === "webkit" ? "Alt+Tab" : "Tab");
     await page.waitForTimeout(400);
     const box = await page.locator('[data-control="help"]').boundingBox();
     const focused = (await page.evaluate(`document.activeElement.dataset.control`)) as string;
