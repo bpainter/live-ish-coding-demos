@@ -2,10 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="presenter-origin"
-      content="DECK_ORIGIN">
+    <!-- bridge -->
     <title>A real server</title>
-    <script src="/runtime.js"></script>
   </head>
   <body>
     <h1>A real server</h1>
@@ -18,7 +16,7 @@
           document.getElementById("answer");
         answer.textContent = data.message;
       }
-      window.demoHooks = { ask };
+      liveIsh.hooks({ ask });
     </script>
   </body>
 </html>

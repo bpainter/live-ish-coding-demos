@@ -9,7 +9,9 @@ Use this when the point of the demo is real server behavior: its routes, logs or
 - An entry in `servers`, with the command and a free port.
 - The address in `hosts.external`.
 
-Read `demos/<id>/single/server.mjs` and `page.html`. They hold everything a frame needs: the content security policy, the frame runtime and the hook. Any stack can replace them, as long as it keeps those three.
+If the deck does not have `@live-ish/bridge`, the command installs it first. A failed install exits 3 and writes nothing.
+
+Read `demos/<id>/single/server.mjs` and `page.html`. The bridge gives them everything a frame needs: the content security policy, the frame runtime and the hook. Any stack can replace them, as long as it keeps those three. The bridge's README shows how with no Node.
 
 `--server` and `--static` exclude each other.
 

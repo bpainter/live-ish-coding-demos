@@ -2,12 +2,14 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import path from "node:path";
 import { UsageError } from "../args";
 import { addServer, ConfigEditError, insertOrderId, readOrder } from "../edit-config";
-import { CliError, ENGINE, EXIT, printJson, requireDeck, type Ctx, type ExitCode } from "../io";
+import { CliError, ENGINE, EXIT, printJson, requireDeck, resolveFromDeck, type Ctx, type ExitCode } from "../io";
 import type { CopyLayout } from "../../schema/slide";
 import { portAnswers } from "../process";
+import { addRuntimePackage } from "./maintain";
 import { recordDemo } from "./record";
 
 const TEMPLATES = path.join(ENGINE, "templates");
+const BRIDGE = "@live-ish/bridge";
 
 export const LAYOUTS: CopyLayout[] = ["content", "title", "closing", "grid", "statement", "section", "quotes", "people", "image", "stat", "comparison", "table", "timeline", "chart"];
 
@@ -157,6 +159,9 @@ async function newWebDemo(ctx: Ctx, root: string): Promise<ExitCode> {
   const dest = path.join(root, "demos", id);
   const vars = { id, title: titleOf(id), kind: isStatic ? "static" : "web", port: "" };
   if (server) {
+    // The server imports the bridge, so a deck without it would stop on its first `dev`. This comes
+    // before anything is written, so a failed install leaves no half-made demo to clean up.
+    if (!resolveFromDeck(root, BRIDGE)) addRuntimePackage(ctx, root, BRIDGE, `live-ish new web-demo ${id} --server`);
     const port = await nextPort(root);
     vars.port = String(port);
     const files = copyTemplate("web-demo-server", dest, vars, root);
