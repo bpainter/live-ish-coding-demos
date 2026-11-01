@@ -250,3 +250,15 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 ## Images
 
 **`image-alt` is a fourth rule id beyond the PRD list, and it is Integrity.** Section 11.3 says an image with no `alt` fails `check`, and Fit is only a warning without `--strict`. Types can't hold it, because `check` reads data and a deck need not run `tsc`. Blank text counts as none. It covers a slide's `image`, a grid card's `image` and an intro's `visual`. A `background` image renders with an empty alt, but it needs one here too: section 11.3 makes no exception, and the text view still shows it.
+
+## Server template
+
+**The `--server` template uses `@live-ish/bridge`.** This replaces the earlier entry that loaded the runtime from the app's own origin. The deck now names itself in `?presenter=`, so the app needs no presenter origin of its own and no path into the deck's `public/` folder.
+
+**`new web-demo --server` installs the bridge, and installs first.** The bridge is optional, so a fresh deck does not have it, and `server.mjs` would stop on import at the first `dev`. It goes in `dependencies`, because the deck runs it. A failed install exits 3 before anything is written, so a retry never meets a taken id. A deck that already resolves the bridge installs nothing.
+
+**`onSignal` keeps listening.** Ctrl-C reaches the whole process group and the shim forwards it, so the CLI hears each stop twice. A one-shot listener left the second on Node's default, which killed the CLI before it stopped the deck's servers. Every Ctrl-C of `dev` left the app running, and the next `dev` found the port taken and served the old code. `present` waited for `next` to exit first, so it had the same gap for longer. A repeat within a second is ignored as the echo, and a later one exits 130, because a hung server must not trap someone on stage.
+
+## Starter
+
+**Comments sit beside what they explain, once each.** The files stay as section 14 prints them apart from comments, and a one-off script confirmed that by stripping them and comparing. The commented `callouts` line was run uncommented through `check --strict`, so it works when an author uses it.
