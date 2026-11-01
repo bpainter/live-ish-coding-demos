@@ -1,0 +1,29 @@
+# Rebuilds theme outputs, the README theme line and skills, and fails on any difference. Blocks merge.
+name: generated
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: generated-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generated:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm gen:themes
+      - run: pnpm gen:readme
+      - run: pnpm --filter starter exec live-ish skills sync --check
+      - run: git diff --exit-code

@@ -1,0 +1,34 @@
+# live-ish parity on the conformance deck. Nightly, on a private runner. Blocks v1.0. The talk
+# comparison runs on the owner's machine, since its data is not public. It has no pull_request trigger,
+# so no outside code reaches the runner, and it is skipped until the PARITY_RUNNER variable is set.
+name: parity
+
+on:
+  schedule:
+    - cron: "57 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    if: vars.PARITY_RUNNER == 'true'
+    runs-on: [self-hosted, live-ish-parity]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
+      - uses: ./.github/actions/start-deck
+        with:
+          deck: conformance
+          port: 3400
+      - run: pnpm --filter conformance exec live-ish parity --manifest=. --origin=http://localhost:3400 --out=live-ish-report.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: parity-report
+          path: examples/conformance/live-ish-report.json

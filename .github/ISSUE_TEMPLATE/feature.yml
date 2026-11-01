@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose something new.
+labels: [feature]
+body:
+  - type: markdown
+    attributes:
+      value: A feature must serve a talk where the demo is the point. "No" is a normal, kind answer here. See GOVERNANCE.md and the limits page first.
+  - type: textarea
+    id: talk
+    attributes:
+      label: The talk this serves
+      description: What are you presenting, and what can you not do today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you tried instead
