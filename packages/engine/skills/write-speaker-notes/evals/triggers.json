@@ -1,0 +1,16 @@
+{
+  "skill": "write-speaker-notes",
+  "invocation": "model",
+  "should": [
+    "Write speaker notes for the terminal demo.",
+    "What should I say on the intro slide?",
+    "These notes are too long. Tighten them.",
+    "Draft a script for the before beat of the faq demo."
+  ],
+  "should_not": [
+    "Add a slide about testing.",
+    "Change the title on slide two.",
+    "Add a callout to step two of the faq demo.",
+    "Use the swiss theme."
+  ]
+}

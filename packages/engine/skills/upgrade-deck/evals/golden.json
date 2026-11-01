@@ -1,0 +1,26 @@
+{
+  "skill": "upgrade-deck",
+  "why": "Manual only. Run by hand before a minor, since it changes dependencies.",
+  "tasks": [],
+  "commands": [
+    {
+      "run": [
+        "upgrade",
+        "--json"
+      ]
+    },
+    {
+      "run": [
+        "skills",
+        "sync",
+        "--check"
+      ]
+    },
+    {
+      "run": [
+        "check",
+        "--json"
+      ]
+    }
+  ]
+}

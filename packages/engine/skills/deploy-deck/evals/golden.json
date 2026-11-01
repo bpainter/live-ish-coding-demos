@@ -1,0 +1,14 @@
+{
+  "skill": "deploy-deck",
+  "why": "Manual only. It publishes, so no agent runs it unattended. `live-ish build` runs in the fresh-deck script.",
+  "tasks": [],
+  "commands": [
+    {
+      "run": [
+        "check",
+        "--strict",
+        "--json"
+      ]
+    }
+  ]
+}

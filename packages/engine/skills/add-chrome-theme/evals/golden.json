@@ -1,0 +1,5 @@
+{
+  "skill": "add-chrome-theme",
+  "why": "Contributor skill. It runs in the monorepo, not on a starter. Its commands are package scripts, checked by name.",
+  "tasks": []
+}

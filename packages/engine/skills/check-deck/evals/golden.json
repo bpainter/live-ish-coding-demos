@@ -1,0 +1,68 @@
+{
+  "skill": "check-deck",
+  "tasks": [
+    {
+      "id": "check",
+      "prompt": "This deck has a broken selector. Fix it.",
+      "setup": [
+        {
+          "replace": "demos/faq/demo.ts",
+          "find": "{ type: \"click\", target: \"#q2\" },",
+          "with": "{ type: \"click\", target: \"#question-2\" },"
+        }
+      ],
+      "solution": [
+        {
+          "run": [
+            "check",
+            "--json"
+          ],
+          "exit": 1
+        },
+        {
+          "run": [
+            "explain",
+            "selector"
+          ]
+        },
+        {
+          "replace": "demos/faq/demo.ts",
+          "find": "{ type: \"click\", target: \"#question-2\" },",
+          "with": "{ type: \"click\", target: \"#q2\" },"
+        },
+        {
+          "run": [
+            "check",
+            "faq",
+            "--json"
+          ]
+        },
+        {
+          "run": [
+            "check",
+            "--strict",
+            "--json"
+          ]
+        },
+        {
+          "run": [
+            "doctor",
+            "--json"
+          ],
+          "exit": [
+            0,
+            1
+          ]
+        }
+      ],
+      "pass": {
+        "changed": [
+          "demos/faq/"
+        ],
+        "noRules": [
+          "selector"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "skill": "add-copy-slide",
+  "tasks": [
+    {
+      "id": "copy",
+      "prompt": "Add a slide about why teams write tests, with this image: public/images/test-shape.svg",
+      "setup": [
+        {
+          "write": "public/images/test-shape.svg",
+          "text": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 300\"><path d=\"M200 20 380 280H20z\" fill=\"#1a4fc4\"/></svg>\n"
+        }
+      ],
+      "solution": [
+        {
+          "run": [
+            "new",
+            "copy",
+            "Why teams write tests",
+            "--layout",
+            "content",
+            "--json"
+          ]
+        },
+        {
+          "replace": "slides/08-why-teams-write-tests.ts",
+          "find": "  notes: \"What you say on this slide.\",",
+          "with": "  image: { src: \"/images/test-shape.svg\", alt: \"A triangle of tests, widest at the base.\", placement: \"right-half\" },\n  notes: \"Teams write tests so a change stops being a gamble.\","
+        },
+        {
+          "run": [
+            "explain",
+            "images"
+          ]
+        },
+        {
+          "run": [
+            "check",
+            "--json"
+          ]
+        }
+      ],
+      "pass": {
+        "changed": [
+          "slides/",
+          "deck.config.ts"
+        ],
+        "contains": [
+          {
+            "in": [
+              "slides/"
+            ],
+            "pattern": "test-shape\\.svg"
+          }
+        ]
+      }
+    }
+  ]
+}

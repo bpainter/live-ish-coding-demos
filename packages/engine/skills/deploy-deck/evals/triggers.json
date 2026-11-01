@@ -1,0 +1,11 @@
+{
+  "skill": "deploy-deck",
+  "invocation": "manual",
+  "should": [],
+  "should_not": [
+    "Build this deck and tell me if it passes.",
+    "Run the deck locally for the talk.",
+    "Add a slide about deployment.",
+    "Why does /present answer 404 on my host?"
+  ]
+}

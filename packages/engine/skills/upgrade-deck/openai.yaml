@@ -1,0 +1,5 @@
+interface:
+  display_name: "Upgrade deck"
+  short_description: "Update the Live-ish engine, shell and skills"
+policy:
+  allow_implicit_invocation: false
