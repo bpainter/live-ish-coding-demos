@@ -26,6 +26,7 @@ jobs:
       - run: pnpm gen:readme --check
       - run: node --import tsx --test scripts/test/readme.test.mts
       - run: node --import tsx scripts/ci/quickstart.mts README.md "Quick start"
+      - run: node --import tsx scripts/ci/quickstart.mts README.md "Run it from this repo"
       - run: node --import tsx scripts/ci/quickstart.mts docs/content/start.mdx
       - run: pnpm docs:build
       - run: pnpm --filter docs check:links

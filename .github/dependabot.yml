@@ -10,6 +10,10 @@ updates:
     cooldown:
       default-days: 3
     open-pull-requests-limit: 5
+    # TypeScript stays on 5.x until the toolchain is proven on the next major.
+    ignore:
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: chore(deps)
     groups:

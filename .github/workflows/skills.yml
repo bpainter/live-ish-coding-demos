@@ -33,3 +33,4 @@ jobs:
             pipx run --spec "skills-ref==$SKILLS_REF_VERSION" skills-ref validate "$skill"
           done
       - run: node --import tsx scripts/ci/skills.mts
+      - run: pnpm skills:fresh

@@ -31,6 +31,7 @@ console.log(`Blank folder: ${workspace}`);
 /** Lines a deck leaves running. Each gets a request, then a stop. */
 const LONG_RUNNING: { match: RegExp; url: string }[] = [
   { match: /^(pnpm|npm run) dev\b/, url: `http://localhost:${PORT}/present` },
+  { match: /^pnpm --filter starter dev\b/, url: `http://localhost:${PORT}/present` },
   { match: /^pnpm live-ish present\b/, url: `http://localhost:${PORT}/speaker` },
 ];
 

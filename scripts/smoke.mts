@@ -119,6 +119,9 @@ async function main() {
 
     if (!(await settled(audience, stops[0], 0))) throw new Error("The first frame never reported s0.");
     pass("frame loaded and reported s0 at /present?s=faq-before");
+    const preview = await speaker.locator(".page__poster-label").first().textContent({ timeout: TIMEOUT }).catch(() => "");
+    if (preview?.trim()) pass(`the speaker's preview shows the step label "${preview.trim()}"`);
+    else fail("the speaker's preview shows no step label");
     const forward = new Map<string, string>();
     const lines = new Map<string, string>();
     let spotlights = 0;
