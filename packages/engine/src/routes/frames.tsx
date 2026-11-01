@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { asBuildFile, buildFile, composeFrame, frameResponse } from "../lib/frames/compose";
+import { innerDocument, innerResponse } from "../lib/frames/inner";
 import { parseFlags } from "../lib/frames/origins";
 import { requestOrigin } from "../lib/site";
 import { demoFolder } from "../lib/frames/registry";
@@ -34,6 +35,7 @@ async function handle(req: Request, ctx: Ctx): Promise<Response> {
   const origin = requestOrigin(req.headers, url);
   const rest = path.join("/");
   const page = rest === "" ? "index.html" : rest;
+  if (req.method === "GET" && def.inner?.includes(page)) return innerResponse(innerDocument(join(/*turbopackIgnore: true*/ def.dir, page), def.title, def.manifest.styles), origin);
   if (req.method === "GET" && (page === "index.html" || def.pages?.includes(page))) {
     const flags = { ...Object.fromEntries(Object.keys(def.manifest.flags).map((k) => [k, true])), ...parseFlags(url.searchParams.get("flags")) };
     if (def.terminal) {

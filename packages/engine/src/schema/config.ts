@@ -144,8 +144,22 @@ interface PageConfig {
   frame?: { app?: string; path?: string; base?: boolean };
   /** Documents besides index.html that this beat serves as composed pages. */
   pages?: string[];
-  /** A frame shell around the shown markup. */
+  /**
+   * Documents this beat embeds in its own iframe, each with the base and `styles` only: no runtime,
+   * no shell. Hooks reach them through `contentDocument`.
+   */
+  inner?: string[];
+  /** A frame shell around the shown markup: `bare`, `terminal-window`, or one from `shells/`. */
   shell?: { id: string; outside?: string[]; scrolls?: boolean };
+  /** Overrides the base CSP. `ORIGIN` and `PRESENTER` are substituted. */
+  csp?: string;
+  /** The iframe's sandbox attribute. */
+  sandbox?: string;
+  /**
+   * What `enhance-css` and `enhance-js` turn off. `css`: every stylesheet (`"all"`), the named files,
+   * or only the `@supports` blocks. `js`: scripts left out of the document when the flag is off.
+   */
+  enhancement?: { css?: "all" | "supports-blocks" | { files: string[] }; js?: string[] };
   /** The address the frame opens, when a demo's `routes.ts` serves it. */
   address?: string;
   /** Stylesheets under public/, loaded unshown. */

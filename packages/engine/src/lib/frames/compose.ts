@@ -42,6 +42,9 @@ export const RUNTIME_HREF = "/live-ish/demo-runtime.js";
 export const BASE_CSP =
   "default-src 'none'; script-src ORIGIN; style-src ORIGIN 'unsafe-inline'; img-src ORIGIN data:; font-src ORIGIN; connect-src ORIGIN; form-action ORIGIN; base-uri 'none'; object-src 'none'; frame-ancestors PRESENTER";
 
+/** A frame CSP that may embed same-origin documents, for a build with `inner` pages. */
+export const FRAMING_CSP = `${BASE_CSP}; frame-src ORIGIN`;
+
 function escapeAttr(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
@@ -182,7 +185,7 @@ export function wrapIn(body: string, manifest: BuildDef["manifest"], window?: Sh
 }
 
 export function cspFor(def: BuildDef, origin: string, flags: Record<string, boolean>, hosting?: Hosting): { header: string; value: string } {
-  const template = def.manifest.csp ?? BASE_CSP;
+  const template = def.manifest.csp ?? (def.inner?.length ? FRAMING_CSP : BASE_CSP);
   // On one host the frame and its presenter share an origin, so `'self'` names neither, and a proxy
   // that rewrites `host` cannot blank a frame. Across origins the policy has to name both.
   const presenter = presenterOriginFor(origin, hosting);

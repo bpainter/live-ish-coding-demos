@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { beatDir } from "../../schema/assemble";
 import type { Demo, FramePage } from "../../schema/demo";
 import { SHELLS } from "../frames/shells";
+import { frameThemeHref } from "../posters";
 
 /**
  * Image pipeline helpers, shared by `live-ish check` and the tools that write these files:
@@ -86,7 +87,8 @@ export function posterInputHash(root: string, demo: Demo, page: FramePage, confi
   h.update(JSON.stringify({ frame: page.frame, steps: page.steps.map((s) => ({ id: s.id, actions: s.actions })) }));
   if (page.frame.kind !== "terminal") addDir(path.join(root, beatDir(demo.folder, page.frame.kind, page.beat)));
   const demoDir = path.join(root, demo.folder);
-  for (const f of existsSync(demoDir) ? readdirSync(demoDir).filter((n) => /\.(ts|mts|js|mjs|json)$/.test(n)).sort() : []) add(`${demo.folder}/${f}`, path.join(demoDir, f));
+  // `demo.ts` holds the notes, and what it says about the frame is in the JSON above.
+  for (const f of existsSync(demoDir) ? readdirSync(demoDir).filter((n) => /\.(ts|mts|js|mjs|json)$/.test(n) && n !== "demo.ts").sort() : []) add(`${demo.folder}/${f}`, path.join(demoDir, f));
   if (page.frame.kind === "terminal") addDir(path.join(demoDir, "recordings"));
   for (const href of config?.styles ?? []) add(`public${href}`, path.join(root, "public", href));
   const shell = config?.shell ? SHELLS[config.shell.id] : undefined;
@@ -95,7 +97,9 @@ export function posterInputHash(root: string, demo: Demo, page: FramePage, confi
     h.update(r.before + r.after);
     for (const href of [...r.styles, ...r.scripts]) add(href, engineAsset(href));
   }
-  add("theme.css", path.join(ENGINE, "assets", "theme.css"));
+  add("frame-base.css", path.join(ENGINE, "assets", "frame-base.css"));
+  // A terminal window takes the theme, so its posters do. Any other page's never go stale with one.
+  if (page.frame.kind === "terminal") add("theme", path.join(root, "public", frameThemeHref(page.chrome)));
   return h.digest("hex").slice(0, 16);
 }
 

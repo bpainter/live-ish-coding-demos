@@ -148,12 +148,15 @@ export function routeAt(page: FramePage, stepIndex: number): string | undefined 
  * from the entry page (a real entry, so a later Back has somewhere to go; the runtime skips the
  * view transition in instant runs), then runs its actions after its last click or navigate, the
  * waits and asserts that end it. Steps after it, still in that document, replay as usual.
- * Null when the page has no routes.
+ * Null when the page has no routes, or walks its own history: that replays every action, so each
+ * entry exists when a later step goes back or forward over it.
  */
 function routedReplay(page: FramePage, stepIndex: number): Step[] | null {
   let k = -1;
   for (let i = 0; i <= stepIndex && i < page.steps.length; i++) if (page.steps[i].route) k = i;
   if (k < 0) return null;
+  // Back and Forward need the entries a forward run made, and a route alone opens none of them.
+  if (page.steps.some((s) => s.actions.some((a) => a.type === "navigate" && a.history))) return null;
   const entry = page.steps[0].route ?? "index.html";
   return page.steps.slice(0, stepIndex + 1).map((s, i) => {
     if (i < k) return { ...s, actions: [] };

@@ -1,5 +1,7 @@
 import { excerptFile, shownFile } from "../lib/demo-files";
 import type { ServerRoute } from "../lib/frames/routes";
+import { registerShells, type ShellDef } from "../lib/frames/shells";
+import type { TemplateRender } from "../lib/frames/types";
 import { nearest } from "../lib/validate/nearest";
 import type { DeckConfig, DemoConfig, IntroConfig, ShownFile } from "./config";
 import { FULL_VIEWPORT, SPLITS, type Beat, type Demo, type DemoCodeFile, type DemoPage, type Frame, type FrameKind, type FramePage, type IntroPage, type SplitRatio, type Step } from "./demo";
@@ -13,7 +15,9 @@ export { DeckError };
 export interface DeckInput {
   config: DeckConfig;
   slides: SlideConfig[];
-  demos: { folder: string; demo: DemoConfig; hooks: boolean; routes?: ServerRoute[] }[];
+  demos: { folder: string; demo: DemoConfig; hooks: boolean; routes?: ServerRoute[]; render?: TemplateRender }[];
+  /** The deck's own frame shells, from `shells/`. */
+  shells?: ShellDef[];
 }
 
 /** The deck config with its defaults filled in. */
@@ -149,7 +153,7 @@ function frameFor(demo: DemoConfig, beat: Exclude<Beat, "intro">, viewport: Fram
   const kind = beatKind(demo, beat);
   const hooks = kind === "terminal" ? [...new Set(["reset", ...(page.hooks ?? [])])] : page.hooks;
   const route = kind === "server" ? serverRoute(demo, beat) : (page.address ?? `/demos/${demo.id}/${beat}`);
-  return { kind, route, viewport, flags: page.flags, hooks, poster: page.poster, recording: kind === "terminal" ? (page.recording ?? "session") : undefined, spotlightClip: page.spotlightClip, keycap: page.keycap, base: page.frame?.base ?? demo.frame?.base };
+  return { kind, route, viewport, flags: page.flags, hooks, poster: page.poster, recording: kind === "terminal" ? (page.recording ?? "session") : undefined, spotlightClip: page.spotlightClip, keycap: page.keycap, base: page.frame?.base ?? demo.frame?.base, csp: page.csp };
 }
 
 /** A server frame's route names its app: `/@shop/products/1`. lib/frames/origins.ts resolves it. */
@@ -263,6 +267,7 @@ function demoSlide(page: DemoPage, { routes: _routes, ...demo }: Demo): Omit<Sli
  * is not served. Slide numbers and cumulative minutes are computed, never typed.
  */
 export function assembleDeck(input: DeckInput): AssembledDeck {
+  registerShells(input.shells ?? []);
   const deck = resolveDeck(input.config);
   const slideById = new Map(input.slides.map((s) => [s.id, s]));
   const demoById = new Map(input.demos.map((d) => [d.demo.id, d]));
