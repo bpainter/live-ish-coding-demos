@@ -3,8 +3,10 @@ title: Parity
 outcome: When you finish this page, you will be able to see every capability the project tracks, and the check that proves each one.
 ---
 
-Every capability has a row and a named proving check. A capability counts when the check passes, the behavior is reachable from public config or the CLI, and its docs exist.
+Parity is the project's list of what the engine promises. Every capability has a row and a named proving check. A capability counts when the check passes, the behavior is reachable from public config or the CLI, and its docs exist.
 
-This table is generated from `parity/matrix.json`. It is never edited by hand. The `matrix` job in CI fails if a row has no proving check, and `live-ish parity` runs the checks.
+`live-ish parity` runs the checks against one deck and writes a report. `live-ish parity --compare` reads two reports and fails on any row that differs, so two builds of a deck can be held to the same behavior. A row that differs on purpose is listed as an exception.
+
+This table is generated from `parity/matrix.json`. It is never edited by hand. The `matrix` job in CI fails if a row has no proving check.
 
 <Generated name="parity-table" />
