@@ -1,4 +1,4 @@
-# The underlay and focus walks and the weight budgets. Warns for now: once stable, remove continue-on-error so it blocks.
+# The focus and underlay walks and the weight budgets, on captured posters. Warns on a pull request for now: once stable, drop the input so it always blocks. A release passes blocking, because these are Guarantees.
 name: budgets
 
 on:
@@ -6,6 +6,11 @@ on:
   push:
     branches: [main]
   workflow_call:
+    inputs:
+      blocking:
+        description: True for a release, where a failed budget stops it.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -17,8 +22,10 @@ concurrency:
 jobs:
   budgets:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    continue-on-error: true
+    # The underlay walk is three runs of 70 arrivals in two windows, about 30 minutes alone. Captured
+    # posters add a swap check to each audience arrival, so a 30-minute limit no longer holds.
+    timeout-minutes: 60
+    continue-on-error: ${{ !inputs.blocking }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -30,6 +37,11 @@ jobs:
         with:
           deck: conformance
           port: 3400
-      - run: pnpm --filter conformance exec live-ish walk --mode=underlay --origin=http://localhost:3400
-      - run: pnpm --filter conformance exec live-ish walk --mode=focus --origin=http://localhost:3400
-      - run: pnpm --filter conformance exec live-ish perf load --origin=http://localhost:3400
+          capture: "1"
+      - run: pnpm --silent --filter conformance exec live-ish walk --mode=focus --origin=http://localhost:3400 --json > "$RESULTS/walk-focus.json"
+      - run: pnpm --silent --filter conformance exec live-ish walk --mode=underlay --origin=http://localhost:3400 --json > "$RESULTS/walk-underlay.json"
+      - run: pnpm --silent --filter conformance exec live-ish perf load --origin=http://localhost:3400 --json > "$RESULTS/perf-load.json"
+      - if: ${{ !cancelled() }}
+        uses: ./.github/actions/upload-results
+        with:
+          name: budgets

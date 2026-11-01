@@ -8,6 +8,7 @@
     "dev": "live-ish dev",
     "build": "next build",
     "start": "next start",
+    "walk": "live-ish walk",
     "shop": "node demos/request-log/app/server.mjs",
     "typecheck": "tsc --noEmit"
   },

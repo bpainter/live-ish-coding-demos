@@ -8,6 +8,7 @@
     "dev": "live-ish dev",
     "build": "live-ish build",
     "start": "live-ish start",
+    "walk": "live-ish walk",
     "live-ish": "live-ish",
     "typecheck": "tsc --noEmit"
   },

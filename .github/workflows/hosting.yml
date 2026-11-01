@@ -1,0 +1,35 @@
+# Every hosting mode in Chromium and WebKit, then one-host held against two origins. Every PR and nightly. Blocks merge and a release.
+name: hosting
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "27 4 * * *"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hosting-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hosting:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium webkit
+      - run: pnpm ci:hosting
+      - if: ${{ !cancelled() }}
+        uses: ./.github/actions/upload-results
+        with:
+          name: hosting

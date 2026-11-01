@@ -1,10 +1,12 @@
-# Chromium walk, axe, keys and a11y walks on the conformance deck, against next start. Blocks merge.
+# Capture, check, then the Chromium walks, axe and the cache headers on the conformance deck, against next start, and proof that each walk can fail. A second job captures and walks the server deck. Every PR and nightly, so a quiet week still gets a run. Blocks merge.
 name: conformance
 
 on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    - cron: "37 3 * * *"
   workflow_call:
 
 permissions:
@@ -17,7 +19,7 @@ concurrency:
 jobs:
   conformance:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -29,8 +31,34 @@ jobs:
         with:
           deck: conformance
           port: 3400
-      - run: pnpm --filter conformance exec live-ish walk --origin=http://localhost:3400
-      - run: pnpm --filter conformance exec live-ish axe --origin=http://localhost:3400
-      - run: pnpm --filter conformance exec live-ish axe --presenter --origin=http://localhost:3400
-      - run: pnpm --filter conformance exec live-ish walk --mode=keys --origin=http://localhost:3400
-      - run: pnpm --filter conformance exec live-ish walk --mode=a11y --origin=http://localhost:3400
+          capture: "1"
+      - run: pnpm --filter conformance exec live-ish check --strict
+      - run: pnpm --filter starter exec live-ish check --strict
+      - run: pnpm --silent --filter conformance exec live-ish walk --origin=http://localhost:3400 --json > "$RESULTS/walk.json"
+      - run: pnpm --silent --filter conformance exec live-ish walk --mode=advance --origin=http://localhost:3400 --json > "$RESULTS/walk-advance.json"
+      - run: pnpm --silent --filter conformance exec live-ish axe --origin=http://localhost:3400 --json > "$RESULTS/axe.json"
+      - run: pnpm --silent --filter conformance exec live-ish axe --presenter --origin=http://localhost:3400 --json > "$RESULTS/axe-presenter.json"
+      - run: pnpm --silent --filter conformance exec live-ish walk --mode=keys --origin=http://localhost:3400 --json > "$RESULTS/walk-keys.json"
+      - run: pnpm --silent --filter conformance exec live-ish walk --mode=a11y --origin=http://localhost:3400 --json > "$RESULTS/walk-a11y.json"
+      - run: pnpm --silent --filter conformance exec live-ish perf headers --origin=http://localhost:3400 --json > "$RESULTS/perf-headers.json"
+      - run: pnpm --filter @live-ish/verify selftest --origin=http://localhost:3400 --root=../../examples/conformance
+      - if: ${{ !cancelled() }}
+        uses: ./.github/actions/upload-results
+        with:
+          name: conformance
+
+  # Capture starts the deck's own app, shoots it and stops it. The walk then runs on those posters,
+  # with the app up, stopped and back.
+  server:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
+      - run: pnpm ci:capture server
+      - run: pnpm --filter server exec live-ish check --strict
+      - run: pnpm server

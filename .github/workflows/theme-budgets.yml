@@ -1,4 +1,4 @@
-# The underlay walk and the load budget per theme. Nightly. Blocks a release.
+# The underlay walk, on captured posters, and the load budget per theme. Nightly. Blocks a release.
 name: theme-budgets
 
 on:
@@ -32,7 +32,8 @@ jobs:
   theme:
     needs: list
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # See budgets.yml: one theme's underlay walk takes about 30 minutes alone.
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -51,5 +52,10 @@ jobs:
           deck: conformance
           port: 3400
           all-fonts: "1"
-      - run: pnpm --filter conformance exec live-ish walk --mode=underlay --chrome="$THEME" --origin=http://localhost:3400
-      - run: pnpm --filter conformance exec live-ish perf load --chrome="$THEME" --origin=http://localhost:3400
+          capture: "1"
+      - run: pnpm --silent --filter conformance exec live-ish walk --mode=underlay --chrome="$THEME" --origin=http://localhost:3400 --json > "$RESULTS/walk-underlay-$THEME.json"
+      - run: pnpm --silent --filter conformance exec live-ish perf load --chrome="$THEME" --origin=http://localhost:3400 --json > "$RESULTS/perf-load-$THEME.json"
+      - if: ${{ !cancelled() }}
+        uses: ./.github/actions/upload-results
+        with:
+          name: theme-budgets-${{ matrix.theme }}

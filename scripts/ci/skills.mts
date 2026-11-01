@@ -1,14 +1,19 @@
 /**
  * The `skills` job, after `skills-ref validate`. Size limits on every skill, then the commands the
- * skills name, scripted on a fresh starter, then one run with all agent files removed.
+ * skills name, scripted on a fresh starter, then a check, a build and a walk with all agent files
+ * removed, which proves a deck never needs them.
+ *
+ * SKILLS_PORT moves the walk's server off its default port.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import path from "node:path";
-import { packAll, REPO, tempDir } from "./lib.mts";
+import { packAll, REPO, serve, stop, tempDir, waitForUrl } from "./lib.mts";
 
 const failures: string[] = [];
 const skills = path.join(REPO, "packages", "engine", "skills");
+const PORT = process.env.SKILLS_PORT ?? "3219";
+const site = `http://localhost:${PORT}`;
 
 /** Limits from the Agent Skills spec, and the 200 lines the agent docs ask for. */
 function limits() {
@@ -36,7 +41,30 @@ function run(cli: string, args: string[], cwd: string) {
   if (status !== 0) failures.push(`live-ish ${args.join(" ")} exited ${status}.`);
 }
 
-function commands() {
+/** The walk needs `@live-ish/verify` and a local build, since a deployed one leaves the presenter out. */
+async function walked(deck: string, cli: string, verify: string) {
+  const next = path.join(deck, "node_modules", ".bin", "next");
+  for (const [command, args] of [
+    [next, ["build"]],
+    ["pnpm", ["add", "-D", `file:${verify}`]],
+  ] as const) {
+    console.log(`$ ${path.basename(command)} ${args.join(" ")}`);
+    const { status } = spawnSync(command, args, { cwd: deck, stdio: "inherit" });
+    if (status !== 0) {
+      failures.push(`With no agent files, ${path.basename(command)} ${args.join(" ")} exited ${status}.`);
+      return;
+    }
+  }
+  const server = serve(next, ["start", "--port", PORT], deck);
+  try {
+    await waitForUrl(`${site}/_health`, 60_000);
+    run(cli, ["walk", `--origin=${site}`], deck);
+  } finally {
+    stop(server);
+  }
+}
+
+async function commands() {
   const blank = tempDir("skills");
   const tarballs = packAll(path.join(blank, ".tarballs"));
   const { status } = spawnSync(process.execPath, [path.join(REPO, "packages", "create", "bin", "create-live-ish.mjs"), "deck", "--pm", "pnpm", `--engine=file:${tarballs["@live-ish/engine"]}`], { cwd: blank, stdio: "inherit" });
@@ -58,10 +86,11 @@ function commands() {
     run(cli, args, deck);
   for (const name of ["AGENTS.md", "CLAUDE.md", ".agents", ".claude"]) rmSync(path.join(deck, name), { recursive: true, force: true });
   run(cli, ["check"], deck);
+  await walked(deck, cli, tarballs["@live-ish/verify"]);
 }
 
 limits();
-commands();
+await commands();
 if (failures.length) {
   for (const f of failures) console.error(`FAIL ${f}`);
   process.exit(1);

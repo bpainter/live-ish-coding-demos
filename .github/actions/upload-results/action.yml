@@ -1,0 +1,26 @@
+name: Upload raw results
+description: Keeps what a job measured as an artifact, so each number has a file behind it. The publish workflow gathers every artifact named results-*. Call it with if !cancelled(), so a failed run keeps its numbers too.
+
+inputs:
+  name:
+    description: Unique within a run. The artifact is named results-<name>.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # `perf` writes into a dot folder, and an upload leaves hidden files out.
+    - name: Gather what perf wrote
+      if: env.RESULTS != ''
+      shell: bash
+      run: |
+        for dir in examples/*/.live-ish/perf; do
+          if [ -d "$dir" ]; then cp -R "$dir"/. "$RESULTS"/; fi
+        done
+
+    - if: env.RESULTS != ''
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: results-${{ inputs.name }}
+        path: ${{ env.RESULTS }}
+        if-no-files-found: warn
