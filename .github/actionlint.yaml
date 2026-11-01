@@ -1,0 +1,4 @@
+self-hosted-runner:
+  # The private runner for the parity job.
+  labels:
+    - live-ish-parity

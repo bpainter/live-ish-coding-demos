@@ -1,0 +1,35 @@
+# The underlay and focus walks and the weight budgets. Warns for now: once stable, remove continue-on-error so it blocks.
+name: budgets
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: budgets-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  budgets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
+      - uses: ./.github/actions/start-deck
+        with:
+          deck: conformance
+          port: 3400
+      - run: pnpm --filter conformance exec live-ish walk --mode=underlay --origin=http://localhost:3400
+      - run: pnpm --filter conformance exec live-ish walk --mode=focus --origin=http://localhost:3400
+      - run: pnpm --filter conformance exec live-ish perf load --origin=http://localhost:3400

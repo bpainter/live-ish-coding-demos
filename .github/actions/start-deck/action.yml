@@ -1,0 +1,33 @@
+name: Start a deck
+description: Builds a deck for this machine and leaves next start running for the rest of the job.
+
+inputs:
+  deck:
+    description: The workspace package name.
+    required: true
+  port:
+    description: The port to serve on.
+    required: true
+  all-fonts:
+    description: Set to "1" to copy all five font families, so a chrome preview shows real faces.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Build
+      shell: bash
+      env:
+        DECK: ${{ inputs.deck }}
+        LIVE_ISH_ALL_FONTS: ${{ inputs.all-fonts }}
+      run: pnpm --filter "$DECK" exec next build
+
+    - name: Start
+      shell: bash
+      env:
+        DECK: ${{ inputs.deck }}
+        PORT: ${{ inputs.port }}
+      run: |
+        nohup pnpm --filter "$DECK" exec next start -p "$PORT" > "$RUNNER_TEMP/deck-$PORT.log" 2>&1 &
+        curl --silent --show-error --fail --retry 60 --retry-all-errors --retry-delay 1 "http://localhost:$PORT/_health"

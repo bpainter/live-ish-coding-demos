@@ -1,0 +1,36 @@
+# Chromium walk, axe, keys and a11y walks on the conformance deck, against next start. Blocks merge.
+name: conformance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: conformance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conformance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
+      - uses: ./.github/actions/start-deck
+        with:
+          deck: conformance
+          port: 3400
+      - run: pnpm --filter conformance exec live-ish walk --origin=http://localhost:3400
+      - run: pnpm --filter conformance exec live-ish axe --origin=http://localhost:3400
+      - run: pnpm --filter conformance exec live-ish axe --presenter --origin=http://localhost:3400
+      - run: pnpm --filter conformance exec live-ish walk --mode=keys --origin=http://localhost:3400
+      - run: pnpm --filter conformance exec live-ish walk --mode=a11y --origin=http://localhost:3400

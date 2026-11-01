@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and show and tell
+    url: https://github.com/bpainter/live-ish-coding-demos/discussions
+    about: Ask how to do something, or share a deck.
+  - name: Security report
+    url: https://github.com/bpainter/live-ish-coding-demos/security/advisories/new
+    about: Report a vulnerability in private. Do not open a public issue.
