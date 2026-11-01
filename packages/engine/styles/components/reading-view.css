@@ -198,6 +198,9 @@
 .reading-view__table table {
   width: 100%;
   border-collapse: collapse;
+  /* A table reflows at phone sizes: only code scrolls sideways. */
+  table-layout: fixed;
+  overflow-wrap: anywhere;
 }
 .reading-view__table th,
 .reading-view__table td {

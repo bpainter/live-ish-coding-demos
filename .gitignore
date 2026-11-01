@@ -20,4 +20,8 @@ playwright-report/
 .claude/*
 !.claude/skills/
 .hosting/
+# What `live-ish capture` writes for an example. Decks commit theirs; the examples regenerate them.
+examples/*/public/posters/
+examples/*/public/opt/
+examples/*/public/intro/
 .next-present/

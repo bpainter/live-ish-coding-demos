@@ -20,7 +20,7 @@
     "export:talk": "node scripts/export/run.mjs",
     "build": "pnpm --filter starter exec next build",
     "build:conformance": "pnpm --filter conformance build",
-    "test": "pnpm --filter @live-ish/engine test && pnpm --filter @live-ish/bridge test && pnpm --filter @live-ish/verify test:parity && node --test parity/*.test.mjs && node --import tsx --test scripts/test/*.test.mts",
+    "test": "pnpm --filter @live-ish/engine test && pnpm --filter @live-ish/bridge test && pnpm --filter @live-ish/verify test && node --test parity/*.test.mjs && node --import tsx --test scripts/test/*.test.mts",
     "test:contrast": "pnpm --filter @live-ish/engine test:contrast",
     "gen:themes": "pnpm --filter @live-ish/engine gen:themes",
     "typecheck": "pnpm prepare:decks && pnpm -r --if-present typecheck",

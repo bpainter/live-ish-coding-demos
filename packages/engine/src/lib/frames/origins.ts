@@ -69,6 +69,11 @@ export function frameUrlFor(route: string, location: Place, hosting: Hosting = H
   return { origin, url: origin === location.origin ? route : `${origin}${route}` };
 }
 
+/** The path a `Frame.route` opens: a build's entry page, or a declared address as written. */
+export function framePath(route: string): string {
+  return route.startsWith("/demos/") && !route.includes(".") ? `${route.replace(/\/$/, "")}/index.html` : route;
+}
+
 /** The URL of a `Frame.route` on the origin that serves it. Browser only. */
 export function frameUrl(route: string): { origin: string; url: string } {
   const server = SERVER_ROUTE.exec(route);
@@ -130,7 +135,7 @@ export function flagFile(flags: Record<string, boolean>): string {
 
 /** The whole address of a frame document, which every window mounts through. */
 export function frameDocument(route: string, flags: Record<string, boolean> | undefined, terminalChrome?: string): string {
-  const { url } = frameUrl(route.endsWith("/") ? `${route}index.html` : route.includes(".") ? route : `${route}/index.html`);
+  const { url } = frameUrl(framePath(route));
   // A static host ignores a query, so a flag can't arrive on one.
   if (EXPORTED) return url.replace(/index\.html$/, flagFile(flags ?? {}));
   return `${url}${frameQuery(route, flags, terminalChrome)}`;

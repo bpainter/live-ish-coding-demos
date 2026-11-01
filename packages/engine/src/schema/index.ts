@@ -7,6 +7,8 @@ export type { Action, Beat, Browser, DemoCodeLang, Frame, FrameKind, Key, SplitR
 export type { Background, TextZone } from "./backgrounds";
 export type { Citation, CopyLayout, GridCard, SlideConfig, SlideImage, SlideItem } from "./slide";
 export type { ServerRoute } from "../lib/frames/routes";
+export type { TemplateRender } from "../lib/frames/types";
+export { defineShell, type ShellConfig } from "../lib/frames/shells";
 
 /** The deck. `deck.config.ts` default-exports this. A wrong field fails here, with its path and the nearest valid name. */
 export function defineDeck(config: DeckConfig): DeckConfig {

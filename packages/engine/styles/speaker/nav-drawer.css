@@ -3,7 +3,8 @@
    visible in the frost while the text holds its contrast. Where the filter is missing, the sheet falls
    back to the solid token below, so the low tint never stands alone. */
 .nav-drawer {
-  --nav-drawer-tint: var(--speaker-clear-tint);
+  /* Demo frames are white, so the sheet has to hold its own contrast over one. */
+  --nav-drawer-tint: color-mix(in srgb, var(--speaker-solid) 84%, transparent);
   --nav-drawer-filter: blur(16px) saturate(170%) brightness(0.58);
   @apply fixed flex flex-col overflow-hidden;
   inset: 16px 16px 16px auto;

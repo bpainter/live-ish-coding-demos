@@ -6,7 +6,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { installedWebFeatures } from "../../lib/web-features";
 import { readSchemaVersion } from "../edit-config";
-import { ENGINE, EXIT, CliError, engineVersion, environment, printJson, readSummary, requireDeck, resolveFromDeck, type Ctx, type ExitCode } from "../io";
+import { ENGINE, EXIT, CliError, engineVersion, environment, findDeck, printJson, readSummary, requireDeck, resolveFromDeck, type Ctx, type ExitCode } from "../io";
 import { portAnswers, toolVersion } from "../process";
 import { MANIFEST, readManifest, shellStatus, strayFiles, writeShell } from "../shell";
 import { SCHEMA_DIST, SCHEMA_FILES } from "./schema";
@@ -234,11 +234,14 @@ export async function addVerify(ctx: Ctx): Promise<ExitCode> {
 }
 
 /** Commands that live in `@live-ish/verify`. It ships Playwright, so a deck installs it on demand. */
-export const VERIFY_COMMANDS = ["capture", "og", "walk", "axe", "warmup", "perf", "parity"];
+export const VERIFY_COMMANDS = ["capture", "og", "walk", "axe", "warmup", "perf", "parity", "backgrounds"];
 
 export async function delegate(ctx: Ctx, command: string, argv: string[]): Promise<number> {
-  const root = requireDeck(ctx);
-  const entry = resolveFromDeck(root, "@live-ish/verify/cli");
+  // Comparing two reports reads two files, so it needs no deck: a bare checkout can run it.
+  const root = command === "parity" && argv.includes("--compare") ? (findDeck(ctx.cwd) ?? ctx.cwd) : requireDeck(ctx);
+  // A bare checkout has no deck to resolve from, and the package sits beside the engine.
+  const sibling = path.join(ENGINE, "..", "verify", "src", "cli.ts");
+  const entry = resolveFromDeck(root, "@live-ish/verify/cli") ?? (existsSync(sibling) ? sibling : null);
   if (!entry) throw environment(`\`live-ish ${command}\` needs @live-ish/verify.`, "Install it with: live-ish add verify");
   const verify = (await import(pathToFileURL(entry).href)) as { run(argv: string[], context: { root: string; engineVersion: string }): Promise<number> };
   return verify.run([command, ...argv], { root, engineVersion: engineVersion() });

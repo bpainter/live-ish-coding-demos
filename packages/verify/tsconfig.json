@@ -8,11 +8,14 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "customConditions": ["react-server"],
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
     "types": ["node"],
     "paths": { "@live-ish/deck": ["../engine/src/types.d.ts"] }
   },
-  "include": ["src/parity/**/*.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules"]
 }

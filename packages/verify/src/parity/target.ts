@@ -1,4 +1,4 @@
-import type { Browser, BrowserContext, Page } from "playwright";
+import type { Browser, BrowserContext, Page } from "@playwright/test";
 import type { Manifest, ManifestPage } from "@live-ish/engine/export";
 import type { Facts } from "./report";
 
