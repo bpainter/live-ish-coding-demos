@@ -3,6 +3,7 @@ import type { Deck } from "../schema/assemble";
 import type { CopyContent, Slide } from "../schema/slide";
 import type { Demo, IntroPage } from "../schema/demo";
 import { notesPlain } from "./notes";
+import { SHARE_CARD, shareCardVersion } from "./share-card";
 
 /**
  * Metadata and JSON-LD as a function of the deck, so `live-ish check` runs the code the pages run.
@@ -89,7 +90,9 @@ export function createSeo({ deck, slides, demos }: { deck: Deck; slides: Slide[]
   /** Who gave the deck, for the card's alt text and JSON-LD. */
   const BYLINE = [deck.event?.label, deck.speaker.name, deck.role].filter(Boolean).join(". ");
 
-  const OG_IMAGE = og ? { path: `/live-ish/og/cover.jpg?v=${og.hash.slice(0, 8)}`, width: og.width, height: og.height, type: "image/jpeg", alt: `Cover slide: ${deck.title}. ${BYLINE}.` } : null;
+  /** A capture from `live-ish og` when there is one, else the default card, which needs no browser. With no site there is no address to put in a card. */
+  const OG_ALT = `Cover slide: ${deck.title}. ${BYLINE}.`;
+  const OG_IMAGE = og ? { path: `/live-ish/og/cover.jpg?v=${og.hash.slice(0, 8)}`, width: og.width, height: og.height, type: "image/jpeg", alt: OG_ALT } : ORIGIN ? { path: `${SHARE_CARD.path}?v=${shareCardVersion(deck)}`, width: SHARE_CARD.width, height: SHARE_CARD.height, type: SHARE_CARD.type, alt: OG_ALT } : null;
   const OG_IMAGE_URL = OG_IMAGE ? `${ORIGIN}${OG_IMAGE.path}` : undefined;
 
   /** Appended to every page title: the event, when there is one, and the speaker. */

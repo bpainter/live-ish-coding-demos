@@ -34,11 +34,12 @@ function closedHost({ mode, host, site }: RobotsInput): boolean {
 
 /**
  * Frame routes are disallowed by path, so one origin keeps its reader pages and link previews with
- * no test of the host. The link-preview group exists only where `/present` does.
+ * no test of the host. The link-preview group exists only where `/present` does. Share images sit
+ * under `/live-ish/` and stay allowed: a bot that may not fetch the image shows no image.
  */
 export function robotsTxt(input: RobotsInput): string {
   if (!input.indexable || closedHost(input)) return CLOSED;
-  const frames = ["/demos/", "/live-ish/", "/_health", ...input.addresses].map((p) => `Disallow: ${p}`);
+  const frames = ["Allow: /live-ish/og/", ...["/demos/", "/live-ish/", "/_health", ...input.addresses].map((p) => `Disallow: ${p}`)];
   const windows = input.presenter ? ["Disallow: /present", "Disallow: /speaker"] : [];
   return [
     ...(input.presenter ? [...PREVIEW_BOTS.map((ua) => `User-agent: ${ua}`), "Allow: /", ...frames, ""] : []),
