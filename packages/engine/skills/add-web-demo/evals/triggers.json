@@ -1,0 +1,17 @@
+{
+  "skill": "add-web-demo",
+  "invocation": "model",
+  "should": [
+    "Add a demo comparing a hand-built tooltip to the popover attribute.",
+    "Show the old way and the new way of building a dialog, step by step.",
+    "I want a demo that plays the details element in a real page.",
+    "Make a server-backed demo that shows a real route answering.",
+    "Add a single-page demo of container queries."
+  ],
+  "should_not": [
+    "Add a slide that lists our three principles.",
+    "Show the npm install output in a terminal demo.",
+    "Which browsers support the popover attribute?",
+    "Make the demo slides look like the early web."
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "skill": "add-web-demo",
+  "tasks": [
+    {
+      "id": "web-demo",
+      "prompt": "Add a demo comparing a hand-built tooltip to the popover attribute.",
+      "setup": [],
+      "solution": [
+        {
+          "run": [
+            "support",
+            "popover",
+            "--json"
+          ]
+        },
+        {
+          "run": [
+            "new",
+            "web-demo",
+            "tooltip",
+            "--json"
+          ]
+        },
+        {
+          "replace": "demos/tooltip/demo.ts",
+          "find": "id: \"details\"",
+          "with": "id: \"popover\""
+        },
+        {
+          "run": [
+            "actions",
+            "--json"
+          ]
+        },
+        {
+          "run": [
+            "check",
+            "--json"
+          ]
+        }
+      ],
+      "pass": {
+        "changed": [
+          "demos/",
+          "deck.config.ts"
+        ],
+        "walk": true,
+        "contains": [
+          {
+            "in": [
+              "demos/"
+            ],
+            "pattern": "kind: \"web-features\", id: \""
+          }
+        ]
+      }
+    }
+  ]
+}

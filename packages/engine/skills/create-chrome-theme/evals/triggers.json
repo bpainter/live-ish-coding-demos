@@ -1,0 +1,16 @@
+{
+  "skill": "create-chrome-theme",
+  "invocation": "model",
+  "should": [
+    "Make a dark blue theme for this deck.",
+    "Build a theme in our brand colors: navy and orange.",
+    "None of the themes fit. I want a warm paper look.",
+    "Start a new theme based on flat with a teal accent."
+  ],
+  "should_not": [
+    "Use the glass theme.",
+    "What themes are there?",
+    "Add a built-in theme to the engine.",
+    "Add a slide about our brand."
+  ]
+}
