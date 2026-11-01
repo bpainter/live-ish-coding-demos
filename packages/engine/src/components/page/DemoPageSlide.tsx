@@ -43,7 +43,7 @@ export async function DemoPageSlide({ slide, mode }: Props) {
     return (
       <>
         <IntroSlide demo={demo} page={page} />
-        {warm ? <FrameWarm route={warm.route} flags={warm.flags} chrome={warm.kind === "terminal" ? nextPage.chrome : undefined} sandbox={manifestFor(warm.route)?.sandbox ?? "allow-scripts allow-same-origin"} /> : null}
+        {warm ? <FrameWarm route={warm.route} kind={warm.kind} flags={warm.flags} chrome={warm.kind === "terminal" ? nextPage.chrome : undefined} sandbox={manifestFor(warm.route)?.sandbox ?? "allow-scripts allow-same-origin"} /> : null}
       </>
     );
   }

@@ -1,5 +1,6 @@
 import { nearest, parseArgs, UsageError, type FlagSpec } from "./args";
 import { CliError, EXIT, engineVersion, makeCtx, printJson, requireDeck, type Ctx } from "./io";
+import { exportDeck } from "../export/run";
 import { prepareDeck } from "../prepare";
 import { isDeckError } from "../schema/errors";
 import { check, devTick } from "./commands/check";
@@ -29,6 +30,7 @@ const COMMANDS: Record<string, Command> = {
   build: { usage: "build [--strict]", summary: "Check the deck, then make a deployable build.", flags: { strict: "boolean" }, run: build },
   start: { usage: "start [--port]", summary: "Serve the build.", flags: { port: "string" }, run: start },
   present: { usage: "present [--port] [--no-open]", summary: "Build and serve for the stage, with no network.", flags: { port: "string", "no-open": "boolean" }, run: present },
+  export: { usage: "export [--out] [--site]", summary: "Write a reader-only static site.", flags: { out: "string", site: "string" }, run: exportDeck },
   check: { usage: "check [id] [--strict] [--watch] [--json]", summary: "Run the validators.", flags: { strict: "boolean", watch: "boolean", ...JSON_FLAG }, run: check },
   "new copy": { usage: 'new copy "<title>" [--layout] [--json]', summary: "Add a copy slide.", flags: { layout: "string", ...JSON_FLAG }, run: (ctx) => create(ctx, "copy") },
   "new web-demo": { usage: "new web-demo <id> [--static] [--single] [--server] [--json]", summary: "Add a web demo.", flags: { static: "boolean", single: "boolean", server: "boolean", ...JSON_FLAG }, run: (ctx) => create(ctx, "web-demo") },

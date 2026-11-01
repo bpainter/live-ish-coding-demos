@@ -100,6 +100,37 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 
 **`check` rules.** `src/lib/validate/rules/hosting.ts` holds `presenter-public` (the one line), `storage-clear` and `third-party-script`, as Fit warnings. The last two cover 13.3 rows 2 and 3, and `hosts.frames` turns them off. `rules/index.ts` must list the group. `reserved-route` (row 5) stays with the validators.
 
+## Server frames, parity and export
+
+**The deck names itself on the frame's address.** A server frame's first request carries `?presenter=<origin>&mount=1`. A server can't know the port a deck runs on, and `live-ish capture` or a second `present` may use another. `client.js` remembers the value in sessionStorage, because a `navigate` step loads a document with no such parameter. `frame-ancestors` comes from `LIVE_ISH_PRESENTER_ORIGIN`, or any local deck when that is unset, so a crafted address can't widen who may embed the app.
+
+**The runtime loads from the deck, not the app.** The talk's apps each carried a copy. Loading it from the deck means a frame always runs the runtime of the deck driving it, and an app needs no build step.
+
+**`index.html` belongs to the deck.** `frameUrl` drops it for a server route, so an app answers its real path and `path: "/"` means `/`.
+
+**A stopped app is asked about by the deck's own server.** The acceptance line says no request goes to a dead origin, and a browser can't test an origin without logging a failed request. So the frame mounts only after `/demos/live-ish-server/<app>` says yes. That route lives under the frames catch-all because `/_health` is `force-static`, and it adds no shell file. It opens a bare connection and sends nothing, because an app may log every request, and only answers for an app the deck names. If an app dies during a page, the next document fails in the browser as usual, and the status pill says so.
+
+**A bridge page counts as multi-page.** `client.js` sets `data-pages`, so the runtime waits for a load to finish before it navigates. Without it, an instant replay's navigate replaces the entry and `history.length` differs from the forward run, which changes the digest.
+
+**A deployed build drops an app at localhost.** `externalOrigins` leaves it out, so a stranger's browser never asks their own machine.
+
+**`window.name` keeps a session, so WebKit's Back guard has no count on a server frame.** The runtime only keeps its history count while the name is empty or its own. Chromium answers from the Navigation API. `examples/server` uses `navigate` with a URL and no `history`.
+
+**Parity compares outcomes and facts.** A row's facts are booleans about behavior, with no timing, id or deck text. `n/a` does not equal `pass`, so a deck with no demos differs on every row that needs one, and that is the honest result. Digests hold what a deck shows, so they compare only between two runs of one target.
+
+**Local runs say nothing about deployed defaults.** The suites run on local builds, where E-3 to E-7 do not apply. Those exceptions are not exercised by a comparison of two local builds.
+
+**The matrix is generated once, then owned here.** The parser read a private document, so it stays outside the repo. Edit `parity/matrix.json` from now on, then run `pnpm parity:docs`.
+
+**`live-ish export` crawls a real build.** `output: "export"` refuses the frame route handlers, which read the request, and it would need a second shell. A normal build served on a private port writes down what it answers, so an export can't drift from what a host would serve. An export is reader-only whatever `presenter.onHost` says, and `prepareDeck` takes an `export` target so notes stay out in that case too.
+
+**Each flag combination is a file.** A static host ignores a query, so `frameDocument` maps flags to `index.off-<flag>.html` beside the entry, which keeps relative links working. Only what is off is in the name, so the default stays `index.html`. `flagCombinations` walks `segments()` as well as `flagsAt()`, because a reloading toggle can mount a mid-step state that no step ends on.
+
+**A slide move is a full load on a static host.** RSC payloads vary by a request header no static host can see, so Next falls back to a document load. Reader step state lives in the URL, so nothing is lost, and the console stays clean.
+
+**An export needs the site root.** There is no `basePath`, so a project page on a subpath does not work yet. A custom domain or a user page does.
+
+**A `<meta>` CSP is weaker than the header.** `frame-ancestors` and reporting can't be set from one, which is why `csp-enforce` demos fall back to posters. Any page can embed an exported frame.
 ## AI tooling
 
 **Next's agent rules stay off, and ours are canonical.** `next dev` adds a block of its own to `AGENTS.md` when it detects an agent, and restores it if removed. A deck's `AGENTS.md` is the deck's: its rules say to edit no Next.js code, so the block would point agents the wrong way. `withDeck()` sets `agentRules: false`, now after the `next` option spread, so a deck cannot turn it back on by accident. With it off, `next dev` only strips Next's own marked block, if one is there, and writes nothing else. `pnpm skills:fresh` runs a real `next dev` with an agent detected and compares the file byte for byte. Nothing ignores `AGENTS.md`. `add agents` puts our block above any text a file already holds, so an older Next block stays as the author's text until the next `next dev` removes it.

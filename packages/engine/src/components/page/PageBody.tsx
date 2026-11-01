@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FramePage } from "../../schema/demo";
 import type { Mode } from "../../lib/mode";
 import type { RenderedFile } from "../../lib/highlight";
@@ -8,7 +8,7 @@ import type { RenderedFile } from "../../lib/highlight";
 export type PanelFile = RenderedFile & { elisions: number[] };
 import type { StepResult } from "../../lib/engine/frame";
 import { useStage } from "../../lib/stage-context";
-import { frameLive, offlineNote } from "../../lib/frames/origins";
+import { frameLive, offlineNote, serverApp, serverUpUrl } from "../../lib/frames/origins";
 import { posterMatchesTheme } from "../../lib/posters";
 import { announce, ensureAnnouncer } from "../../lib/announce";
 import { stepAnnouncement, stepCodeSentence } from "../../lib/code-description";
@@ -27,9 +27,33 @@ interface Props {
   posters: Record<string, string | null>;
 }
 
+/**
+ * Whether a server frame's app answers, or null until the deck's own server has said. A browser that
+ * tried the origin itself would log a failed request for every step of a stopped app, so the frame
+ * only mounts on a yes. `r` asks again.
+ */
+function useServerUp(app: string | null, again: number): boolean | null {
+  const [answer, setAnswer] = useState<{ app: string; up: boolean } | null>(null);
+  useEffect(() => {
+    if (!app) return;
+    let stale = false;
+    const say = (up: boolean) => {
+      if (!stale) setAnswer({ app, up });
+    };
+    fetch(serverUpUrl(app))
+      .then((res) => (res.ok ? (res.json() as Promise<{ up: boolean }>) : { up: false }))
+      .then(({ up }) => say(up))
+      .catch(() => say(false));
+    return () => {
+      stale = true;
+    };
+  }, [app, again]);
+  return answer?.app === app ? answer.up : null;
+}
+
 /** The body of a demo page: frame, meter, and the code panel. */
 export function PageBody({ page, files, sandbox, mode, slot, meters, posters }: Props) {
-  const { stepIndex, setDemoStatus, setStepResult, chrome } = useStage();
+  const { stepIndex, setDemoStatus, setStepResult, chrome, reloadToken } = useStage();
   const step = page.steps[stepIndex];
   // The meter shows from its step to the end of the page, at the top right of the title row.
   const meterStep = page.steps
@@ -66,19 +90,27 @@ export function PageBody({ page, files, sandbox, mode, slot, meters, posters }: 
   const preview = mode === "speaker-preview";
   // A terminal poster holds its theme: a preview of another shows the loading state instead.
   const poster = step && posterMatchesTheme(page.frame.kind, page.chrome, chrome) ? posters[step.id] : null;
-  // A frame whose origin is not configured (a server app on a deployment without it) shows the
-  // step's captured poster instead of loading a dead address.
-  const offline = Boolean(page.frame) && !preview && !frameLive(page.frame.route);
+  // A frame whose origin is not configured (a server app on a deployment without it), or whose app
+  // is not running, shows the step's captured poster instead of loading a dead address.
+  const configured = Boolean(page.frame) && frameLive(page.frame.route);
+  const probed = !preview && configured && page.frame.kind === "server";
+  const up = useServerUp(probed ? serverApp(page.frame.route) : null, reloadToken);
+  const stopped = probed && up === false;
+  const waiting = probed && up === null;
+  const offline = (Boolean(page.frame) && !preview && !configured) || stopped;
+  useEffect(() => {
+    if (offline) setDemoStatus(page.id, "fallback");
+  }, [offline, page.id, setDemoStatus]);
 
   return (
     <div className="page__body">
       <div className="page__frame">
-        {!page.frame ? null : preview || offline ? (
+        {!page.frame ? null : preview || offline || waiting ? (
           <div className="page__poster" data-has-poster={Boolean(poster)} data-offline={offline || undefined}>
             {/* A static poster, served from public/; next/image adds nothing for a preview. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {poster ? <img className="page__poster-image" src={poster} alt={offline ? `Captured still of the live demo: ${step ? step.label : page.title}` : ""} /> : null}
-            {offline ? <p className="page__poster-note">{offlineNote()}</p> : <p className="page__poster-label">{step ? step.label : page.title}</p>}
+            {offline ? <p className="page__poster-note">{offlineNote(stopped)}</p> : waiting ? null : <p className="page__poster-label">{step ? step.label : page.title}</p>}
           </div>
         ) : (
           // The step's poster sits under the frame until its document has replayed, unless the step
