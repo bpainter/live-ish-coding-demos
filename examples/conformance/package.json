@@ -8,6 +8,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "walk": "live-ish walk",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
