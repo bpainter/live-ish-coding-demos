@@ -9,6 +9,6 @@ export default defineDeck({
   // Demo slides use the `glass` audience theme. To try another, set:
   // chrome: { theme: "flat" },        // or "early-web"
 
-  // The owner's house style for copy. Off by default:
+  // Stricter rules for copy: no dashes, short sentences, sentence case. Off by default:
   // writing: { preset: "plain" },
 });

@@ -10,6 +10,7 @@ export default defineSlide({
     { label: "Web demos", detail: "Real pages, played one step at a time.", icon: "play" },
     { label: "Terminal demos", detail: "Recorded commands beside their code.", icon: "square-terminal" },
   ],
+  // An image is a plain file under public/. `check` fails if it has no `alt`.
   image: {
     src: "/images/two-windows.svg",
     alt: "A speaker window with notes beside an audience window showing a highlighted element.",

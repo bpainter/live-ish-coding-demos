@@ -5,9 +5,11 @@ export default defineDemo({
   kind: "terminal",
   title: "Counting words",
   scenario: "A small script counts words in a file, then ranks them.",
+  // One page, with no intro, before or after.
   beats: "single",
 
   single: {
+    // recordings/session.json. `live-ish record count-words` writes it by running session.txt.
     recording: "session",
     window: { title: "word-count", cwd: "~/demo" },
     files: [shown("word-count.mjs"), shown("notes.txt")],
@@ -17,6 +19,7 @@ export default defineDemo({
       {
         id: "s0",
         label: "Read the notes",
+        // `lines` is a range of the recording, and each step picks up where the last one stopped.
         actions: [{ type: "hook", name: "reset" }, { type: "terminal", lines: [1, 3] }],
         code: { file: "notes.txt", lines: [] },
         notes: [],
@@ -26,6 +29,7 @@ export default defineDemo({
         label: "Count the words",
         actions: [{ type: "terminal", lines: [4, 5] }],
         code: { file: "word-count.mjs", lines: [[7, 12]] },
+        // A recorded line is a target too, by its number.
         spotlight: ['[data-line="5"]'],
         notes: ["The script reads the file, splits it into words and prints the count."],
       },
