@@ -4,7 +4,7 @@ Live-ish coding: now with 100% less typing in front of strangers.
 
 Live-ish runs slides and scripted demos of code and UI from one web app. Each click plays one step in a real page and highlights the code behind it.
 
-> Preview. Packages are not on npm yet. The API will change. The docs links here open the pages in this repo.
+> Preview. Packages are not on npm yet. The API will change. You can [play the starter deck][live] in your browser.
 
 <img src="docs/assets/demo-slide.png" alt="A demo slide with highlighted code beside a running page.">
 
@@ -77,15 +77,16 @@ Run `pnpm live-ish present` to serve the deck from your laptop. It needs no netw
 - [Deploy a deck][deploy]
 - [Known limits][limits]
 
-<!-- Every docs link in this file uses these references. Point them at https://live-ish.vercel.app/<page> once the site is up. -->
+<!-- Every docs link in this file uses these references. -->
 
-[start]: docs/content/start.mdx
-[web-demos]: docs/content/web-demos.mdx
-[deploy]: docs/content/deploy.mdx
-[limits]: docs/content/limits.mdx
-[themes]: docs/content/themes.mdx
-[ai-tools]: docs/content/ai-tools.mdx
-[presenting]: docs/content/presenting.mdx
+[live]: https://live-ish.vercel.app/live
+[start]: https://live-ish.vercel.app/start
+[web-demos]: https://live-ish.vercel.app/web-demos
+[deploy]: https://live-ish.vercel.app/deploy
+[limits]: https://live-ish.vercel.app/limits
+[themes]: https://live-ish.vercel.app/themes
+[ai-tools]: https://live-ish.vercel.app/ai-tools
+[presenting]: https://live-ish.vercel.app/presenting
 
 ## Contributing
 
