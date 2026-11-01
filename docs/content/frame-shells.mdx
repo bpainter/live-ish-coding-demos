@@ -33,6 +33,30 @@ A shell is one lit object in a quiet room. The shown block is the only thing rai
 - **Never the feature.** A shell must not use the feature its demo shows, or the demo proves nothing. `wrapper-banned` warns on this.
 - **Quiet.** Context stays small, uncolored and flat. If the room reads the shell first, it is too loud.
 
+## Style a demo's page
+
+Most of a demo's look comes from the theme and the frame base. Add only what the demo needs.
+
+1. Start with bare elements. Add `.frame-*` helpers for variants and structure.
+2. Keep feature CSS in the shown files: placement, state, motion and the size of dialogs and menus.
+3. Delete your own `body`, color, font and button rules, unless the demo is about them.
+4. Use believable data. Round numbers and "Lorem ipsum" read as fake from the back of the room.
+5. Check the frame at its viewport, 640 by 628 on a `50/50` page, and look at it at stage size before you call it done.
+
+### Motion
+
+The theme never animates. Motion lives in your demo's CSS.
+
+- Put motion in a shown file when it is part of the feature, and in an unshown file otherwise.
+- Animate only `opacity` and `transform`.
+- Avoid `ease-in`, `scale(0)` and `transition: all`.
+- Leave buttons, rows and chips with no transition. The clicker drives the room, and an instant state reads best.
+- Under reduced motion, keep a short crossfade at most.
+
+### Color
+
+Color is never the only signal. A chip carries a text label, a selected row adds a bar, and an invalid field adds an icon and a message.
+
 ## The frame base
 
 Every frame loads a neutral base stylesheet, which sets `.frame-*` helpers and solid surfaces. To leave it out, set `frame: { base: false }` on a demo or a beat. A demo's `background` can still show through your own translucent panes.

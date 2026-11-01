@@ -11,7 +11,7 @@
     "build": "pnpm generate && tsx scripts/build.ts",
     "start": "live-ish start --port=3100",
     "check:links": "tsx scripts/link-check.ts",
-    "typecheck": "pnpm generate && tsc --noEmit",
+    "typecheck": "pnpm generate && live-ish prepare && tsc --noEmit",
     "lint": "eslint .",
     "test": "pnpm generate && node --conditions=react-server --import tsx --test test/*.test.ts"
   },
