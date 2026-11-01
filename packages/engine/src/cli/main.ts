@@ -73,6 +73,7 @@ const VERIFY_USAGE: Record<string, string> = {
   warmup: "warmup",
   perf: "perf <task>",
   parity: "parity",
+  backgrounds: "backgrounds",
 };
 
 function help(): string {

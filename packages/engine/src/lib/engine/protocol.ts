@@ -33,6 +33,8 @@ export interface AssertResult {
   expect: string;
   pass: boolean;
   actual: string;
+  /** The assert's `when` query failed here, so it proved nothing and counts as passed. */
+  skipped?: boolean;
 }
 
 export type ErrorCode = "selector-not-found" | "via-unsupported" | "hook-missing" | "assert-failed" | "exception" | "timeout" | "flag-unknown";

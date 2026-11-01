@@ -1,7 +1,7 @@
 {
   "name": "@live-ish/verify",
   "version": "0.1.0-next.0",
-  "description": "Browser checks for Live-ish decks. Ships Playwright, so a deck installs it on demand.",
+  "description": "Walks, accessibility scans, capture, warm-up, performance and parity checks for Live-ish decks. Ships Playwright, so a deck installs it on demand.",
   "license": "MIT",
   "homepage": "https://live-ish.dev",
   "repository": {
@@ -16,24 +16,38 @@
   "engines": {
     "node": ">=22"
   },
+  "bin": {
+    "live-ish-verify": "./bin/live-ish-verify.mjs"
+  },
   "exports": {
+    "./cli": "./src/cli.ts",
     "./parity": "./src/parity/index.ts",
+    "./budgets.json": "./budgets.json",
     "./package.json": "./package.json"
   },
   "files": [
+    "bin",
+    "budgets.json",
     "src"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test:parity": "node --conditions=react-server --import tsx --test src/parity/*.test.ts"
+    "lint": "eslint .",
+    "test": "node --conditions=react-server --import tsx --test test/*.test.ts src/parity/*.test.ts",
+    "test:parity": "node --conditions=react-server --import tsx --test src/parity/*.test.ts",
+    "selftest": "node --conditions=react-server --import tsx src/selftest.ts"
   },
   "dependencies": {
     "@live-ish/engine": "workspace:*",
-    "playwright": "1.58.2"
+    "@playwright/test": "1.58.2",
+    "axe-core": "4.14.0",
+    "tsx": "4.23.15"
   },
   "devDependencies": {
     "@types/node": "26.6.5",
-    "tsx": "4.23.15",
+    "eslint": "10.13.0",
+    "eslint-config-next": "16.4.3",
+    "next": "16.4.3",
     "typescript": "5.9.3"
   },
   "publishConfig": {

@@ -1,4 +1,4 @@
-import type { Page } from "playwright";
+import type { Page } from "@playwright/test";
 import { eventually, get, inContext, open, slideOf, walkPage, type Check, type Target } from "./target";
 
 const status = (page: Page, t: Target) => page.locator(t.selectors.play).first().getAttribute("data-status");

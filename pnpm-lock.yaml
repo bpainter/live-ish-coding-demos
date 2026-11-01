@@ -261,6 +261,9 @@ importers:
         specifier: 19.3.1
         version: 19.3.1(react@19.3.1)
     devDependencies:
+      '@live-ish/verify':
+        specifier: workspace:*
+        version: link:../../packages/verify
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
@@ -292,6 +295,9 @@ importers:
         specifier: 19.3.1
         version: 19.3.1(react@19.3.1)
     devDependencies:
+      '@live-ish/verify':
+        specifier: workspace:*
+        version: link:../../packages/verify
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
@@ -320,6 +326,9 @@ importers:
         specifier: 19.3.1
         version: 19.3.1(react@19.3.1)
     devDependencies:
+      '@live-ish/verify':
+        specifier: workspace:*
+        version: link:../../packages/verify
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
@@ -406,16 +415,28 @@ importers:
       '@live-ish/engine':
         specifier: workspace:*
         version: link:../engine
-      playwright:
+      '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
+      axe-core:
+        specifier: 4.14.0
+        version: 4.14.0
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
     devDependencies:
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
-      tsx:
-        specifier: 4.23.15
-        version: 4.23.15
+      eslint:
+        specifier: 10.13.0
+        version: 10.13.0(jiti@2.7.0)
+      eslint-config-next:
+        specifier: 16.4.3
+        version: 16.4.3(@typescript-eslint/parser@8.72.0(eslint@10.13.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.13.0(jiti@2.7.0))(typescript@5.9.3)
+      next:
+        specifier: 16.4.3
+        version: 16.4.3(@babel/core@7.29.7)(@playwright/test@1.58.2)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       typescript:
         specifier: 5.9.3
         version: 5.9.3

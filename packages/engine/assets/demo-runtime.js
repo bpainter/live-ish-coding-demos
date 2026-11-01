@@ -68,6 +68,14 @@
 
   // ---------------------------------------------------------------- features
 
+  function supportsQuery(query) {
+    try {
+      return CSS.supports(query);
+    } catch (e) {
+      return false;
+    }
+  }
+
   function features() {
     function supports(q) {
       try {
@@ -734,7 +742,9 @@
     // accumulated so far, and a forward run toggles them in place. The flags are entries of their own.
     entries.push("url=" + location.pathname + location.search.replace(/([?&])flags=[^&]*&?/, "$1").replace(/[?&]$/, ""));
     entries.push("title=" + document.title);
-    entries.push("history=" + history.length);
+    // The frame's own place in its history. `history.length` is the whole tab's: a replay mounts a
+    // fresh document and never takes back what a forward run added.
+    entries.push("history=" + frameDepth().index);
     entries.push("active=" + describe(document.activeElement));
     entries.push("popovers=" + document.querySelectorAll(":popover-open").length);
     var dialogs = document.querySelectorAll("dialog[open]");
@@ -750,8 +760,12 @@
       entries.push("inline-size:" + k + "=" + resized[k]);
     });
     entries.push("terminal-lines=" + terminalLines);
+    // Counted per step, not by action index: a replay leaves out toggles and clicks a forward run
+    // took, so the same assert sits at another index.
+    var perStep = {};
     asserts.forEach(function (a) {
-      entries.push("assert:" + a.stepId + ":" + a.index + "=" + a.pass);
+      perStep[a.stepId] = (perStep[a.stepId] || 0) + 1;
+      entries.push("assert:" + a.stepId + ":" + perStep[a.stepId] + "=" + a.pass);
     });
     var probes = hooks().probes;
     if (typeof probes === "function") {
@@ -1103,8 +1117,11 @@
         else if (instant) await settle(action.ms);
         return;
       case "assert": {
-        var result = evaluate(action.target, action.expect);
-        asserts.push({ stepId: run ? run.stepId : "", index: run ? run.cursor.action : 0, target: action.target, expect: action.expect, pass: result.pass, actual: result.actual });
+        // `when` is a CSS.supports() query. A browser that fails it, or a run with the switch removed,
+        // has nothing to prove here: the assert counts as passed, so digests still match.
+        var skipped = !!action.when && !supportsQuery(action.when);
+        var result = skipped ? { pass: true, actual: "skipped: no " + action.when } : evaluate(action.target, action.expect);
+        asserts.push({ stepId: run ? run.stepId : "", index: run ? run.cursor.action : 0, target: action.target, expect: action.expect, pass: result.pass, actual: result.actual, skipped: skipped });
         return;
       }
       default:

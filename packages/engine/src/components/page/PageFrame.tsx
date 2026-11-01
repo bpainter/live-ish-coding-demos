@@ -229,7 +229,8 @@ export function PageFrame({ page, sandbox, mode, slot, onStatus, onStepResult, p
             show(fresh, stepIndex, seg.flags);
             h = fresh;
           }
-          const stepRun = h.runStep({ ...target, actions: target.actions }, "animated", seg.startAt);
+          // Indexes stay the step's own, and the run stops where the next document takes over.
+          const stepRun = h.runStep({ ...target, actions: target.actions.slice(0, seg.startAt + seg.actions.length) }, "animated", seg.startAt);
           const runHandle = h;
           run.current = {
             gen,

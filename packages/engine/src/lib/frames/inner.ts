@@ -1,11 +1,11 @@
 import "server-only";
 import { readFileSync } from "node:fs";
-import { BASE_CSP, BASE_HREF, versioned } from "./compose";
+import { BASE_CSP, BASE_HREF, ROBOTS_HEADERS, versioned } from "./compose";
 import { presenterOriginFor } from "./origins";
 
 /**
- * A document a frame embeds in its own iframe:
- * composed with the theme only. No runtime, no wrapper, no flag scripts and no section background:
+ * A document a frame embeds in its own iframe, composed with the base only. No runtime, no shell, no
+ * flag scripts and no demo background:
  * the presenter never talks to it, and hooks reach it through `contentDocument`, which works
  * because it shares the frame's origin. Its CSP lets the frame (same origin) and the presenter,
  * which is the frame's own ancestor, embed it.
@@ -35,12 +35,11 @@ export function innerDocument(file: string, title: string, styles: string[] = []
 
 /** The response for an inner document on the demo origin. */
 export function innerResponse(html: string, origin: string): Response {
-  const csp = BASE_CSP.replace(/ORIGIN/g, origin).replace("frame-ancestors PRESENTER", `frame-ancestors 'self' ${presenterOriginFor(origin)}`);
+  const presenter = presenterOriginFor(origin);
+  const same = presenter === origin;
+  const csp = BASE_CSP.replace(/ORIGIN/g, same ? "'self'" : origin).replace("frame-ancestors PRESENTER", same ? "frame-ancestors 'self'" : `frame-ancestors 'self' ${presenter}`);
   return new Response(html, {
     status: 200,
-    headers: { "Content-Type": "text/html; charset=utf-8", "Content-Security-Policy": csp, "X-Content-Type-Options": "nosniff", "Cache-Control": "no-store" },
+    headers: { "Content-Type": "text/html; charset=utf-8", "Content-Security-Policy": csp, "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Cache-Control": "no-store", ...ROBOTS_HEADERS },
   });
 }
-
-/** A frame CSP that may embed same-origin documents (`frame-src` the demo origin). */
-export const FRAMING_CSP = `${BASE_CSP}; frame-src ORIGIN`;

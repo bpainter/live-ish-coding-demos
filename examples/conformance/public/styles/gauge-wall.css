@@ -1,0 +1,7 @@
+/* Unshown layout for one demo. It sits in a layer, so shown CSS always wins. */
+@layer frame-layout {
+  .wall {
+    display: flex;
+    gap: 16px;
+  }
+}

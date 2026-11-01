@@ -100,6 +100,55 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 
 **`check` rules.** `src/lib/validate/rules/hosting.ts` holds `presenter-public` (the one line), `storage-clear` and `third-party-script`, as Fit warnings. The last two cover 13.3 rows 2 and 3, and `hosts.frames` turns them off. `rules/index.ts` must list the group. `reserved-route` (row 5) stays with the validators.
 
+## Verify
+
+**One entry.** `@live-ish/verify/cli` exports `run(argv, { root, engineVersion })`, and the number it returns is the exit code. `bin/live-ish-verify.mjs` runs the same entry from a deck folder with no engine CLI around it.
+
+**Parity runs the tools.** `src/parity/tools.ts` maps each matrix row with no suite to what proves it: a walk mode, `axe`, `check`, `perf`, `warmup` or a self-test. One run answers every row that reads it, narrowed to the row's pages or text, and a row needs a passing check of its own, so nothing passes by being absent. These rows run only on a deck folder. A report built from a manifest file leaves them `not-run`, and `--compare` counts a row that ran on one side apart: it proves nothing either way, so it is neither a match nor a difference. Rows proved by `pnpm test`, CI or a person stay `not-run`, and a test holds that list closed.
+
+**`parity --compare` needs no deck.** It reads two files, so `delegate` falls back to the working folder, and in a bare checkout it finds `packages/verify` beside the engine.
+
+**One Playwright.** `@playwright/test` alone: parity's imports moved off `playwright`, so the package pins one version.
+
+**What walks read.** `@live-ish/engine/verify` is an internal export, so nothing else reaches into engine paths. `.live-ish/deck.gen.ts` is loaded and assembled, and every target comes from that data. A test fails if a walk's source names a slide of the starter.
+
+**`/_health` names the server.** It reports `server: "production" | "development"`, because `walk underlay` has to tell `next start` from `next dev` to decide whether a budget applies.
+
+**A network profile turns site isolation off.** Under isolation a cross-origin frame is its own target, and a CDP session on the page does not throttle it. The local mode's frames are cross-origin, so a `venue` run with isolation on leaves them on the full-speed loopback. `walk underlay` and every `perf` task run with isolation off when a profile is on, as the perf scripts always did. Numbers are slower and honest.
+
+**Budgets.** `packages/verify/budgets.json` is the one file. `walk underlay` defaults to `venue`, three runs, and the median of each run's p90, per the reference environment. On `next dev` it prints its numbers and "dev server: budget not applied", and exits 0. A small deck's arrivals repeat until a window has 50.
+
+**Self-tests break the deck in the browser.** `pnpm --filter @live-ish/verify selftest` runs each walk with one thing broken through an init script or a route, and passes only when the walk fails and names it. A build per break would take most of an hour. `sabotage` is reachable from code only, never from the CLI.
+
+**Runtime errors fail a walk.** The ported walk read only asserts, so a selector that matched nothing could pass when the step had no assert after it. The protocol watch now keeps every `error` message, and a walk fails on it with the step's name.
+
+**Result files.** `perf` writes `.live-ish/perf/<date>-<commit>-<task>[-<label>].json`, so a deck keeps its own and the repo stays clean.
+
+## Variants
+
+**`render.ts`, not a field.** A public build holds the deck as data with no functions in it, so a template filler cannot sit in `demo.ts`. It is `demos/<id>/render.ts`, an import that survives as `routes.ts` does, and it applies to every beat of the demo.
+
+**Shells.** `shells/<id>.ts` default-exports `defineShell({ id, before, after, styles, scripts, shownClass, banned })`. `prepareDeck` imports the folder and `assembleDeck` registers them, so `check`, the composer and the poster hash all see them. A page opens one with `shell: { id, outside, scrolls }`.
+
+**Addresses.** A beat's `address` opens a path `routes.ts` serves. An HTML answer from that handler is composed like any frame document, so the runtime and the CSP reach it, and every other answer stays the demo's own. All demo routes are root addresses: `reserved-route` closes `/demos`, so the old per-build route path is gone.
+
+**`when` on an assert.** A `CSS.supports()` query. A browser that fails it skips the assert, which counts as passed, so digests still match. This replaces the walk's old exception for one feature, and it is what `walk --without=<switch>` relies on.
+
+**A blocked frame is data.** `refusesEmbedding(frame)` reads `frame-ancestors 'none'` in a page's `csp`. Walks check its error state instead of its steps, and `poster-fresh` skips it, because nothing can capture it.
+
+**The spotlight fixture is a deck page.** `demos/00-fixtures/` sits in the conformance deck's `order`, so `walk fixtures` runs on `next start` with no dev-only route. Reader pages show it, which a conformance deck can afford.
+
+**Digests.** `history=` is the frame's own depth, because `history.length` is the tab's and a replay never takes back what a forward run added. Asserts are numbered per step, because a replay leaves out toggles and clicks and so shifts action indexes. Both differed between forward and Back on every multi-page page, and the old walk only logged it.
+
+**Reloading toggles.** A step run now stops at the end of its segment. Before, the first segment ran on past the toggle and threw `flag-unknown`, and nothing noticed until a walk read runtime errors.
+
+**History replays.** A page with a `navigate` that has `history` replays every action, so the entries exist when a later step walks over them. Opening the route directly left Forward with nowhere to go.
+
+**Poster inputs.** The hash covers `frame-base.css` (it named a file that no longer exists), and a terminal page's theme file. `demo.ts` is out: notes are not inputs, and the JSON already holds the frame and the actions.
+
+**The QR.** `QR_BOX` was 544, the plate's outer width, and the plate holds 496. The image shrank to fit, and modules landed on 15.03 px. `walk deck` caught it.
+
+**Captures stay out of the examples.** `public/posters`, `public/opt` and `public/intro` are ignored in `examples/*`. They are regenerated, and the binary allow-list stays short.
 ## Server frames, parity and export
 
 **The deck names itself on the frame's address.** A server frame's first request carries `?presenter=<origin>&mount=1`. A server can't know the port a deck runs on, and `live-ish capture` or a second `present` may use another. `client.js` remembers the value in sessionStorage, because a `navigate` step loads a document with no such parameter. `frame-ancestors` comes from `LIVE_ISH_PRESENTER_ORIGIN`, or any local deck when that is unset, so a crafted address can't widen who may embed the app.

@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { refusesEmbedding } from "../../../schema/demo";
 import type { ImageManifest } from "../../assets";
 import { LISTED, MANIFEST_FILE, POSTERS_FILE, PUBLIC_FILES, listMasters, posterInputHash, sha256, walkFiles, type PosterRecord } from "../assets";
 import { beatConfig, defineRule, facts, framePages, genPath, publicExists, publicPath, readJson, whereDeck, wherePage } from "../context";
@@ -41,6 +42,7 @@ export const rules: Rule[] = [
     if (!records) return;
     for (const demo of ctx.deck.demos) {
       for (const page of framePages(demo)) {
+        if (refusesEmbedding(page.frame)) continue;
         const rec = records[page.id];
         if (!rec) add(wherePage(demo, page), "The posters have no capture record.", { fix: `Run live-ish capture ${demo.id}.` });
         else if (rec.inputs !== posterInputHash(ctx.root, demo, page, beatConfig(ctx, demo, page))) add(wherePage(demo, page), `The posters are older than the frame's inputs, captured ${rec.captured.slice(0, 10)}.`, { fix: `Run live-ish capture ${demo.id}.` });

@@ -1,6 +1,6 @@
 # `@live-ish/verify`
 
-Walks, accessibility scans, capture, warm-up and performance checks for decks. It is optional, because it brings Playwright. The engine's CLI delegates `walk`, `axe`, `capture`, `og`, `warmup`, `perf` and `parity` to this package, and a deck installs it with `live-ish add verify`.
+Walks, accessibility scans, capture, warm-up, performance and parity checks for decks. It is optional, because it brings Playwright. The engine's CLI delegates `walk`, `axe`, `capture`, `og`, `warmup`, `perf` and `parity` to this package, and a deck installs it with `live-ish add verify`.
 
 ## Rules
 
@@ -13,3 +13,4 @@ Walks, accessibility scans, capture, warm-up and performance checks for decks. I
 
 - `pnpm --filter @live-ish/verify test` runs the unit tests, with no browser.
 - `pnpm --filter @live-ish/verify typecheck`.
+- `pnpm --filter @live-ish/verify selftest -- --origin=<next start> --root=<deck>` breaks one thing per walk and passes only when the walk catches it. It needs a browser and a captured deck.

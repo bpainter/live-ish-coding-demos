@@ -357,7 +357,10 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
               Hands-on
             </p>
           ) : null}
-          {current}
+          {/* A picture of the stage: nothing in it takes focus or reaches a screen reader twice. */}
+          <div className="speaker__picture" inert>
+            {current}
+          </div>
         </div>
         <section className="speaker__next" aria-labelledby="speaker-next-label">
           <h2 className="speaker__label" id="speaker-next-label">
@@ -400,7 +403,7 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
               </button>
             </div>
           </div>
-          <h2 className="speaker__title" id="speaker-title">
+          <h1 className="speaker__title" id="speaker-title">
             {heading ? (
               <>
                 {heading.eyebrow ? <b className="notes__eyebrow">{heading.eyebrow}:</b> : null}
@@ -410,7 +413,7 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
             ) : (
               <b className="notes__eyebrow">{slide.title}</b>
             )}
-          </h2>
+          </h1>
           {page && step ? (
             <>
               <div className="speaker__step-row">

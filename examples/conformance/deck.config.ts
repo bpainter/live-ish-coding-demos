@@ -1,16 +1,19 @@
 import { defineDeck } from "@live-ish/engine/config";
 
 /**
- * One slide per copy layout, and every grid variant, tone and alignment. A test fails if a layout
- * goes missing (packages/engine/test/conformance.test.ts). `?chrome=<id>` runs the deck through a theme.
+ * Every copy layout, all 15 actions each on a page of its own, and every web demo variant. Tests fail
+ * if one goes missing (packages/verify/test/conformance.test.ts). `?chrome=<id>` runs the deck through
+ * a theme. Sized to give at least 50 arrivals per window.
  */
 export default defineDeck({
   schemaVersion: 1,
   title: "Conformance",
   speaker: { name: "Rosa Quintero", title: "Staff engineer", org: "Tideline Labs", url: "https://example.com/rosa" },
-  event: { name: "Conformance", city: "Halifax" },
-  links: { site: { label: "example.com/conformance", url: "https://example.com/conformance" } },
+  event: { name: "Conformance", city: "Halifax", startDate: "2026-10-30T09:00:00-03:00" },
+  links: { site: { label: "example.com/conformance", url: "https://example.com/conformance" }, tag: { from: "{slide}" } },
   theme: { brand: { text: "Tideline" } },
+  // A browser feature behind a switch: `walk --without` proves the deck holds up with it removed.
+  verify: { chromiumArgs: ["--enable-blink-features=CSSGridLanesLayout"] },
   order: [
     "title",
     "content",
@@ -35,6 +38,39 @@ export default defineDeck({
     "timeline",
     "chart-dot",
     "chart-bar",
+    "00-fixtures",
+    "act-pointer",
+    "act-click",
+    "act-key",
+    "act-focus",
+    "act-type",
+    "act-paste",
+    "act-resize",
+    "act-toggle",
+    "act-navigate",
+    "act-network",
+    "act-hook",
+    "act-terminal",
+    "act-reveal",
+    "act-wait",
+    "act-assert",
+    "v-shell",
+    "v-mixed",
+    "v-multipage",
+    "v-render",
+    "v-inner",
+    "v-styles",
+    "v-static",
+    "v-reload",
+    "v-csp",
+    "v-blocked",
+    "v-address",
+    "v-poster",
+    "v-clip",
+    "v-lanes",
+    "v-split",
+    "b-file",
+    "b-gradient",
     "closing",
   ],
 });
