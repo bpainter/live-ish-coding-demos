@@ -60,6 +60,8 @@ export interface Frame {
   keycap?: "above-drawer";
   /** False leaves the neutral frame-base.css out of the document. */
   base?: boolean;
+  /** Overrides the base CSP. `ORIGIN` and `PRESENTER` are substituted. */
+  csp?: string;
 }
 
 export type DemoCodeLang = "html" | "css" | "js" | "ts" | "tsx" | "http" | "yaml" | "bash" | "json" | "text";
@@ -94,7 +96,7 @@ export type Action =
   | { type: "terminal"; lines: [number, number] } // reveal recorded terminal lines
   | { type: "reveal"; target: string } // show a hidden element
   | { type: "wait"; ms: number } // skipped during instant replay
-  | { type: "assert"; target: string; expect: string }; // rehearsal and test check only: ":popover-open", "focused", "value-length>400"
+  | { type: "assert"; target: string; expect: string; when?: string }; // rehearsal and test check only: ":popover-open", "focused", "value-length>400". `when` is a CSS.supports() query: a browser that fails it skips the assert.
 
 export interface Step {
   /** "s0", "s1", and so on. */

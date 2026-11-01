@@ -39,6 +39,9 @@ function buildFor(demo: Demo, page: FramePage): BuildDef {
   const manifest = baseManifest(demo, page);
   manifest.styles = config?.styles;
   manifest.shell = config?.shell;
+  manifest.csp = config?.csp;
+  if (config?.sandbox) manifest.sandbox = config.sandbox;
+  if (config?.enhancement) manifest.enhancement = { css: config.enhancement.css ?? manifest.enhancement.css, js: config.enhancement.js ?? manifest.enhancement.js };
   const title = `${demo.title}: ${page.title}`;
   if (kind === "terminal") {
     const recording = config?.recording ?? "session";
@@ -54,7 +57,7 @@ function buildFor(demo: Demo, page: FramePage): BuildDef {
       },
     };
   }
-  const build: BuildDef = { manifest, dir, title, pages: config?.pages };
+  const build: BuildDef = { manifest, dir, title, pages: config?.pages, inner: config?.inner, render: source?.render, address: config?.address };
   if (source?.hooks) {
     build.extraFiles = { "hooks.js": fromDeck(demo.folder, "hooks.js") };
     manifest.instrumentation = [`/demos/${demo.id}/${beat}/hooks.js`];
@@ -89,6 +92,14 @@ export function manifestFor(route: string): BuildManifest | null {
   const pathname = route.split("?")[0];
   for (const f of Object.values(DEMO_FOLDERS)) {
     if (f.routes && matchRoute(f.routes, "GET", pathname)) return Object.values(f.builds).at(-1)?.manifest ?? null;
+  }
+  return null;
+}
+
+/** The build a root address opens, so the document it answers with is composed like any frame's. */
+export function buildAtAddress(pathname: string): BuildDef | null {
+  for (const f of Object.values(DEMO_FOLDERS)) {
+    for (const def of Object.values(f.builds)) if (def.address?.split("?")[0] === pathname) return def;
   }
   return null;
 }

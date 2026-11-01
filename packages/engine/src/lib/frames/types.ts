@@ -3,6 +3,12 @@ import type { ServerRoute } from "./routes";
 
 export type BuildBeat = Exclude<Beat, "intro">;
 
+/**
+ * `demos/<id>/render.ts`: fills a page's server template before it is composed. The shown file stays
+ * as written, and `url` carries the page's query. Throwing for an unknown record answers 404.
+ */
+export type TemplateRender = (file: string, html: string, url: URL) => string;
+
 /** One manifest per beat of a demo folder. */
 export interface BuildManifest {
   /** The demo id. */
@@ -53,11 +59,12 @@ export interface BuildDef {
    * is a real document load inside the frame.
    */
   pages?: string[];
-  /**
-   * Fills a page's server template before it is composed. The shown file stays as written; `url`
-   * carries the page's query. Throws for an unknown record, which the route answers with a 404.
-   */
-  render?: (file: string, html: string, url: URL) => string;
+  /** Fills a page's server template before it is composed. */
+  render?: TemplateRender;
+  /** Documents the build embeds in its own iframe, composed with the base only. */
+  inner?: string[];
+  /** The root address that opens this build, when `routes.ts` serves it. */
+  address?: string;
   /** Terminal pages: the recording and the window around it. */
   terminal?: { recording: string; file: string; window: { title: string; cwd: string } };
 }

@@ -62,6 +62,11 @@ export function frameUrlFor(route: string, location: Place, hosting: Hosting = H
   return { origin, url: origin === location.origin ? route : `${origin}${route}` };
 }
 
+/** The document a `Frame.route` opens: a build's entry page, or a declared address as written. */
+export function frameDocument(route: string): string {
+  return route.startsWith("/demos/") && !route.includes(".") ? `${route.replace(/\/$/, "")}/index.html` : route;
+}
+
 /** The URL of a `Frame.route` on the origin that serves it. Browser only. */
 export function frameUrl(route: string): { origin: string; url: string } {
   const server = /^\/@([\w-]+)(\/.*)?$/.exec(route);

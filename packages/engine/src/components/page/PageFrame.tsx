@@ -8,7 +8,7 @@ import { installInputRelay, withInput } from "../../lib/engine/input-relay";
 import { flagsAt, replaySteps, segments, selectorsFor } from "../../lib/engine/steps";
 import { frameChrome } from "../../lib/chrome-preview";
 import { blockedFault, runtimeFault } from "../../lib/engine/faults";
-import { frameQuery, frameUrl, glassFlags, presenterOriginFor } from "../../lib/frames/origins";
+import { frameDocument, frameQuery, frameUrl, glassFlags, presenterOriginFor } from "../../lib/frames/origins";
 import { useStage } from "../../lib/stage-context";
 import { DevFault } from "./DevFault";
 import { Overlay } from "./Overlay";
@@ -41,7 +41,7 @@ const CODE_LEAD_MS = 400;
 
 function documentUrl(page: FramePage, flags: Record<string, boolean>): { origin: string; url: string } {
   const route = page.frame!.route;
-  const { origin, url } = frameUrl(route.endsWith("/") ? `${route}index.html` : route.includes(".") ? route : `${route}/index.html`);
+  const { origin, url } = frameUrl(frameDocument(route));
   const chrome = page.frame!.kind === "terminal" ? frameChrome(page.chrome) : undefined;
   return { origin, url: `${url}${frameQuery(route, glassFlags(flags), chrome)}` };
 }
@@ -230,7 +230,8 @@ export function PageFrame({ page, sandbox, mode, slot, onStatus, onStepResult, p
             show(fresh, stepIndex, seg.flags);
             h = fresh;
           }
-          const stepRun = h.runStep({ ...target, actions: target.actions }, "animated", seg.startAt);
+          // Indexes stay the step's own, and the run stops where the next document takes over.
+          const stepRun = h.runStep({ ...target, actions: target.actions.slice(0, seg.startAt + seg.actions.length) }, "animated", seg.startAt);
           const runHandle = h;
           run.current = {
             gen,

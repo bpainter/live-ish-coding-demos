@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { frameChrome } from "../../lib/chrome-preview";
-import { frameQuery, frameUrl } from "../../lib/frames/origins";
+import { frameDocument, frameQuery, frameUrl } from "../../lib/frames/origins";
 
 /**
  * Warms the next page's frame while an intro slide shows: one hidden, sandboxed document at the
@@ -20,9 +20,8 @@ export function FrameWarm({ route, flags, sandbox, chrome }: { route: string; fl
   useEffect(() => {
     if (route.startsWith("/@")) return;
     const t = window.setTimeout(() => {
-      const path = route.endsWith("/") ? `${route}index.html` : route.includes(".") ? route : `${route}/index.html`;
       const query = frameQuery(route, flags, chrome ? frameChrome(chrome) : undefined);
-      setSrc(`${frameUrl(path).url}${query}${query ? "&" : "?"}warm=1`);
+      setSrc(`${frameUrl(frameDocument(route)).url}${query}${query ? "&" : "?"}warm=1`);
     }, 300);
     return () => window.clearTimeout(t);
   }, [route, flags, chrome]);

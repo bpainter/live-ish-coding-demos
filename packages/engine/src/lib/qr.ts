@@ -2,10 +2,10 @@ import QRCode from "qrcode";
 
 /**
  * The closing slide's QR code: error correction M, a quiet zone of 4 modules, dark modules on white,
- * drawn with crisp edges at the largest whole module size that fits 544 stage px. Pure and offline:
+ * drawn with crisp edges at the largest whole module size that fits the plate's 496 stage px. Pure and offline:
  * the same input renders the same SVG.
  */
-export const QR_BOX = 544;
+export const QR_BOX = 496;
 export const QR_MIN_MODULE = 12;
 
 export async function qrSvg(url: string): Promise<{ svg: string; modules: number; module: number; size: number }> {

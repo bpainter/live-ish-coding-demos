@@ -23,6 +23,7 @@
     },
     "./routes/*": "./src/routes/*.tsx",
     "./styles.css": "./dist/engine.css",
+    "./verify": "./src/verify.ts",
     "./package.json": "./package.json"
   },
   "files": [
