@@ -72,6 +72,11 @@ export async function run({ deck, args, P, D, profile }: PerfContext, report: Re
   const file = writeResult(deck.root, `walk-${mode}-${profile}`, args.opt("label"), { task: "walk", origin: P, demo: D, mode, profile, slidesWalked, passes, offline });
   report.log("\n" + table(["Pass", "Requests", "Over the network", "KB", "304s", "Largest image"], rows));
   report.data.warmRevalidated = warmRevalidated;
-  report.pass(`${slidesWalked} of ${deck.slides.length} slides walked, ${warmRevalidated} 304(s) on the warm pass, target ${budgets.walk.warmRevalidations.limit}; wrote ${file}`);
+  const target = budgets.walk.warmRevalidations.limit;
+  const warm = (passes.warm as { revalidated: string[] }).revalidated;
+  // A target is tracked and reported, not blocked on, so a miss names its files and stays a note.
+  if (warmRevalidated > target) report.note(`${warmRevalidated} 304(s) on the warm pass, over the target of ${target}: ${[...new Set(warm)].join(", ")}`);
+  else report.pass(`${warmRevalidated} 304(s) on the warm pass, target ${target}`);
+  report.pass(`${slidesWalked} of ${deck.slides.length} slides walked; wrote ${file}`);
   if (slidesWalked !== deck.slides.length) report.fail("walk", `walked ${slidesWalked} of ${deck.slides.length} slides`);
 }
