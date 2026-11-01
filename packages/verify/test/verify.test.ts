@@ -4,7 +4,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { run } from "../src/cli";
-import { UsageError, parseArgs } from "../src/lib/args";
+import { EnvironmentError, UsageError, parseArgs } from "../src/lib/args";
 import { budgets } from "../src/lib/budgets";
 import { loadDeck, warmedIntros } from "../src/lib/deck";
 import { meanDifference } from "../src/lib/pixels";
@@ -14,7 +14,7 @@ import { median, pct } from "../src/lib/stats";
 import { checkDistinct } from "../src/walk/deck";
 import { modeAndId } from "../src/walk";
 import { merged } from "../src/walk/spotlight";
-import { arrivalPlan, windowStats, type Arrival, type Leg } from "../src/walk/underlay";
+import { arrivalPlan, assertPosters, windowStats, type Arrival, type Leg } from "../src/walk/underlay";
 import { shownSelectors } from "../src/walk/wrapper";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -71,6 +71,13 @@ test("a small deck's arrivals repeat until a window has its minimum", () => {
   assert.equal(arrivalPlan([leg(1)], 0).length, 1);
   assert.equal(arrivalPlan([], 50).length, 0);
   assert.equal(budgets.underlay.minArrivalsPerWindow, 50);
+});
+
+test("the underlay walk stops when a server has no poster to test, and exits as not run", () => {
+  assert.throws(() => assertPosters(12, 0, false), (e: Error) => e instanceof EnvironmentError && /did not run/.test(e.message));
+  assert.doesNotThrow(() => assertPosters(12, 3, false), "some posters still run, and the rest fail by name");
+  assert.doesNotThrow(() => assertPosters(0, 0, false), "a deck can turn posters off");
+  assert.doesNotThrow(() => assertPosters(12, 0, true), "a dev server applies no budget");
 });
 
 test("windowStats takes nearest-rank p90 and counts a frame that never showed as 1500 ms", () => {

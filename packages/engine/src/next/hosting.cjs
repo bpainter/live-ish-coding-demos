@@ -113,11 +113,14 @@ function addressSource(a) {
 /**
  * Files that keep their names get an hour, then may be used stale for a day while the browser
  * rechecks. Versioned files are immutable for a year. For one path the last rule that sets a header
- * wins, so the immutable rules come after the hour-long ones.
+ * wins, so the immutable rules come after the hour-long ones. `publicFiles` are the stylesheets and
+ * scripts a deck keeps anywhere under public/: a frame links them on every mount, and Next's default
+ * would recheck each one every time.
  */
-function cacheRules() {
+function cacheRules(publicFiles) {
   return [
     ...[...UNVERSIONED, "live-ish"].map((dir) => ({ source: `/${dir}/:path*`, headers: HOUR })),
+    ...publicFiles.map((file) => ({ source: addressSource({ path: file }), headers: HOUR })),
     { source: "/opt/:path*", headers: [...IMMUTABLE, ...CROSS_ORIGIN_ASSETS] },
     { source: "/live-ish/:path*", has: [{ type: "query", key: "v" }], headers: IMMUTABLE },
     { source: "/fonts/:path*", headers: CROSS_ORIGIN_ASSETS },
@@ -132,11 +135,11 @@ function cacheRules() {
  * gets the header on everything it serves. Next matches `has` hosts without the port, so two origins
  * on one hostname leave that rule out.
  */
-function headerRules({ production, mode, site, frames, addresses }) {
+function headerRules({ production, mode, site, frames, addresses, publicFiles = [] }) {
   const hostname = (origin) => new URL(origin).hostname;
   const framesHost = mode === "local" ? "127.0.0.1" : mode === "two-hosts" && (!site || hostname(site) !== hostname(frames)) ? hostname(frames) : null;
   return [
-    ...(production ? cacheRules() : []),
+    ...(production ? cacheRules(publicFiles) : []),
     {
       source: "/:path*",
       headers: [

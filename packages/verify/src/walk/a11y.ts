@@ -10,7 +10,7 @@ import { describeActive } from "../lib/watch";
 /**
  * The reader's accessibility contract: code tabs, focus across slide changes, one live region, the
  * pill's focus ring from rendered pixels, the "Try the demo" toggle, one h1, the footer number, the
- * help rows, window titles, and the text view at phone sizes.
+ * help rows, window titles, the text view at phone sizes, and what every copy slide says in it.
  */
 
 const require = createRequire(import.meta.url);
@@ -251,11 +251,100 @@ async function lows(session: Session, plain: Slide | null, walkPage: Target | nu
   await ctx.close();
 }
 
+export interface SlideText {
+  title: string;
+  /** Every other string the slide holds for a reader. */
+  texts: string[];
+  /** Every image's alt. */
+  alts: string[];
+}
+
+/** What a copy slide owes a reader as text, read from the deck, so a new layout is covered by its data. */
+export function slideText(slide: Slide): SlideText {
+  const own = slide.image ? [slide.image.alt] : [];
+  const some = (texts: (string | undefined)[]) => texts.filter((t): t is string => Boolean(t));
+  const g = slide.copy;
+  switch (g?.kind) {
+    case "title":
+      return { title: g.lines.join(" "), texts: some([g.eyebrow]), alts: own };
+    case "statement":
+      return { title: g.lines.join(" "), texts: [], alts: own };
+    case "grid":
+      return {
+        title: g.title ?? g.display ?? slide.title,
+        texts: some([g.eyebrow, g.title ? g.display : undefined, g.lede, g.cardsEyebrow, ...g.cards.flatMap((c) => [c.num, c.title, c.body, c.question])]),
+        alts: [...own, ...g.cards.flatMap((c) => (c.image ? [c.image.alt] : []))],
+      };
+    case "quotes":
+      return { title: g.title, texts: g.quotes.flatMap((q) => [q.text, q.cite]), alts: own };
+    case "people":
+      return { title: g.title, texts: g.people.flatMap((p) => [p.name, p.role]), alts: own };
+    case "closing":
+      return { title: g.name, texts: some([g.eyebrow, g.role, g.link]), alts: own };
+    default:
+      return {
+        title: slide.title,
+        texts: some([
+          slide.eyebrow,
+          ...(slide.body ?? []),
+          ...(slide.legend ?? slide.items ?? []).flatMap((i) => [i.label, i.detail]),
+          ...(slide.stats ?? []).flatMap((s) => [s.value, s.label]),
+          ...(slide.tableColumns ?? []),
+          ...(slide.tableRows ?? []).flatMap((r) => r.cells),
+          ...(slide.chart?.points ?? []).flatMap((p) => [p.label, String(p.y)]),
+        ]),
+        alts: own,
+      };
+  }
+}
+
+const squash = (text: string) => text.replace(/\s+/g, " ").trim();
+
+/** Each copy slide's title, body, items and image alts, in the text view. */
+async function textContent(session: Session) {
+  const { report, deck } = session;
+  const slides = deck.slides.filter((s) => !s.page);
+  if (!slides.length) return report.note("no copy slide for the text view to carry");
+  report.log("\n  text view content");
+  const ctx = await session.context({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  for (const slide of slides) {
+    const want = slideText(slide);
+    await page.goto(session.reader(slide.id));
+    await page.waitForSelector(".reading-view", { state: "attached", timeout: 10000 }).catch(() => null);
+    const got = (await page.evaluate(`(() => { const rv = document.querySelector(".reading-view"); return { title: document.querySelector("#reading-view-title")?.textContent ?? "", text: rv?.textContent ?? "", alts: [...(rv?.querySelectorAll("img") ?? [])].map((i) => i.alt) }; })()`)) as { title: string; text: string; alts: string[] };
+    const text = squash(got.text);
+    const problems = [squash(got.title) !== squash(want.title) && `the title reads ${JSON.stringify(got.title)}, wanted ${JSON.stringify(want.title)}`, ...want.texts.filter((t) => !text.includes(squash(t))).map((t) => `no ${JSON.stringify(t.slice(0, 50))}`), ...want.alts.filter((a) => !got.alts.includes(a)).map((a) => `no image with alt ${JSON.stringify(a.slice(0, 50))}`)].filter(Boolean);
+    if (problems.length) report.fail(`text content /s/${slide.id} (${slide.layout})`, problems.join("; "));
+    else report.pass(`text content /s/${slide.id} (${slide.layout}): the title, ${want.texts.length} text(s) and ${want.alts.length} image alt(s)`);
+  }
+  await ctx.close();
+}
+
+/** Each copy slide's images on the stage: drawn, and carrying the alt the author wrote. */
+async function stageImages(session: Session) {
+  const { report, deck } = session;
+  const slides = deck.slides.filter((s) => !s.page && slideText(s).alts.length);
+  if (!slides.length) return report.note("no copy slide has an image");
+  report.log("\n  images on the stage");
+  const ctx = await session.context({ viewport: { width: 1600, height: 900 } });
+  const page = await ctx.newPage();
+  for (const slide of slides) {
+    await openReader(session, page, slide.id);
+    await page.evaluate(`Promise.all([...document.querySelectorAll("#stage img")].map((i) => i.decode().catch(() => {})))`);
+    const shown = (await page.evaluate(`[...document.querySelectorAll("#stage img")].filter((i) => i.complete && i.naturalWidth > 0 && i.checkVisibility()).map((i) => i.alt)`)) as string[];
+    const missing = slideText(slide).alts.filter((a) => !shown.includes(a));
+    if (missing.length) report.fail(`image /s/${slide.id}`, `no drawn image with alt ${missing.map((a) => JSON.stringify(a.slice(0, 50))).join(", ")}; the stage has ${JSON.stringify(shown.map((a) => a.slice(0, 30)))}`);
+    else report.pass(`image /s/${slide.id}: ${slideText(slide).alts.length} image(s) drawn with their alt text`);
+  }
+  await ctx.close();
+}
+
 async function textView(session: Session, framed: Target) {
   const { report, deck } = session;
   report.log("\n  text view");
   // A slide of each kind the deck has: the first and last, each beat, and one of each copy layout.
-  const ids = [...new Set([deck.slides[0].id, ...deck.slides.filter((s, i, all) => all.findIndex((o) => (o.page?.beat ?? o.layout) === (s.page?.beat ?? s.layout)) === i).map((s) => s.id), deck.slides.at(-1)!.id])].slice(0, 12);
+  const ids = [...new Set([deck.slides[0].id, ...deck.slides.filter((s, i, all) => all.findIndex((o) => (o.page?.beat ?? o.layout) === (s.page?.beat ?? s.layout)) === i).map((s) => s.id), deck.slides.at(-1)!.id])];
   for (const vp of [
     { width: 390, height: 844 },
     { width: 320, height: 568 },
@@ -355,4 +444,6 @@ export async function walkA11y(session: Session, serversUp: Set<string>) {
   if (framed) await demoToggle(session, framed, plain);
   await lows(session, plain, walked);
   if (framed) await textView(session, framed);
+  await textContent(session);
+  await stageImages(session);
 }

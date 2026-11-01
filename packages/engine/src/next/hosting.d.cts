@@ -30,4 +30,4 @@ export declare function externalOrigins(input: { hosts: { external?: Record<stri
 export declare function assertHosting(input: { target: Target; mode: Mode; site: string }): void;
 export declare function resolveBuildId(env: Env, provider?: Provider): string;
 export declare function addressSource(address: Address): string;
-export declare function headerRules(input: { production: boolean; mode: Mode; site: string; frames: string; addresses: Address[] }): HeaderRule[];
+export declare function headerRules(input: { production: boolean; mode: Mode; site: string; frames: string; addresses: Address[]; publicFiles?: string[] }): HeaderRule[];

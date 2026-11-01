@@ -5,7 +5,7 @@ import { flagsQuery } from "@live-ish/engine/verify";
 import { parseArgs } from "./lib/args";
 import { liveFrames, loadDeck, matches, pick, runningServers, stepKey, type DeckData, type Target } from "./lib/deck";
 import { Report } from "./lib/report";
-import { BROWSER_FLAGS, BROWSER_VALUES, sessionOptions, withSession, type Session } from "./lib/session";
+import { BROWSER_FLAGS, BROWSER_VALUES, sessionOptions, withSession, type Session, type SessionOptions } from "./lib/session";
 import { FRAME_VISIBLE, waitForResult } from "./lib/watch";
 
 /**
@@ -27,17 +27,20 @@ function record(report: Report, where: string, result: AxeResult) {
   for (const v of result.violations) report.fail(where, `${v.id} (${v.impact}) ${v.help}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 4).join(", ")}. ${v.nodes[0]?.failureSummary?.split("\n").at(-1)?.trim() ?? ""}`);
 }
 
-/** Pages the presenter serves, derived from the deck: what a reader meets and what a speaker uses. */
+/**
+ * Pages the presenter serves, derived from the deck: what a reader meets and what a speaker uses.
+ * Every copy slide, not one per layout, because one layout looks different by variant: a dark grid
+ * and a portrait grid fail contrast and alt text on their own.
+ */
 export function presenterTargets(deck: DeckData): { where: string; kind: "reader" | "speaker"; id: string; viewport?: { width: number; height: number }; drawer?: boolean }[] {
   const first = deck.slides[0];
   const last = deck.slides.at(-1)!;
   const demoPage = deck.demos[0]?.pages[0]?.id ?? first.id;
   const framed = liveFrames(deck)[0]?.page.id ?? demoPage;
   const speaker = { width: 1440, height: 900 };
+  const readers = new Set([first.id, ...deck.slides.filter((s) => !s.page).map((s) => s.id), last.id, demoPage]);
   return [
-    { where: `/s/${first.id}`, kind: "reader", id: first.id },
-    { where: `/s/${last.id}`, kind: "reader", id: last.id },
-    { where: `/s/${demoPage}`, kind: "reader", id: demoPage },
+    ...[...readers].map((id) => ({ where: `/s/${id}`, kind: "reader" as const, id })),
     { where: `/s/${demoPage}, drawer open`, kind: "reader", id: demoPage, drawer: true },
     { where: "/speaker, drawer open", kind: "speaker", id: demoPage, viewport: speaker, drawer: true },
     { where: `/speaker on ${framed}`, kind: "speaker", id: framed, viewport: speaker },
@@ -66,6 +69,7 @@ async function scanPresenter(session: Session) {
     record(report, t.where, result);
   }
   await context.close();
+  report.data.layouts = [...new Set(deck.slides.filter((s) => targets.some((t) => t.id === s.id)).map((s) => s.layout))];
   report.log(`\n${targets.length} presenter page(s) scanned`);
 }
 
@@ -128,12 +132,12 @@ async function scanLastStep(session: Session, t: Target): Promise<boolean> {
   }
 }
 
-export async function axe(argv: string[], context: { root: string; deck?: DeckData; report?: Report }): Promise<number> {
+export async function axe(argv: string[], context: { root: string; deck?: DeckData; report?: Report; sabotage?: SessionOptions["sabotage"] }): Promise<number> {
   const args = parseArgs(argv, { values: BROWSER_VALUES, flags: [...BROWSER_FLAGS, "presenter"] });
   const id = args.words[0];
   const report = context.report ?? new Report(args.flag("presenter") ? "axe --presenter" : "axe", args.flag("json"));
   const deck = context.deck ?? (await loadDeck(context.root));
-  return withSession(deck, sessionOptions(args), report, async (session) => {
+  return withSession(deck, { ...sessionOptions(args), sabotage: context.sabotage }, report, async (session) => {
     report.log(`axe at ${session.origin}${session.options.chrome ? `, theme ${session.options.chrome}` : ""}`);
     if (args.flag("presenter")) {
       await scanPresenter(session);

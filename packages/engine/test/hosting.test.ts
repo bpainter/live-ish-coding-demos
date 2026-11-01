@@ -245,6 +245,13 @@ test("cache classes stay, in production only", () => {
   );
 });
 
+test("a deck's own stylesheet gets the hour rule, or each frame mount rechecks it", () => {
+  const input = { production: true, mode: "local" as const, site: "", frames: "", addresses: [], publicFiles: ["/styles/a.css"] };
+  const rule = headerRules(input).find((r) => r.source === "/:address(styles/a\\.css)");
+  assert.equal(rule?.headers[0].value, "public, max-age=3600, stale-while-revalidate=86400");
+  assert.equal(headerRules({ ...input, production: false }).some((r) => r.source.includes("styles")), false);
+});
+
 // --------------------------------------------------------------- notes
 
 const step = { id: "s0", label: "Start", actions: [], notes: ["A private step note."], ifKeyboard: "A private hint." };
