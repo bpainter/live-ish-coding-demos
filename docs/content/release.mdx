@@ -68,6 +68,17 @@ npm dist-tag add @live-ish/engine@0.1.0 latest
 
 Repeat for all four packages.
 
+## Rolling back
+
+npm keeps a published version, so a bad release is replaced, not removed. Mark it, then point `latest` back at the last good version:
+
+```text
+npm deprecate @live-ish/engine@0.2.0 "Broken. Use 0.2.1 or stay on 0.1.9."
+npm dist-tag add @live-ish/engine@0.1.9 latest
+```
+
+Repeat for all four packages, because they share a version. Then publish the fix as a new version through the normal steps.
+
 ## Why it works this way
 
 - **Trusted publishing, no stored token.** There is no secret to steal.
