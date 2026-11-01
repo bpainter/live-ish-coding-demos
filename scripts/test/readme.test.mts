@@ -61,7 +61,9 @@ test("RM-13: the theme sentence comes from the theme files", () => {
 });
 
 test("every relative link and every docs link has a target", () => {
-  for (const [, href] of text.matchAll(/\]\(([^)]+)\)|src="([^"]+)"/g)) {
+  // The docs links are reference definitions, so one block moves them to the site.
+  for (const [, inline, reference] of text.matchAll(/\]\(([^)]+)\)|^\[[^\]]+\]: (\S+)$|src="[^"]+"/gm)) {
+    const href = inline ?? reference;
     if (!href || href.startsWith("#")) continue;
     if (href.startsWith("https://live-ish.dev/")) {
       const page = path.join(REPO, "docs", "content", `${href.slice("https://live-ish.dev/".length)}.mdx`);
