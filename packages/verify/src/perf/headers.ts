@@ -51,6 +51,11 @@ function versions(root: string): Record<string, string> {
   return existsSync(f) ? (JSON.parse(readFileSync(f, "utf8")) as Record<string, string>) : {};
 }
 
+function deckFiles(root: string): string[] {
+  const f = path.join(root, ".live-ish", "deck.json");
+  return existsSync(f) ? ((JSON.parse(readFileSync(f, "utf8")) as { publicFiles?: string[] }).publicFiles ?? []) : [];
+}
+
 /** One probe per rule the deck can reach, from files and pages it really has. */
 export function probes(deck: DeckData): Probe[] {
   const { root } = deck;
@@ -62,6 +67,7 @@ export function probes(deck: DeckData): Probe[] {
   };
   add("Content-hashed image", "presenter", firstPublic(root, "opt"), YEAR, "content hash in the name");
   for (const dir of ["intro", "posters", "images", "backgrounds"]) add(`Unversioned /${dir}`, "presenter", firstPublic(root, dir), HOUR, "the name never changes: an hour, then stale while it rechecks");
+  add("Deck stylesheet or script", "demo", deckFiles(root)[0] ?? null, HOUR, "a frame links it on every mount, and the name never changes");
   for (const p of ["/live-ish/frame-base.css", "/live-ish/demo-runtime.js", "/live-ish/shells/base.css"]) {
     add("Unversioned /live-ish", "demo", p, HOUR, "the same file without ?v, in development and shown links");
     add("Versioned /live-ish (?v=)", "demo", withV(p), YEAR, "?v=<content hash> written by the frame shell");

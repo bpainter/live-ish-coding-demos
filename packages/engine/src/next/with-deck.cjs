@@ -116,7 +116,7 @@ function withDeck(options = {}) {
       return { beforeFiles: [...(presenter ? presenterRewrites(summary.firstSlide) : []), ...addressRewrites(summary.addresses)], afterFiles: [], fallback: [] };
     },
     async headers() {
-      return [...headerRules({ production: process.env.NODE_ENV === "production", mode, site, frames, addresses: summary.addresses }), ...((await next.headers?.()) ?? [])];
+      return [...headerRules({ production: process.env.NODE_ENV === "production", mode, site, frames, addresses: summary.addresses, publicFiles: summary.publicFiles }), ...((await next.headers?.()) ?? [])];
     },
   };
 }

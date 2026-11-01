@@ -17,6 +17,7 @@ export interface Budgets {
   nav: { keyToPaintP90Ms: Budget };
   frame: { backReplayMedianMs: Budget; backReplayP90Ms: Budget };
   walk: { warmRevalidations: Budget };
+  theme: { frameDifference: Budget; reducedMotionMs: Budget };
 }
 
 /** The one file every check reads. */

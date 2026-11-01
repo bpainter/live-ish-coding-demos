@@ -1,15 +1,20 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { hasFrame } from "@live-ish/engine/verify";
+import { presenterTargets } from "../src/axe";
 import { budgets } from "../src/lib/budgets";
 import { fixturePage, isBlocked, liveFrames, loadDeck } from "../src/lib/deck";
+import { slideText } from "../src/walk/a11y";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..", "..", "..");
 const CONFORMANCE = path.join(ROOT, "examples", "conformance");
+const STARTER = path.join(ROOT, "examples", "starter");
 const ENGINE = path.join(ROOT, "packages", "engine", "src", "schema");
 
 const deck = await loadDeck(CONFORMANCE);
@@ -46,6 +51,66 @@ test("every copy layout has a slide", () => {
   const layouts = schemaLayouts();
   assert.ok(layouts.length >= 10, `read ${layouts.length} layouts`);
   for (const layout of layouts) assert.ok(deck.slides.some((s) => s.layout === layout), `no slide with layout ${layout}`);
+});
+
+test("every copy layout reaches axe --presenter and carries text for the text view", () => {
+  const targets = presenterTargets(deck);
+  for (const layout of schemaLayouts()) {
+    const slides = deck.slides.filter((s) => s.layout === layout);
+    assert.ok(slides.length, `no slide with layout ${layout}`);
+    for (const slide of slides) {
+      assert.ok(targets.some((t) => t.kind === "reader" && t.id === slide.id), `axe --presenter skips ${slide.id}`);
+      const text = slideText(slide);
+      assert.ok(text.title, `${slide.id} has no title to check`);
+      assert.ok(text.texts.length + text.alts.length > 0 || layout === "statement", `${slide.id} gives the text view nothing to check`);
+    }
+  }
+});
+
+test("slideText reads an image's alt on any layout, and the cards' on a grid", () => {
+  const portraits = deck.slides.find((s) => s.id === "grid-portraits")!;
+  assert.equal(slideText(portraits).alts.length, 3);
+  const pictured = deck.slides.find((s) => s.layout === "image")!;
+  assert.deepEqual(slideText(pictured).alts, [pictured.image!.alt]);
+});
+
+/** A copy of the starter that resolves the engine from this checkout. */
+function freshDeck(): string {
+  const root = mkdtempSync(path.join(tmpdir(), "live-ish-layout-"));
+  for (const entry of ["deck.config.ts", "slides", "demos", "public"]) cpSync(path.join(STARTER, entry), path.join(root, entry), { recursive: true });
+  mkdirSync(path.join(root, "node_modules", "@live-ish"), { recursive: true });
+  symlinkSync(path.join(ROOT, "packages", "engine"), path.join(root, "node_modules", "@live-ish", "engine"));
+  return root;
+}
+
+const CLI = path.join(ROOT, "packages", "engine", "bin", "live-ish.mjs");
+
+function cli(cwd: string, ...args: string[]): Promise<{ code: number | null; output: string }> {
+  return new Promise((resolve) => {
+    let output = "";
+    const child = spawn(process.execPath, [CLI, ...args], { cwd });
+    child.stdout.on("data", (d) => (output += String(d)));
+    child.stderr.on("data", (d) => (output += String(d)));
+    child.on("close", (code) => resolve({ code, output }));
+  });
+}
+
+test("new copy then check exits 0 for every layout", async () => {
+  const layouts = schemaLayouts();
+  assert.equal(layouts.length, 14, `the schema lists ${layouts.length} layouts`);
+  const results = await Promise.all(
+    layouts.map(async (layout) => {
+      const root = freshDeck();
+      try {
+        const made = await cli(root, "new", "copy", "X", `--layout=${layout}`);
+        const checked = made.code === 0 ? await cli(root, "check") : made;
+        return { layout, code: checked.code, output: checked.output };
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }),
+  );
+  assert.deepEqual(results.filter((r) => r.code !== 0).map((r) => `${r.layout}: exit ${r.code}\n${r.output}`), []);
 });
 
 /** Each variant in 11.2 and 11.6 that a deck can hold, and what proves the deck has it. */

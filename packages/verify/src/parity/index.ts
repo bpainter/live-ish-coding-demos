@@ -15,7 +15,7 @@ export { compareReports, type Report } from "./report";
 const SUITES: Record<string, Record<string, Check>> = { routes, frames, presenter, seo };
 /** The public exit codes. */
 const EXIT = { ok: 0, findings: 1, misuse: 2, environment: 3 } as const;
-const USAGE = "Usage: live-ish parity --manifest=<file or deck> --origin=<url> --out=<file> [--frames-origin=<url>] [--suite=routes,frames,presenter,seo,tools]\n       live-ish parity --compare <a.json> <b.json>";
+const USAGE = "Usage: live-ish parity --manifest=<file or deck> --origin=<url> --out=<file> [--frames-origin=<url>] [--suite=routes,frames,presenter,seo,tools]\n       live-ish parity --compare <a.json> <b.json> [--partial]";
 
 export interface ParityContext {
   root?: string;
@@ -88,6 +88,7 @@ export async function runSuites(options: { manifest: Manifest; origin: string; f
 function compare(argv: string[], log: (line: string) => void): number {
   const at = argv.indexOf("--compare");
   const files = argv.slice(at + 1).filter((a) => !a.startsWith("--"));
+  const partial = argv.includes("--partial");
   if (files.length !== 2) {
     log(USAGE);
     return EXIT.misuse;
@@ -98,10 +99,17 @@ function compare(argv: string[], log: (line: string) => void): number {
   });
   for (const [i, r] of reports.entries()) if (r.version !== REPORT_VERSION) throw new Error(`${files[i]}: report version ${String(r.version)}, and this tool reads version ${REPORT_VERSION}.`);
   const matrix = readMatrix();
-  const { differences, unlisted, oneSided, ok } = compareReports(reports[0], reports[1], matrix);
-  for (const d of differences) log(`  ${d.exception ? `listed ${d.exception}` : "DIFFERS"} ${d.id}: ${d.reason}`);
-  log(`${reports[0].target} and ${reports[1].target}: ${matrix.rows.length} rows, ${differences.length} differ, ${unlisted.length} not listed in the exceptions, ${oneSided.length} ran on one side only.`);
-  return ok ? EXIT.ok : EXIT.findings;
+  const { differences, unlisted, oneSided, neither, compared, ok, okWherePartial } = compareReports(reports[0], reports[1], matrix);
+  for (const d of differences) if (!oneSided.includes(d.id)) log(`  ${d.exception ? `listed ${d.exception}` : "DIFFERS"} ${d.id}: ${d.reason}`);
+  if (oneSided.length) log(`  NOT COMPARED, one side only: ${oneSided.join(", ")}`);
+  log(`${reports[0].target} and ${reports[1].target}: ${compared} of ${matrix.rows.length} rows compared. ${unlisted.length - oneSided.length} differ, and ${differences.length - unlisted.length} more are listed exceptions. ${oneSided.length} ran on one side only and prove nothing. ${neither.length} ran on neither side: the matrix names their proof.`);
+  if (ok) return EXIT.ok;
+  if (partial && okWherePartial) {
+    log(`Partial: no difference among the rows that compared. This is not a parity result, because ${oneSided.length} row(s) were never compared.`);
+    return EXIT.ok;
+  }
+  if (okWherePartial) log("Not a parity result: nothing differs, but rows went uncompared. A manifest report leaves the tool rows not-run: report from a deck folder on both sides, or pass --partial to judge only the rows that compared.");
+  return EXIT.findings;
 }
 
 /**
