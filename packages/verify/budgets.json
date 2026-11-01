@@ -1,0 +1,41 @@
+{
+  "$comment": "One file for every public budget, read by the checks and rendered into the docs. A guarantee blocks a release. A target is tracked and reported. Loosening a guarantee is a breaking change and needs a changelog entry.",
+  "reference": {
+    "server": "A production build under next start, on the same machine as the browser",
+    "browser": "Playwright Chromium, 1920 by 1080, DPR 1",
+    "profile": "venue",
+    "deck": "examples/conformance, sized to give at least 50 arrivals per window",
+    "runs": 3,
+    "statistic": "median of the runs, each computing p90"
+  },
+  "underlay": {
+    "minArrivalsPerWindow": 50,
+    "audienceP90Ms": { "limit": 100, "tier": "guarantee" },
+    "readerP90Ms": { "limit": 250, "tier": "guarantee" },
+    "loadingWithPoster": { "limit": 0, "tier": "guarantee" },
+    "posterSwap": { "limit": 0.02, "tier": "guarantee" }
+  },
+  "focus": {
+    "lostPresses": { "limit": 0, "tier": "guarantee" }
+  },
+  "advance": {
+    "leaveFramedPageMs": { "limit": 1500, "tier": "guarantee" }
+  },
+  "load": {
+    "engineJsBytes": { "limit": 179200, "tier": "guarantee", "proposed": true },
+    "engineCssBytes": { "limit": 25600, "tier": "guarantee", "proposed": true },
+    "themeCssBytes": { "limit": 6144, "tier": "target", "proposed": true },
+    "demoFontBytes": { "limit": 61440, "tier": "target" },
+    "cls": { "limit": 0.01, "tier": "target" }
+  },
+  "nav": {
+    "keyToPaintP90Ms": { "limit": 60, "tier": "target" }
+  },
+  "frame": {
+    "backReplayMedianMs": { "limit": 300, "tier": "target" },
+    "backReplayP90Ms": { "limit": 400, "tier": "target" }
+  },
+  "walk": {
+    "warmRevalidations": { "limit": 0, "tier": "target" }
+  }
+}
