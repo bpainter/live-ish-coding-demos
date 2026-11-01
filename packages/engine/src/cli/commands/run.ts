@@ -99,19 +99,20 @@ export async function dev(ctx: Ctx): Promise<ExitCode> {
 /** Files of a finished build that contain a line of the deck's notes. */
 function notesInBuild(root: string, notes: string[]): string[] {
   const found: string[] = [];
+  // `.next/dev` is the dev server's own output, which holds notes by design and never deploys.
+  const devOutput = path.join(root, ".next", "dev");
   const visit = (dir: string) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const file = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name !== "cache") visit(file);
+        if (entry.name !== "cache" && file !== devOutput) visit(file);
       } else if (entry.isFile()) {
         const text = readFileSync(file, "utf8");
         if (notes.some((n) => text.includes(n))) found.push(path.relative(root, file));
       }
     }
   };
-  // `.next/dev` is the dev server's own output, which holds notes by design and never deploys.
-  for (const entry of readdirSync(path.join(root, ".next"))) if (entry !== "dev") visit(path.join(root, ".next", entry));
+  visit(path.join(root, ".next"));
   return found;
 }
 
