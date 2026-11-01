@@ -44,6 +44,12 @@ export async function arrives(page: Page, deck: DeckData, id: string, timeout = 
   return ms;
 }
 
+/** Where the shared state has the deck now, for a message a person has to read. */
+const deckAt = async (page: Page, deck: DeckData) => (await page.evaluate(`(() => { try { const s = JSON.parse(localStorage.getItem(${JSON.stringify(deck.stateKey)})); return s.slideId + " step " + s.stepIndex; } catch { return "no state"; } })()`).catch(() => "?")) as string;
+
+/** Has the deck reached `id`, in the address or in the shared state? */
+const isOn = (page: Page, deck: DeckData, id: string) => deckAt(page, deck).then(async (at) => at.startsWith(`${id} step`) || new URL(page.url()).searchParams.get("s") === id);
+
 type Windows = { ctx: BrowserContext; speaker: Page; audience: Page; reader: Page };
 
 async function claim(session: Session, audience: Page, id: string, step: number) {
@@ -108,7 +114,7 @@ async function onePage(session: Session, p: FramePage, next: Slide, where: strin
         .waitForFunction(([id, step]) => { const q = new URLSearchParams(location.search); return q.get("s") === id && (q.get("step") ?? "0") === step; }, [p.id, String(n - 1)] as const, { timeout: 3000 })
         .then(() => true)
         .catch(() => false);
-      const st = (await audience.evaluate(`(() => { try { const s = JSON.parse(localStorage.getItem(${JSON.stringify(deck.stateKey)})); return s.slideId + " step " + s.stepIndex; } catch { return "no state"; } })()`).catch(() => "?")) as string;
+      const st = await deckAt(audience, deck);
       if (!back) report.fail(where, `ArrowLeft from ${next.id}: the deck is on ${st}, want ${p.id} step ${n - 1}`);
       else report.pass(`ArrowLeft from ${next.id}: ${p.id} step ${n - 1}${urlOk ? `, ?step=${n - 1}` : " (the address mirror lagged)"}`);
       // C. The speaker's Next button, from the last step.
@@ -144,9 +150,16 @@ async function onePage(session: Session, p: FramePage, next: Slide, where: strin
           const r = await waitForResult(audience, key, s, 10000);
           if (!r) report.fail(where, `a press ${label}: ${last.id} never finished`);
           await audience.waitForTimeout(150);
+          // That press can land as the step ends and leave the page, and a window busy with a long
+          // task takes longer than the check above to show it. Pressing again would then pass
+          // `next`, and read as a deck that never moved.
+          if (await isOn(audience, deck, next.id)) {
+            report.pass(`a press ${label}: ${last.id} had already finished; on ${next.id}, past the first check`);
+            continue;
+          }
           await audience.keyboard.press("ArrowRight");
           ms = await arrives(audience, deck, next.id);
-          if (ms < 0) report.fail(where, `after a press ${label}: Next stayed on ${p.id} for 1500 ms`);
+          if (ms < 0) report.fail(where, `after a press ${label}: Next stayed on ${p.id} for 1500 ms (the deck is on ${await deckAt(audience, deck)})`);
           else report.pass(`after a press ${label}: ${last.id} ${r?.finished ? "finished at once" : "done"}, then Next on ${next.id} in ${near(ms)}`);
         } else report.pass(`a press ${label}: ${last.id} had already finished; on ${next.id}`);
       }
