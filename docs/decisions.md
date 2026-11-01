@@ -324,3 +324,5 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **The stage blurs a focused frame before it takes focus back.** Playwright's Firefox 157 ignored a parent `focus()` while a cross-origin frame held focus, and Firefox 146 did not. A blur first works in all three engines, so it costs nothing where the browser never needed it. A stock Firefox was not checked with a real focus state.
 
 **A WebKit keys walk notes a frame that refused focus.** WebKit gives a cross-origin frame focus only with a press behind it, and `?step=last` has none, so the forwarded Tab goes unchecked there and is not a failure.
+
+**Outside Chromium, a slow fade needs a sample that shows it.** On CI, Firefox 157 stalled animation frames, so the first sample at opacity 0 came as late as 260 ms and blamed the fade for a gap in the samples. Firefox and WebKit now fail only on a sample still lit past the limit. A 230 ms fade fails that check in both engines. Chromium keeps the stricter rule.

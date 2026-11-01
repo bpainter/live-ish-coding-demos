@@ -192,6 +192,7 @@ async function timeline(page: Page, frame: Frame, index: number, sel: string, ho
   const box = (s: BoxSample) => s.boxes[index];
   const hiddenAt = boxes.find((s) => s.t >= start - 200 && box(s)?.state === "hidden")?.t ?? null;
   const zeroAt = boxes.find((s) => s.t >= start - 200 && box(s) && box(s).o === 0)?.t ?? null;
+  const litAt = zeroAt === null ? null : (boxes.filter((s) => s.t >= start - 200 && s.t < zeroAt && box(s) && box(s).o > 0).at(-1)?.t ?? null);
   const shownAfter = boxes.find((s) => s.t > end && box(s)?.state === "shown");
   const leaked = boxes.filter((s) => s.t > (hiddenAt ?? start) && s.t <= end && box(s)?.state !== "hidden").length;
   const between = boxes.filter((s) => box(s) && box(s).o > 0 && box(s).o < 1).length;
@@ -199,6 +200,7 @@ async function timeline(page: Page, frame: Frame, index: number, sel: string, ho
   return {
     hidden: hiddenAt === null ? null : hiddenAt - start,
     zero: zeroAt === null ? null : zeroAt - start,
+    lit: litAt === null ? null : litAt - start,
     shown: shownAfter ? shownAfter.t - end : null,
     leaked,
     between,
@@ -296,7 +298,10 @@ export async function walkFixture(session: Session) {
         // and Firefox run frames on their own clock, so their limits are one frame wider.
         const slack = session.browserName === "chromium" ? 0 : 17;
         if (tl.hidden === null || tl.hidden > 34 + slack) problems.push(`hidden ${tl.hidden?.toFixed(0)} ms after the first change`);
-        if (!reduced && (tl.zero === null || tl.zero > 134 + slack)) problems.push(`opacity 0 at ${tl.zero?.toFixed(0)} ms`);
+        // Frames stall in Firefox on a busy runner, so a late first zero there can be a gap in the
+        // samples. Only a sample still lit past the limit shows a slow fade.
+        const fade = session.browserName === "chromium" ? tl.zero : tl.lit;
+        if (!reduced && (tl.zero === null || (fade ?? 0) > 134 + slack)) problems.push(`opacity 0 at ${tl.zero?.toFixed(0)} ms, last lit at ${tl.lit?.toFixed(0)} ms`);
         if (tl.leaked) problems.push(`${tl.leaked} sample(s) not hidden while moving`);
         if (tl.shown === null || tl.shown < 118 || tl.shown > 187 + slack) problems.push(`shown ${tl.shown?.toFixed(0)} ms after the last change`);
         if (!tl.finalOk) problems.push("not at the final geometry");
