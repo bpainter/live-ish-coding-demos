@@ -357,7 +357,10 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
               Hands-on
             </p>
           ) : null}
-          {current}
+          {/* A picture of the stage: nothing in it takes focus or reaches a screen reader twice. */}
+          <div className="speaker__picture" inert>
+            {current}
+          </div>
         </div>
         <section className="speaker__next" aria-labelledby="speaker-next-label">
           <h2 className="speaker__label" id="speaker-next-label">

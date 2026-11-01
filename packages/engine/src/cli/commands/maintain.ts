@@ -243,7 +243,7 @@ export function writeAgentFiles(root: string): string[] {
 }
 
 /** Commands that live in `@live-ish/verify`. It ships Playwright, so a deck installs it on demand. */
-export const VERIFY_COMMANDS = ["capture", "og", "walk", "axe", "warmup", "perf", "parity"];
+export const VERIFY_COMMANDS = ["capture", "og", "walk", "axe", "warmup", "perf", "parity", "backgrounds"];
 
 export async function delegate(ctx: Ctx, command: string, argv: string[]): Promise<number> {
   const root = requireDeck(ctx);

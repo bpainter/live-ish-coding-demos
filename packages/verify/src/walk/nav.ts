@@ -17,6 +17,8 @@ const FOCUSED = `(() => { const a = document.activeElement; return a ? (a.matche
 export async function walkDrawer(session: Session) {
   const { report, deck } = session;
   report.section("drawer");
+  // Safari's Tab skips buttons unless the person turns that on, and Option+Tab reaches everything.
+  const tab = session.browserName === "webkit" ? "Alt+Tab" : "Tab";
   const start = deck.slides[0].id;
   // A link far from the start, so a jump is a real move.
   const groupsWanted = [...new Set(deck.demos.flatMap((d) => (d.navGroup ? [d.navGroup] : [])))];
@@ -29,7 +31,7 @@ export async function walkDrawer(session: Session) {
     await page.waitForTimeout(500);
     let reached = false;
     for (let i = 0; i < 40 && !reached; i++) {
-      await page.keyboard.press("Tab");
+      await page.keyboard.press(tab);
       reached = (await page.evaluate(FOCUSED)) === "trigger";
     }
     if (!reached) return report.fail("drawer", "Tab never reached the menu button in the reader");
@@ -50,7 +52,7 @@ export async function walkDrawer(session: Session) {
     const linkCount = (await page.evaluate(`document.querySelectorAll("#deck-nav a[href], #deck-nav button").length`)) as number;
     let outside = 0;
     for (let i = 0; i < linkCount + 3; i++) {
-      await page.keyboard.press("Tab");
+      await page.keyboard.press(tab);
       if (!((await page.evaluate(`document.querySelector("#deck-nav").contains(document.activeElement)`)) as boolean)) outside++;
     }
     if (outside) report.fail("drawer", `Tab left the drawer ${outside} time(s)`);

@@ -2,7 +2,7 @@
    a clear tint over a dimmed, blurred backdrop, so the slide shows through while
    the text keeps its contrast. Centered, it fades in over 200 ms and out over 140 ms. */
 .keyboard-help {
-  --keyboard-help-tint: var(--speaker-clear-tint);
+  --keyboard-help-tint: color-mix(in srgb, var(--speaker-solid) 84%, transparent);
   --keyboard-help-filter: blur(16px) saturate(170%) brightness(0.58);
   inline-size: min(720px, 100vw - 32px);
   max-block-size: calc(100dvh - 64px);

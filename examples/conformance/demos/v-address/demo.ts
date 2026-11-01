@@ -9,6 +9,7 @@ export default defineDemo({
     notes: "The frame opens at a root address.\n\nShown code keeps its real paths.",
     files: [shown("index.html"), shown("harbor.js")],
     address: "/harbor",
+    sandbox: "allow-scripts allow-same-origin allow-forms",
     minutes: 0.5,
     steps: [
       { id: "s0", label: "A real address", actions: [{ type: "assert", target: "#tide", expect: "contains:No data" }] },

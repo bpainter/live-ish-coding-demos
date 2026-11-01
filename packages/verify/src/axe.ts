@@ -19,11 +19,12 @@ const require = createRequire(import.meta.url);
 const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
-type AxeResult = { violations: { id: string; impact: string; help: string; nodes: { target: string[] }[] }[] };
+type AxeNode = { target: string[]; failureSummary?: string };
+type AxeResult = { violations: { id: string; impact: string; help: string; nodes: AxeNode[] }[] };
 
 function record(report: Report, where: string, result: AxeResult) {
   if (result.violations.length === 0) return report.pass(`${where}: no violations`);
-  for (const v of result.violations) report.fail(where, `${v.id} (${v.impact}) ${v.help}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 4).join(", ")}`);
+  for (const v of result.violations) report.fail(where, `${v.id} (${v.impact}) ${v.help}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 4).join(", ")}. ${v.nodes[0]?.failureSummary?.split("\n").at(-1)?.trim() ?? ""}`);
 }
 
 /** Pages the presenter serves, derived from the deck: what a reader meets and what a speaker uses. */

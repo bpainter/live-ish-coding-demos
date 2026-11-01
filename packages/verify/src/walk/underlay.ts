@@ -38,10 +38,10 @@ export interface Leg {
   step: number;
 }
 
-/** The arrivals a set of pages gives, repeated in order until the list reaches `min`. */
+/** Every arrival once, then again in order until the list reaches `min`. */
 export function arrivalPlan(legs: Leg[], min: number): Leg[] {
   if (!legs.length) return [];
-  const out: Leg[] = [];
+  const out = [...legs];
   while (out.length < min) out.push(...legs);
   return out;
 }

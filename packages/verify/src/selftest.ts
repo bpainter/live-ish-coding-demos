@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { BrowserContext, Page } from "@playwright/test";
 import { hasFrame } from "@live-ish/engine/verify";
-import { EXIT } from "./lib/args";
+import { EXIT, EnvironmentError, UsageError } from "./lib/args";
 import { liveFrames, loadDeck, type DeckData } from "./lib/deck";
 import { Report } from "./lib/report";
 import { walk, type WalkContext } from "./walk";
@@ -101,12 +101,9 @@ function rows(deck: DeckData): Row[] {
   return out;
 }
 
-/** Quiet checks of a row's output, with the failures kept. */
+/** One row, quietly, with its failures kept. */
 async function runRow(root: string, deck: DeckData, origin: string, row: Row): Promise<{ ok: boolean; detail: string }> {
   const report = new Report("selftest", false, true);
-  const errors: string[] = [];
-  const stderr = console.error;
-  console.error = (...a: unknown[]) => errors.push(a.join(" "));
   try {
     const code = await walk([...row.argv, `--origin=${origin}`], { root, deck, sabotage: row.sabotage, report });
     const text = report.failures.map((f) => `${f.where}: ${f.message}`).join("\n");
@@ -114,11 +111,9 @@ async function runRow(root: string, deck: DeckData, origin: string, row: Row): P
     return { ok, detail: ok ? text.split("\n").find((l) => row.expect.test(l))!.slice(0, 140) : `exit ${code}; ${text.slice(0, 300) || "no failure reported"}` };
   } catch (e) {
     const message = (e as Error).message;
-    const code = (e as { name?: string }).name === "UsageError" ? EXIT.misuse : EXIT.environment;
+    const code = e instanceof UsageError ? EXIT.misuse : e instanceof EnvironmentError ? EXIT.environment : EXIT.findings;
     const ok = code === row.exit && row.expect.test(message);
     return { ok, detail: message.slice(0, 200) };
-  } finally {
-    console.error = stderr;
   }
 }
 

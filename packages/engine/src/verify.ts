@@ -14,5 +14,5 @@ export { encodeImages } from "./cli/commands/images";
 export { prepareDeck, writeDeckModule } from "./prepare";
 export { assembleDeck, DeckError, type AssembledDeck, type DeckInput } from "./schema/assemble";
 export { isBackgroundFile } from "./schema/backgrounds";
-export { SPLITS, hasFrame, type Action, type Demo, type DemoCodeFile, type DemoPage, type FramePage, type IntroPage, type Step } from "./schema/demo";
+export { SPLITS, hasFrame, refusesEmbedding, type Action, type Demo, type DemoCodeFile, type DemoPage, type FramePage, type IntroPage, type Step } from "./schema/demo";
 export type { Slide } from "./schema/slide";
