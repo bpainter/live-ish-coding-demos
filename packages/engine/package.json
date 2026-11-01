@@ -23,6 +23,8 @@
     },
     "./routes/*": "./src/routes/*.tsx",
     "./styles.css": "./dist/engine.css",
+    "./export": "./src/export/index.ts",
+    "./prepare": "./src/prepare/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
