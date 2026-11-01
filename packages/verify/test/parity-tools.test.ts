@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readMatrix } from "../src/parity/report";
+import { compareReports, readMatrix, type Report } from "../src/parity/report";
 import { toolRows } from "../src/parity/tools";
 
 const matrix = readMatrix();
@@ -22,4 +22,14 @@ test("a row with no tool says where it is proved", () => {
   const left = matrix.rows.filter((r) => r.suite === null && !tools.has(r.id));
   const unnamed = left.filter((r) => !ELSEWHERE.test(r.check) && !ELSEWHERE.test(r.capability)).map((r) => r.id);
   assert.deepEqual(unnamed, []);
+});
+
+test("a row that ran on one side is counted apart, and is not a difference", () => {
+  const m = { rows: [{ id: "KY-1", capability: "", check: "", suite: null }], exceptions: [] };
+  const ran: Report = { version: 1, target: "a", build: "x", rows: { "KY-1": { suite: null, outcome: "pass", facts: { held: true } } } };
+  const not: Report = { version: 1, target: "b", build: "x", rows: { "KY-1": { suite: null, outcome: "not-run", facts: {} } } };
+  const { differences, oneSided, ok } = compareReports(ran, not, m);
+  assert.equal(differences.length, 0);
+  assert.deepEqual(oneSided, ["KY-1"]);
+  assert.equal(ok, true);
 });

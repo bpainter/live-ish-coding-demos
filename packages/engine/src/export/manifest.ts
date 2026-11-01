@@ -64,7 +64,7 @@ export function deckManifest({ deck, slides, demos }: AssembledDeck, servers: { 
       speaker: "/speaker",
       health: "/_health",
       frames: "/demos",
-      addresses: demos.flatMap((d) => d.routes ?? []).flatMap((r) => (typeof r.path === "string" ? [r.path] : [])),
+      addresses: demos.flatMap((d) => d.routes ?? []).flatMap((r) => (r.method === "GET" && typeof r.path === "string" ? [r.path] : [])),
     },
     event: Boolean(deck.event),
     linkTags: Object.keys(deck.links.tag ?? {}),
