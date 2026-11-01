@@ -95,7 +95,7 @@ for (const target of TARGETS) {
   const walker = new Walker();
   const type = checker.getDeclaredTypeOfSymbol(symbol);
   const body = walker.object(type);
-  const schema = { $schema: "https://json-schema.org/draft/2020-12/schema", $id: `https://live-ish.dev/schema/${target.out}`, title: target.title, ...body };
+  const schema = { $schema: "https://json-schema.org/draft/2020-12/schema", $id: `https://live-ish.vercel.app/schema/${target.out}`, title: target.title, ...body };
   if (Object.keys(walker.defs).length) schema.$defs = walker.defs;
   writeFileSync(path.join(out, target.out), `${JSON.stringify(schema, null, 2)}\n`);
 }

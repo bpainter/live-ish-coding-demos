@@ -326,3 +326,11 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **A WebKit keys walk notes a frame that refused focus.** WebKit gives a cross-origin frame focus only with a press behind it, and `?step=last` has none, so the forwarded Tab goes unchecked there and is not a failure.
 
 **Outside Chromium, a slow fade needs a sample that shows it.** On CI, Firefox 157 stalled animation frames, so the first sample at opacity 0 came as late as 260 ms and blamed the fade for a gap in the samples. Firefox and WebKit now fail only on a sample still lit past the limit. A 230 ms fade fails that check in both engines. Chromium keeps the stricter rule.
+
+**The repo stays public under `bpainter`.** This doesn't need an organization, so there is no `live-ish/live-ish`.
+
+**The docs site lives at `live-ish.vercel.app`.** A custom domain is more than this project needs.
+
+**This repo holds no AI key.** People run agents in their own Claude or Codex app or CLI. `pnpm evals:claude --run` uses the Claude Code you are signed in to, and CI never runs it, so the nightly evals workflow is gone. A test fails if a workflow brings a key back.
+
+**The first pass ships on the owner's own testing.** Community feedback decides what comes next, in place of a formal usability study.

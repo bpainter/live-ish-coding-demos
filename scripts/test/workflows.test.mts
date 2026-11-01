@@ -8,7 +8,7 @@ import { parse } from "yaml";
 import { REPO } from "../ci/lib.mts";
 
 const DIR = path.join(REPO, ".github", "workflows");
-const JOBS = ["static", "unit", "pack", "starter", "conformance", "budgets", "cross-browser", "offline", "hosting", "readme", "themes", "theme-budgets", "generated", "skills", "agent-evals", "parity", "matrix", "codeql"];
+const JOBS = ["static", "unit", "pack", "starter", "conformance", "budgets", "cross-browser", "offline", "hosting", "readme", "themes", "theme-budgets", "generated", "skills", "parity", "matrix", "codeql"];
 
 const workflows = readdirSync(DIR).map((file) => {
   const text = readFileSync(path.join(DIR, file), "utf8");
@@ -58,16 +58,8 @@ test("no workflow runs on pull_request_target", () => {
   for (const { file, doc } of workflows) assert.ok(!doc.on.pull_request_target, file);
 });
 
-test("agent evals can run for no fork and do nothing without the key", () => {
-  const { doc, text } = named("agent-evals");
-  assert.ok(!doc.on.pull_request, "a pull_request trigger could reach the secret");
-  assert.ok(doc.on.schedule);
-  const job = doc.jobs["agent-evals"];
-  assert.equal(job.environment, "agent-evals");
-  assert.equal(job["continue-on-error"], true);
-  assert.match(job.if, /github\.ref_protected/);
-  for (const step of job.steps.slice(1)) assert.match(step.if, /steps\.key\.outputs\.present/);
-  assert.match(text, /secrets\.ANTHROPIC_API_KEY/);
+test("no workflow holds an AI key", () => {
+  for (const { file, text } of workflows) assert.doesNotMatch(text, /ANTHROPIC_API_KEY|OPENAI_API_KEY/, file);
 });
 
 test("parity runs on the private runner, never for a pull request", () => {
@@ -93,7 +85,7 @@ test("publishing stages through a protected environment, with no token", () => {
 
 test("every blocking job runs on pull requests, and nightly jobs run on a schedule", () => {
   for (const job of ["static", "unit", "pack", "starter", "conformance", "budgets", "hosting", "readme", "themes", "generated", "skills", "matrix"]) assert.ok(named(job).doc.on.pull_request !== undefined, job);
-  for (const job of ["conformance", "cross-browser", "offline", "hosting", "theme-budgets", "agent-evals", "parity"]) assert.ok(named(job).doc.on.schedule, job);
+  for (const job of ["conformance", "cross-browser", "offline", "hosting", "theme-budgets", "parity"]) assert.ok(named(job).doc.on.schedule, job);
   assert.ok(named("codeql").doc.on.schedule);
 });
 

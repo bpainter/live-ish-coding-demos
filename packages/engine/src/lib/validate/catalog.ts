@@ -33,4 +33,4 @@ export function tierOf(id: string): Tier | undefined {
   return TIER_BY_ID.get(id);
 }
 
-export const docsUrl = (rule: string) => `https://live-ish.dev/errors/${rule}`;
+export const docsUrl = (rule: string) => `https://live-ish.vercel.app/errors/${rule}`;

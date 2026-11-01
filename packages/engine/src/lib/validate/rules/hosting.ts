@@ -3,7 +3,7 @@ import type { Finding, Rule, RuleContext } from "../types";
 /** The one line a deck that publishes its presenter gets. Printed as written, by `check` and `build`. */
 export const PUBLIC_NOTES_LINE = "Your speaker notes are public at /speaker.";
 
-const docs = (rule: string) => `https://live-ish.dev/errors/${rule}`;
+const docs = (rule: string) => `https://live-ish.vercel.app/errors/${rule}`;
 const STORAGE_CLEAR = /\b(?:localStorage|sessionStorage)\s*\.\s*clear\s*\(/;
 const REMOTE_SCRIPT = /<script\b[^>]*\bsrc=["'](?:https?:)?\/\//i;
 

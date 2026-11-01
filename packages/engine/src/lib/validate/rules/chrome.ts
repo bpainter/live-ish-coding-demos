@@ -3,7 +3,7 @@ import path from "node:path";
 import { contrastReport, customThemeFiles, deckContrastReport, lintThemeFile, resolveTheme, ThemeError, type ThemeFile } from "../../chrome-themes";
 import type { Finding, Rule, RuleContext } from "../types";
 
-const docs = (rule: string) => `https://live-ish.dev/errors/${rule}`;
+const docs = (rule: string) => `https://live-ish.vercel.app/errors/${rule}`;
 
 /** Every theme the deck resolves to: the default, the beats, and each demo and page. */
 function themesInUse({ deck }: RuleContext): Set<string> {

@@ -20,7 +20,7 @@ function shellFindings(root: string, strict: boolean): Finding[] {
       where: f.target,
       message: f.state === "missing" ? "This generated file is missing." : f.state === "outdated" ? "This generated file is from an older engine." : "This generated file was edited.",
       fix: "Run `live-ish upgrade`.",
-      docs: "https://live-ish.dev/errors/shell",
+      docs: "https://live-ish.vercel.app/errors/shell",
     }));
 }
 
@@ -46,7 +46,7 @@ export async function runCheck(root: string, strict: boolean, only?: string): Pr
   } catch (error) {
     if (only && isDeckError(error)) throw new UsageError(error.message);
     // A slide or demo that will not even load, such as one with a syntax error.
-    found = [{ rule: "build", severity: "error", where: "slides/ and demos/", message: (error as Error).message.split("\n").slice(0, 4).join("\n  "), docs: "https://live-ish.dev/errors/build" }];
+    found = [{ rule: "build", severity: "error", where: "slides/ and demos/", message: (error as Error).message.split("\n").slice(0, 4).join("\n  "), docs: "https://live-ish.vercel.app/errors/build" }];
   }
   const findings = [...found, ...shellFindings(root, strict)];
   if (failure && !findings.some((f) => f.severity === "error")) throw failure;

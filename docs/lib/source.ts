@@ -4,7 +4,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const SITE = "https://live-ish.dev";
+export const SITE = "https://live-ish.vercel.app";
 
 /** The docs package. `import.meta.url` moves under a bundler, and Next always runs from this folder. */
 function findDocs(): string {

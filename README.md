@@ -4,7 +4,7 @@ Live-ish coding: now with 100% less typing in front of strangers.
 
 Live-ish runs slides and scripted demos of code and UI from one web app. Each click plays one step in a real page and highlights the code behind it.
 
-> Preview. Packages are not on npm yet. The API will change. The docs site at live-ish.dev is not up yet either, so the docs links here open the same pages in this repo.
+> Preview. Packages are not on npm yet. The API will change. The docs links here open the pages in this repo.
 
 <img src="docs/assets/demo-slide.png" alt="A demo slide with highlighted code beside a running page.">
 
@@ -64,7 +64,7 @@ The speaker window keeps one fixed style. You can add your own theme as a token 
 
 ## AI tools
 
-New decks include instructions and skills for coding agents. Your agent can add slides and run `live-ish check`. See [AI tools][ai-tools], and the [instructions a deck gets](packages/engine/templates/agents/AGENTS.md). You can use Live-ish with no AI tool.
+New decks include instructions and skills for coding agents. Your agent can add slides and run `live-ish check`. It runs in your own Claude or Codex app or CLI, so this repo needs no API key. See [AI tools][ai-tools], and the [instructions a deck gets](packages/engine/templates/agents/AGENTS.md). You can use Live-ish with no AI tool.
 
 ## Presenting
 
@@ -77,7 +77,7 @@ Run `pnpm live-ish present` to serve the deck from your laptop. It needs no netw
 - [Deploy a deck][deploy]
 - [Known limits][limits]
 
-<!-- Every docs link in this file uses these references. Point them at https://live-ish.dev/<page> once the site is up. -->
+<!-- Every docs link in this file uses these references. Point them at https://live-ish.vercel.app/<page> once the site is up. -->
 
 [start]: docs/content/start.mdx
 [web-demos]: docs/content/web-demos.mdx

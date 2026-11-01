@@ -26,7 +26,7 @@ test("every rule id has a page, and every rule page has a rule (R-9.3)", () => {
 
 test("every docs address the CLI prints has a page", () => {
   const check = readFileSync(path.join(REPO, "packages", "engine", "src", "cli", "commands", "check.ts"), "utf8");
-  for (const [, id] of check.matchAll(/live-ish\.dev\/errors\/([a-z-]+)/g)) assert.ok(slugs.has(`errors/${id}`), id);
+  for (const [, id] of check.matchAll(/live-ish\.vercel\.app\/errors\/([a-z-]+)/g)) assert.ok(slugs.has(`errors/${id}`), id);
 });
 
 test("the rule list links every rule", () => {
@@ -205,7 +205,7 @@ test("every page has a Markdown copy, and llms.txt lists the nav (R-14.9)", () =
     assert.ok(!/<ThemeSwatches|<Generated/.test(readFileSync(file, "utf8")), page.slug);
   }
   const llms = readFileSync(path.join(publicDir, "llms.txt"), "utf8");
-  for (const slug of NAV_ORDER) assert.ok(llms.includes(`https://live-ish.dev/${slug}.md`), slug);
+  for (const slug of NAV_ORDER) assert.ok(llms.includes(`https://live-ish.vercel.app/${slug}.md`), slug);
 });
 
 test("the theme gallery comes from the theme files", () => {

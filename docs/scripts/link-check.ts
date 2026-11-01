@@ -5,7 +5,7 @@
  *   pnpm --filter docs check:links
  *   pnpm --filter docs check:links --external    also fetch links to other sites
  *
- * Links to live-ish.dev count as links to this build, so the site's own absolute links are checked.
+ * Links to live-ish.vercel.app count as links to this build, so the site's own absolute links are checked.
  */
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
@@ -53,7 +53,7 @@ const external = new Map<string, string[]>();
 const fragments: { page: string; from: string; id: string }[] = [];
 const report = (target: string, from: string, map = broken) => map.set(target, [...(map.get(target) ?? []), from]);
 
-/** Same-origin addresses and live-ish.dev addresses, as a path. Other sites return null. */
+/** Same-origin addresses and live-ish.vercel.app addresses, as a path. Other sites return null. */
 function internalPath(href: string, from: string): string | null {
   if (href.startsWith("mailto:") || href.startsWith("data:") || href.startsWith("blob:")) return null;
   const url = new URL(href, BASE + from);
@@ -97,7 +97,7 @@ try {
   for (const [, loc] of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) queue.push({ target: loc.replace(SITE, "") || "/", from: "sitemap.xml" });
   for (const file of ["/llms.txt", "/robots.txt", "/sitemap.xml", "/index.md"]) queue.push({ target: file, from: "list" });
   const llms = readFileSync(path.join(DOCS, "public", "llms.txt"), "utf8");
-  for (const [, address] of llms.matchAll(/\]\((https:\/\/live-ish\.dev[^)]+)\)/g)) queue.push({ target: address.replace(SITE, ""), from: "llms.txt" });
+  for (const [, address] of llms.matchAll(/\]\((https:\/\/live-ish\.vercel\.app[^)]+)\)/g)) queue.push({ target: address.replace(SITE, ""), from: "llms.txt" });
 
   while (queue.length) {
     const batch = queue.splice(0, 16);

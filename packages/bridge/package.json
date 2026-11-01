@@ -3,7 +3,7 @@
   "version": "0.1.0-next.0",
   "description": "What a server-backed Live-ish demo needs from its own app: the frame runtime, hooks, a CSP helper and a per-frame session. No dependencies, any stack.",
   "license": "MIT",
-  "homepage": "https://live-ish.dev",
+  "homepage": "https://live-ish.vercel.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bpainter/live-ish-coding-demos.git",

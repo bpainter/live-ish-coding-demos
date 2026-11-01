@@ -12,7 +12,7 @@ export async function explain(ctx: Ctx): Promise<ExitCode> {
     throw new UsageError(`No rule "${id}".${hint ? ` Did you mean "${hint}"?` : ""}`);
   }
   const page = rulePage(id)?.trim() ?? null;
-  const url = `https://live-ish.dev/errors/${id}`;
+  const url = `https://live-ish.vercel.app/errors/${id}`;
   if (ctx.json) printJson({ id, tier: rule.tier, summary: rule.summary, docs: url, text: page });
   else {
     ctx.log(page ?? `${rule.id} (${rule.tier})\n\n${rule.summary}`);

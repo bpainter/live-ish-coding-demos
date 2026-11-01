@@ -7,7 +7,7 @@ export interface Finding {
   where: string;     // "demos/faq/demo.ts: after, step s2, spotlight"
   message: string;   // what is wrong, in words
   fix?: string;      // one line naming the fix
-  docs: string;      // https://live-ish.dev/errors/<rule>
+  docs: string;      // https://live-ish.vercel.app/errors/<rule>
 }
 
 export interface Rule {

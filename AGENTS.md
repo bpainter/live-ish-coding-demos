@@ -52,7 +52,7 @@ Never edit these by hand. Edit the source and regenerate.
 
 - Every validator rule has a broken fixture, a tier and a docs page. A rule without them fails the tests.
 - Every skill has trigger prompts and a golden task in `evals/`. `pnpm test` runs its commands on a fresh starter, with no agent.
-- `pnpm evals:claude` prints the trigger prompts and golden tasks. `--run` runs them in Claude Code. That spends API money, so nothing runs it on a PR.
+- `pnpm evals:claude` prints the trigger prompts and golden tasks. `--run` runs them in the Claude Code you are signed in to. Nothing runs it in CI, and the repo holds no AI key.
 
 ## Security
 

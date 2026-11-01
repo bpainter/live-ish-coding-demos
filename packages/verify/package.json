@@ -3,7 +3,7 @@
   "version": "0.1.0-next.0",
   "description": "Walks, accessibility scans, capture, warm-up, performance and parity checks for Live-ish decks. Ships Playwright, so a deck installs it on demand.",
   "license": "MIT",
-  "homepage": "https://live-ish.dev",
+  "homepage": "https://live-ish.vercel.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bpainter/live-ish-coding-demos.git",

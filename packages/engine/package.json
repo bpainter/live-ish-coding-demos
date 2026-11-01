@@ -3,7 +3,7 @@
   "version": "0.1.0-next.0",
   "description": "The Live-ish stage, presenter, reader, frame composer and runtime, consumed by a deck behind a thin Next.js shell.",
   "license": "MIT",
-  "homepage": "https://live-ish.dev",
+  "homepage": "https://live-ish.vercel.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bpainter/live-ish-coding-demos.git",

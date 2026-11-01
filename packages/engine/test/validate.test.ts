@@ -214,7 +214,7 @@ test("a broken selector prints exactly the documented shape", async () => {
   try {
     const { findings } = await runChecks({ root: deck.root });
     assert.equal(findings.length, 1);
-    assert.equal(formatFinding(findings[0]), ['✖ [selector] demos/faq/demo.ts: after, step s2, spotlight', '  "#q9" matches nothing in after/index.html.', "  Found: #q1, #q2, #note.", "  Docs: https://live-ish.dev/errors/selector"].join("\n"));
+    assert.equal(formatFinding(findings[0]), ['✖ [selector] demos/faq/demo.ts: after, step s2, spotlight', '  "#q9" matches nothing in after/index.html.', "  Found: #q1, #q2, #note.", "  Docs: https://live-ish.vercel.app/errors/selector"].join("\n"));
   } finally {
     deck.done();
   }

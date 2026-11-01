@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const FOLDERS = ["engine", "verify", "bridge", "create"];
 const REPOSITORY = "git+https://github.com/bpainter/live-ish-coding-demos.git";
-const HOMEPAGE = "https://live-ish.dev";
+const HOMEPAGE = "https://live-ish.vercel.app";
 
 const at = process.argv.indexOf("--version");
 const version = at === -1 ? JSON.parse(readFileSync(path.join(root, "packages", "engine", "package.json"), "utf8")).version : process.argv[at + 1];

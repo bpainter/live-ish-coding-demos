@@ -6,8 +6,8 @@
  *   pnpm evals:claude --run --kind golden --task theme --model haiku --budget 0.5 --out report.json
  *
  * Every run gets a fresh deck, with only project settings, so a machine's own skills, plugins and
- * servers cannot change the result. A nightly job calls this with `--run`, on a protected branch,
- * with an API key forks cannot reach. Exit codes: 0 pass, 1 failures, 2 misuse, 3 environment.
+ * servers cannot change the result. It uses the Claude Code you are signed in to, and CI never runs
+ * it, so this repo holds no AI key. Exit codes: 0 pass, 1 failures, 2 misuse, 3 environment.
  */
 import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";

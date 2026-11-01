@@ -6,7 +6,7 @@ import type { Finding } from "./types";
  *   ✖ [selector] demos/faq/demo.ts: after, step s2, spotlight
  *     "#q9" matches nothing in after/index.html.
  *     Found: #q1, #q2, #note.
- *     Docs: https://live-ish.dev/errors/selector
+ *     Docs: https://live-ish.vercel.app/errors/selector
  */
 export function formatFinding(f: Finding): string {
   return [`${f.severity === "error" ? "✖" : "!"} [${f.rule}] ${f.where}`, `  ${f.message}`, ...(f.fix ? [`  ${f.fix}`] : []), `  Docs: ${f.docs}`].join("\n");

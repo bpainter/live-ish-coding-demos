@@ -65,8 +65,8 @@ test("every relative link and every docs link has a target", () => {
   for (const [, inline, reference] of text.matchAll(/\]\(([^)]+)\)|^\[[^\]]+\]: (\S+)$|src="[^"]+"/gm)) {
     const href = inline ?? reference;
     if (!href || href.startsWith("#")) continue;
-    if (href.startsWith("https://live-ish.dev/")) {
-      const page = path.join(REPO, "docs", "content", `${href.slice("https://live-ish.dev/".length)}.mdx`);
+    if (href.startsWith("https://live-ish.vercel.app/")) {
+      const page = path.join(REPO, "docs", "content", `${href.slice("https://live-ish.vercel.app/".length)}.mdx`);
       assert.ok(existsSync(page), `${href} has no page`);
     } else if (!/^https?:/.test(href)) assert.ok(existsSync(path.join(REPO, href)), `${href} is missing`);
   }
