@@ -13,6 +13,10 @@
   },
   "scripts": {
     "scan:private": "node scripts/scan/private.mjs",
+    "live-ish": "node packages/engine/bin/live-ish.mjs",
+    "skills:ref": "node scripts/skills-ref.mjs",
+    "skills:fresh": "node --import tsx scripts/skills-fresh.mts",
+    "evals:claude": "node --import tsx scripts/skills-evals.mts",
     "export:talk": "node scripts/export/run.mjs",
     "build": "pnpm --filter starter exec next build",
     "build:conformance": "pnpm --filter conformance build",
