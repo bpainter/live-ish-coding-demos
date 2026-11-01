@@ -412,9 +412,6 @@ importers:
 
   packages/verify:
     dependencies:
-      '@live-ish/engine':
-        specifier: workspace:*
-        version: link:../engine
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
@@ -425,6 +422,9 @@ importers:
         specifier: 4.23.15
         version: 4.23.15
     devDependencies:
+      '@live-ish/engine':
+        specifier: workspace:*
+        version: link:../engine
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5

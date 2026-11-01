@@ -91,8 +91,13 @@ if (options.engine) manifest.dependencies["@live-ish/engine"] = options.engine;
 writeFileSync(manifestFile, `${JSON.stringify(manifest, null, 2)}\n`);
 // pnpm stops an install at any build script it was not told about. Both of these ship their
 // binaries as optional dependencies, so neither script needs to run. pnpm 9 refuses this file with
-// no `packages`, and a blank folder runs whatever pnpm Corepack has as its default.
-if (pm === "pnpm") writeFileSync(path.join(target, "pnpm-workspace.yaml"), "packages:\n  - .\nallowBuilds:\n  esbuild: false\n  sharp: false\n");
+// no `packages`, and a blank folder runs whatever pnpm Corepack has as its default. That file also
+// makes the deck a workspace root, which stops a plain `pnpm add`; pnpm 9 reads that setting only
+// from `.npmrc`, and later versions read it from either.
+if (pm === "pnpm") {
+  writeFileSync(path.join(target, "pnpm-workspace.yaml"), "packages:\n  - .\nignoreWorkspaceRootCheck: true\nallowBuilds:\n  esbuild: false\n  sharp: false\n");
+  writeFileSync(path.join(target, ".npmrc"), "ignore-workspace-root-check=true\n");
+}
 
 console.log(`Installing with ${pm}.`);
 if (!run(pm, ["install"], target)) fail(`\`${pm} install\` failed. The deck is in ${options.folder}. Fix the install, then run \`${pm} exec live-ish upgrade --force\` there.`);

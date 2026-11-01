@@ -51,9 +51,11 @@ Demo slides use one of 10 themes: glass, flat, early web, soft, brutalist, layer
 <!-- themes:end -->
 
 ```ts
-chrome: {
-  theme: "flat";
-}
+// deck.config.ts
+export default defineDeck({
+  // ...
+  chrome: { theme: "flat" },
+});
 ```
 
 The speaker view keeps one fixed style. You can add your own theme as a token file. See [themes](https://live-ish.dev/themes).
