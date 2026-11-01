@@ -6,6 +6,13 @@ export interface Failure {
   message: string;
 }
 
+/** One check, with the section it ran in, so a reader can narrow a run to a page. */
+export interface Entry {
+  section: string;
+  where: string;
+  message: string;
+}
+
 export interface JsonReport {
   version: typeof REPORT_VERSION;
   command: string;
@@ -24,6 +31,9 @@ export class Report {
   checks = 0;
   readonly failures: Failure[] = [];
   readonly data: Record<string, unknown> = {};
+  readonly passes: Entry[] = [];
+  readonly entries: Entry[] = [];
+  private current = "";
 
   constructor(
     readonly command: string,
@@ -39,16 +49,19 @@ export class Report {
   }
 
   section(title: string) {
+    this.current = title;
     this.log(`\n== ${title}`);
   }
 
   pass = (message: string) => {
     this.checks++;
+    this.passes.push({ section: this.current, where: "", message });
     this.log(`    ok   ${message}`);
   };
 
   fail = (where: string, message: string) => {
     this.failures.push({ where, message });
+    this.entries.push({ section: this.current, where, message });
     this.log(`    FAIL ${where}: ${message}`);
   };
 

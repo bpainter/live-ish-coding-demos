@@ -7,6 +7,7 @@ import { frames } from "./frames";
 import { presenter } from "./presenter";
 import { routes } from "./routes";
 import { seo } from "./seo";
+import { toolChecks } from "./tools";
 import { DEFAULT_SELECTORS, framesOriginOf, get, type Check, type Target } from "./target";
 
 export { compareReports, type Report } from "./report";
@@ -14,7 +15,7 @@ export { compareReports, type Report } from "./report";
 const SUITES: Record<string, Record<string, Check>> = { routes, frames, presenter, seo };
 /** The public exit codes. */
 const EXIT = { ok: 0, findings: 1, misuse: 2, environment: 3 } as const;
-const USAGE = "Usage: live-ish parity --manifest=<file or deck> --origin=<url> --out=<file> [--frames-origin=<url>] [--suite=routes,frames,presenter,seo]\n       live-ish parity --compare <a.json> <b.json>";
+const USAGE = "Usage: live-ish parity --manifest=<file or deck> --origin=<url> --out=<file> [--frames-origin=<url>] [--suite=routes,frames,presenter,seo,tools]\n       live-ish parity --compare <a.json> <b.json>";
 
 export interface ParityContext {
   root?: string;
@@ -65,13 +66,13 @@ async function runRow(id: string, suite: string, check: Check, t: Omit<Target, "
 }
 
 /** Runs the suites against a running deck and writes one report, keyed by matrix row. */
-export async function runSuites(options: { manifest: Manifest; origin: string; framesOrigin: string; suites: string[]; browser: Browser; matrix: Matrix; log(line: string): void }): Promise<Report> {
-  const { manifest, origin, framesOrigin, suites, browser, matrix, log } = options;
+export async function runSuites(options: { manifest: Manifest; origin: string; framesOrigin: string; suites: string[]; browser: Browser; matrix: Matrix; log(line: string): void; tools?: Record<string, Check> }): Promise<Report> {
+  const { manifest, origin, framesOrigin, suites, browser, matrix, log, tools = {} } = options;
   const t = { origin, framesOrigin, manifest, browser, selectors: { ...DEFAULT_SELECTORS, ...manifest.selectors } };
   const health = JSON.parse((await get(origin, manifest.routes.health)).text) as { build?: string };
   const rows: Report["rows"] = {};
   for (const row of matrix.rows) {
-    const check = row.suite && suites.includes(row.suite) ? SUITES[row.suite][row.id] : undefined;
+    const check = row.suite && suites.includes(row.suite) ? SUITES[row.suite][row.id] : row.suite ? undefined : tools[row.id];
     if (!check) {
       rows[row.id] = { suite: row.suite, outcome: "not-run", facts: {} };
       continue;
@@ -97,9 +98,9 @@ function compare(argv: string[], log: (line: string) => void): number {
   });
   for (const [i, r] of reports.entries()) if (r.version !== REPORT_VERSION) throw new Error(`${files[i]}: report version ${String(r.version)}, and this tool reads version ${REPORT_VERSION}.`);
   const matrix = readMatrix();
-  const { differences, unlisted, ok } = compareReports(reports[0], reports[1], matrix);
+  const { differences, unlisted, oneSided, ok } = compareReports(reports[0], reports[1], matrix);
   for (const d of differences) log(`  ${d.exception ? `listed ${d.exception}` : "DIFFERS"} ${d.id}: ${d.reason}`);
-  log(`${reports[0].target} and ${reports[1].target}: ${matrix.rows.length} rows, ${differences.length} differ, ${unlisted.length} not listed in the exceptions.`);
+  log(`${reports[0].target} and ${reports[1].target}: ${matrix.rows.length} rows, ${differences.length} differ, ${unlisted.length} not listed in the exceptions, ${oneSided.length} ran on one side only.`);
   return ok ? EXIT.ok : EXIT.findings;
 }
 
@@ -114,8 +115,8 @@ export async function parity(argv: string[], context: ParityContext = {}): Promi
     const source = flag(argv, "manifest") ?? context.root;
     const origin = flag(argv, "origin");
     const out = flag(argv, "out");
-    const suites = (flag(argv, "suite") ?? Object.keys(SUITES).join(",")).split(",");
-    const unknown = suites.filter((s) => !SUITES[s]);
+    const suites = (flag(argv, "suite") ?? [...Object.keys(SUITES), "tools"].join(",")).split(",");
+    const unknown = suites.filter((s) => !SUITES[s] && s !== "tools");
     if (!source || !origin || !out || unknown.length) {
       console.error(unknown.length ? `Unknown suite ${unknown.join(", ")}. ${USAGE}` : USAGE);
       return EXIT.misuse;
@@ -133,7 +134,11 @@ export async function parity(argv: string[], context: ParityContext = {}): Promi
     if (!browser) return EXIT.environment;
     try {
       const matrix = readMatrix();
-      const report = await runSuites({ manifest, origin: base, framesOrigin: flag(argv, "frames-origin") ?? framesOriginOf(base), suites, browser, matrix, log });
+      // The walks read a deck folder. A manifest from another repo has no folder here, and its rows
+      // stay `not-run`.
+      const deckFolder = existsSync(path.join(path.resolve(source), "deck.config.ts")) ? path.resolve(source) : null;
+      const tools = deckFolder && suites.includes("tools") ? await toolChecks(deckFolder, base, matrix.rows, log) : {};
+      const report = await runSuites({ manifest, origin: base, framesOrigin: flag(argv, "frames-origin") ?? framesOriginOf(base), suites, browser, matrix, log, tools });
       writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`);
       const counts = Object.values(report.rows).reduce<Record<string, number>>((all, r) => ({ ...all, [r.outcome]: (all[r.outcome] ?? 0) + 1 }), {});
       log(`${report.target}: ${JSON.stringify(counts)}. Report at ${out}`);

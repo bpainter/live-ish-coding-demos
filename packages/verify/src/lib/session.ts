@@ -82,6 +82,8 @@ export class Session {
   health!: Health;
   /** What `--local-only` caught. */
   readonly external: string[] = [];
+  /** A link the walk presses itself. It answers here, so nothing leaves the machine. */
+  readonly pressed = new Set<string>();
   readonly frames: string;
 
   constructor(
@@ -138,7 +140,7 @@ export class Session {
         const url = r.url();
         if (/^(data|blob|about):/.test(url)) return;
         const origin = new URL(url).origin;
-        if (!allowed.has(origin) && !this.external.includes(url)) this.external.push(url);
+        if (!allowed.has(origin) && !this.pressed.has(url) && !this.external.includes(url)) this.external.push(url);
       });
     }
     await this.options.sabotage?.(ctx);

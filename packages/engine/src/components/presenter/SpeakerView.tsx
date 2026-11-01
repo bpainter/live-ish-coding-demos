@@ -403,7 +403,7 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
               </button>
             </div>
           </div>
-          <h2 className="speaker__title" id="speaker-title">
+          <h1 className="speaker__title" id="speaker-title">
             {heading ? (
               <>
                 {heading.eyebrow ? <b className="notes__eyebrow">{heading.eyebrow}:</b> : null}
@@ -413,7 +413,7 @@ export function SpeakerView({ slide, next, total, current, nextPreview, demoPosi
             ) : (
               <b className="notes__eyebrow">{slide.title}</b>
             )}
-          </h2>
+          </h1>
           {page && step ? (
             <>
               <div className="speaker__step-row">

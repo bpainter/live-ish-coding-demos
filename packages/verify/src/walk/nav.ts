@@ -124,7 +124,13 @@ export async function walkLinks(session: Session) {
     await page.goto(session.present(slide.id));
     await page.waitForSelector("#stage a[data-deck-link]", { timeout: 10000 });
     await page.waitForTimeout(600);
-    // The new tab is real. It closes as soon as it opens, and the window comes back.
+    // The new tab is real, and the link answers here, so a walk needs no network. It closes as soon
+    // as it opens, and the window comes back.
+    const href = await page.locator("#stage a[data-deck-link]").first().getAttribute("href");
+    if (href) {
+      session.pressed.add(href);
+      await ctx.route(href, (route) => route.fulfill({ status: 204 }));
+    }
     ctx.on("page", (p) => void p.close().catch(() => {}));
     await page.click("#stage a[data-deck-link]");
     await page.waitForTimeout(800);

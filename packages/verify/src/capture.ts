@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import { createRequire } from "node:module";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { POSTERS_FILE, encodeImages, posterInputHash, posterUrl, prepareDeck, type IntroPage, type PosterRecord } from "@live-ish/engine/verify";
+import { POSTERS_FILE, encodeImages, posterInputHash, posterUrl, prepareDeck, startServers, type IntroPage, type PosterRecord } from "@live-ish/engine/verify";
 import { EnvironmentError, UsageError, numberOpt, parseArgs } from "./lib/args";
 import { liveFrames, loadDeck, runningServers, stepKey, type DeckData, type Target } from "./lib/deck";
 import { Report } from "./lib/report";
@@ -151,7 +151,13 @@ export async function capture(argv: string[], context: { root: string }): Promis
   const port = numberOpt(args, "port", 3390);
   let server: ChildProcess | null = null;
   const options = sessionOptions(args);
+  // Companion apps start and stop with the capture. A port already taken is the author's own.
+  const summary = path.join(root, ".live-ish", "deck.json");
+  const servers = existsSync(summary) ? ((JSON.parse(readFileSync(summary, "utf8")) as { servers?: { app: string; command: string; port: number }[] }).servers ?? []) : [];
+  const companions = await startServers(root, servers, {}, (m: string) => report.log(m));
   try {
+    const silent = await companions.ready();
+    if (silent.length) report.note(`no answer from ${silent.join(", ")}: their pages keep the posters they have`);
     if (!given) {
       const next = nextBin(root);
       if (!args.flag("no-build")) {
@@ -181,5 +187,6 @@ export async function capture(argv: string[], context: { root: string }): Promis
     });
   } finally {
     server?.kill();
+    companions.stop();
   }
 }
