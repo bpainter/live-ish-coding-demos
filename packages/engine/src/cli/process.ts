@@ -112,8 +112,9 @@ export const portAnswers = (port: number, host = "127.0.0.1") =>
 /**
  * Starts `servers` from the config in their own process groups, so stopping one stops whatever its
  * command spawned. A port already taken is left alone: the author started that server by hand.
+ * With `json`, a server's output goes to stderr, because stdout holds one document.
  */
-export async function startServers(root: string, servers: DeckSummary["servers"], env: Record<string, string | undefined>, log: (message: string) => void): Promise<RunningServers> {
+export async function startServers(root: string, servers: DeckSummary["servers"], env: Record<string, string | undefined>, log: (message: string) => void, { json = false } = {}): Promise<RunningServers> {
   const children: ChildProcess[] = [];
   for (const server of servers) {
     if (await portAnswers(server.port)) {
@@ -121,7 +122,7 @@ export async function startServers(root: string, servers: DeckSummary["servers"]
       continue;
     }
     log(`${server.app}: ${server.command}`);
-    children.push(spawn(server.command, { cwd: root, shell: true, detached: true, stdio: "inherit", env: { ...process.env, ...env, PORT: String(server.port) } }));
+    children.push(spawn(server.command, { cwd: root, shell: true, detached: true, stdio: json ? ["ignore", 2, 2] : "inherit", env: { ...process.env, ...env, PORT: String(server.port) } }));
   }
   return {
     stop() {

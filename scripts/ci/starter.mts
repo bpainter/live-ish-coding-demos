@@ -1,14 +1,14 @@
 /**
  * The `starter` job. Scaffolds from the tarballs with pnpm or npm, builds, starts, and runs the
- * Chromium walk. `@live-ish/verify` stays out of the deck until the walk step, which proves a deck
- * never needs it.
+ * Chromium walks, then generates a web demo and a server demo and walks those. `@live-ish/verify`
+ * stays out of the deck until the walk step, which proves a deck never needs it.
  *
  *   node --import tsx scripts/ci/starter.mts --pm pnpm
  */
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { packAll, REPO, serve, stop, tempDir, waitForUrl } from "./lib.mts";
+import { packAll, readJson, REPO, serve, stop, tempDir, waitForUrl } from "./lib.mts";
 
 const at = process.argv.indexOf("--pm");
 const pm = at === -1 ? "pnpm" : process.argv[at + 1];
@@ -50,11 +50,34 @@ run(path.join(deck, "node_modules", ".bin", "next"), ["build"], deck);
 run(process.execPath, ["--import", "tsx", path.join(REPO, "scripts", "smoke.mts")], REPO, { ...process.env, SMOKE_DECK: deck, SMOKE_PORT: PORT });
 
 run(pm, pm === "pnpm" ? ["add", "-D", `file:${tarballs["@live-ish/verify"]}`] : ["install", "--save-dev", `file:${tarballs["@live-ish/verify"]}`], deck);
-const walkServer = serve(path.join(deck, "node_modules", ".bin", "next"), ["start", "--port", PORT], deck);
+const next = path.join(deck, "node_modules", ".bin", "next");
+const walkServer = serve(next, ["start", "--port", PORT], deck);
 try {
   await waitForUrl(`${site}/s/faq-before`, 60_000);
   run(cli, ["walk", `--origin=${site}`], deck);
+  run(cli, ["walk", "--mode=a11y", `--origin=${site}`], deck);
 } finally {
   stop(walkServer);
+  await new Promise((r) => setTimeout(r, 500));
+}
+
+// What `new` writes has to play, not only pass `check`. The server demo runs on the bridge.
+run(pm, pm === "pnpm" ? ["add", `file:${tarballs["@live-ish/bridge"]}`] : ["install", `file:${tarballs["@live-ish/bridge"]}`], deck);
+run(cli, ["new", "web-demo", "tabs"], deck);
+run(cli, ["check", "tabs", "--strict"], deck);
+run(cli, ["new", "web-demo", "shop", "--server"], deck);
+run(next, ["build"], deck);
+const { servers } = readJson<{ servers: { command: string; port: number }[] }>(path.join(deck, ".live-ish", "deck.json"));
+if (servers.length !== 1) throw new Error(`The generated server demo declared ${servers.length} server(s).`);
+const app = serve("sh", ["-c", servers[0].command], deck, { ...process.env, PORT: String(servers[0].port) });
+const generated = serve(next, ["start", "--port", PORT], deck);
+try {
+  await waitForUrl(`${site}/s/tabs-before`, 60_000);
+  await waitForUrl(`http://localhost:${servers[0].port}/`, 30_000);
+  run(cli, ["walk", "tabs", `--origin=${site}`], deck);
+  run(cli, ["walk", "shop", `--origin=${site}`], deck);
+} finally {
+  stop(app);
+  stop(generated);
 }
 console.log(`\nstarter: passed with ${pm}`);
