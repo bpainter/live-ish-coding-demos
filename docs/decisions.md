@@ -236,3 +236,21 @@ In WebKit, a `page.goto` that cancels a slide's prefetch logs an access-control 
 **pnpm 9 needs `packages` in `pnpm-workspace.yaml`.** A blank folder runs whatever pnpm Corepack has as its default, and pnpm 9 refuses a workspace file without that field. The scaffolder now writes `packages: ["."]`.
 
 **Prettier covers only files that joined.** `.prettierignore` lists `packages/`, `examples/` and other workstreams' scripts, so `format:check` is real today without reformatting anyone's files.
+
+## Verify, closing the gaps
+
+**`--compare` no longer passes on rows it never compared.** This replaces the entry that counted a one-sided row apart as neither a match nor a difference. That rule let a manifest report exit 0 with 40 of 205 rows compared. A one-sided row is now a difference unless an exception lists it, so exit 0 means every row compared or was listed. A row that failed on both sides is a difference too, because two failures matching proves nothing. Rows neither side ran stay out of it: the matrix names `pnpm test`, CI or a person as their proof. `--partial` judges only the rows that compared, exits 0 if those hold, and prints that this is not a parity result, so the private nightly can still gate on real differences. The talk report comes from a manifest, so a full `--compare` against it exits 1 until its tool rows have a source, such as a port of the talk onto Live-ish.
+
+**A row's scope reads `where` as well as the message.** A failure often names its subject only in `where`, so a row scoped by text could miss the failure and pass on its own passing lines.
+
+**`@live-ish/verify` ships the matrix.** The tarball had no `matrix.json`, so `parity` failed on any installed deck. `prepack` copies it in and `postpack` removes it, so the repo keeps one file.
+
+**`walk underlay` with no poster exits 3.** With nothing captured, every arrival is a live frame, the poster checks passed on zero, and the run took over 15 minutes to say so. The walk asks the running server for each poster with a `HEAD` request first, because a capture needs a rebuild before `next start` serves it. None served exits 3, meaning it did not run. Some served runs, and fails naming the rest. No swap compared fails. A deck that turned posters off gets the timing and a note. `next dev` still prints its numbers and exits 0.
+
+**`axe --presenter` scans every copy slide, not one per layout.** A layout's variants fail on their own: a dark grid on contrast, a portrait grid on alt text. The text view's size checks lost their cap of 12 slides for the same reason, which had been dropping layouts.
+
+**`walk theme` holds the browser half of the theme bar.** `--chrome=<id>` runs one theme and no `--chrome` runs all of them, comparing each against `glass`, or `flat` for `glass` itself. A frame screenshot uses a fixed whole-pixel clip, because a theme's border moves the frame by part of a pixel and an element screenshot then rounds to another size. Reduced motion reads the top document only: no theme enters a frame, and a demo's own CSS is its author's. Each negative check has a control that sees the thing with the setting off, so a check that measured nothing fails instead of passing. Reduced transparency goes through CDP, because Playwright has no option for it, so it is Chromium only. Blur lives on intro surfaces, so the check reads an intro as well as a framed page.
+
+**A stopped app is walked, not skipped.** A plain `walk` and `walk --mode=servers` check the poster, the note, that no frame mounts and that nothing asks the dead origin. A walk leaves apps as it finds them, so FR-19 reads `n/a` while an app is up, and `--mode=servers` with nothing stopped exits 3, since it read nothing. It needs a captured deck, because a missing poster fails.
+
+**The warm-walk target stays 0.** The 304s were real: `versioned()` and the hour rule cover known folders, and a deck may keep a stylesheet anywhere under `public/`, so Next's `max-age=0` rechecked it on every frame mount. `prepareDeck` now lists a deck's own `.css` and `.js` files in `deck.json`, and `withDeck()` gives those exact paths the hour rule. `perf headers` probes one, and `perf walk` names the files when it misses the target.
