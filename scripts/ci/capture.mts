@@ -20,19 +20,12 @@ if (!deck) {
 
 const cli = (args: string[], stdout: "inherit" | "pipe") => spawnSync("pnpm", ["--silent", "--filter", deck, "exec", "live-ish", ...args], { cwd: REPO, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", stdout, "inherit"] });
 
-// Capture learns a deck's companion apps from `.live-ish/deck.json`, and it reads that before its
-// build writes it. On a clean checkout a server deck would capture nothing and still exit 0.
-const prepared = cli(["prepare"], "inherit");
-if (prepared.status !== 0) process.exit(prepared.status ?? 1);
-
 const port = process.env.CAPTURE_PORT;
 const { status, stdout } = cli(["capture", "--json", ...(port ? [`--port=${port}`] : [])], "pipe");
 if (status !== 0) process.exit(status ?? 1);
 
-// A companion app writes to the same stdout, so the report is the last document, not the only text.
-const text = stdout.slice(stdout.lastIndexOf("\n{\n") + 1);
-if (process.env.RESULTS) writeFileSync(path.join(process.env.RESULTS, `capture-${deck}.json`), text);
-const report = JSON.parse(text) as { ok: boolean; data: { posters?: number; stills?: number } };
+if (process.env.RESULTS) writeFileSync(path.join(process.env.RESULTS, `capture-${deck}.json`), stdout);
+const report = JSON.parse(stdout) as { ok: boolean; data: { posters?: number; stills?: number } };
 const posters = report.data.posters ?? 0;
 if (!report.ok || posters === 0) {
   console.error(`capture: ${deck} wrote ${posters} poster(s), so nothing below it would be measured.`);

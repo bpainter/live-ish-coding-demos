@@ -68,5 +68,5 @@ Add `--profile=venue` or `--profile=poor` to throttle. `poor` is 5 Mbit/s down, 
 
 - Budgets live in one file, read by the checks and rendered here.
 - Changing a guarantee needs a changelog entry. A loosened guarantee is a breaking change.
-- The plan is for CI to upload raw results per release, so each number has a file behind it. It does not do this yet.
+- CI attaches its raw results to each GitHub release, so each number has a file behind it.
 - The first CI run sets a baseline on GitHub's runners. If runners cannot hold a number, the number stays, marked as laptop-class hardware with the reason. It is not quietly raised.

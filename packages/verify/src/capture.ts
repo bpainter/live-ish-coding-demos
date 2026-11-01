@@ -151,10 +151,12 @@ export async function capture(argv: string[], context: { root: string }): Promis
   const port = numberOpt(args, "port", 3390);
   let server: ChildProcess | null = null;
   const options = sessionOptions(args);
-  // Companion apps start and stop with the capture. A port already taken is the author's own.
+  // Companion apps start and stop with the capture. A port already taken is the author's own. A
+  // clean checkout has no summary yet, and a capture with no apps would shoot nothing and pass.
+  await prepareDeck(root);
   const summary = path.join(root, ".live-ish", "deck.json");
   const servers = existsSync(summary) ? ((JSON.parse(readFileSync(summary, "utf8")) as { servers?: { app: string; command: string; port: number }[] }).servers ?? []) : [];
-  const companions = await startServers(root, servers, {}, (m: string) => report.log(m));
+  const companions = await startServers(root, servers, {}, (m: string) => report.log(m), { json: args.flag("json") });
   try {
     const silent = await companions.ready();
     if (silent.length) report.note(`no answer from ${silent.join(", ")}: their pages keep the posters they have`);
