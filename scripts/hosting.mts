@@ -13,8 +13,8 @@
  * Each run writes `.hosting/results/<mode>-<browser>.json`. `--compare` holds each one-origin run
  * against the two-origin run in the same browser.
  *
- * This is the early version of the walks, for spike S-2. It covers every stop forward and back, Next
- * during playback, presses with focus inside a frame, the key contract, a cleared store, and Back in
+ * This compares hosting setups, and the full walks live in `@live-ish/verify`. It covers every stop
+ * forward and back, Next during playback, presses with focus inside a frame, the key contract, a cleared store, and Back in
  * a multi-page demo, on the starter's demos and the temporary one. It does not walk a deck of 50
  * slides, take screenshots, measure geometry or run the accessibility checks.
  */

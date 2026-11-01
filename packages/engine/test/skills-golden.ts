@@ -137,7 +137,7 @@ export interface Verdict {
   problems: string[];
 }
 
-/** Every line of section 17.8 a deck can answer. `build` and `walk` cost seconds, so a caller asks. */
+/** Every line of the golden task judge a deck can answer. `build` and `walk` cost seconds, so a caller asks. */
 export function judge(deck: string, pass: GoldenPass, options: { build?: boolean; walk?: boolean } = {}): Verdict {
   const paths = changedPaths(git(deck, ["status", "--porcelain", "--untracked-files=all"]));
   const problems = judgeChanges(paths, pass);

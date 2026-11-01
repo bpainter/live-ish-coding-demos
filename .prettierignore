@@ -1,7 +1,6 @@
-# Each workstream joins this check when its own files are reformatted. Until then, they stay out.
+# A folder joins this check once its files are reformatted. Until then, it stays out.
 packages/
 examples/
-scripts/export/
 scripts/scan/
 scripts/hosting.mts
 scripts/smoke.mts

@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 export const REPO = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-/** The published packages, by folder. Two of them can be absent while a workstream is open. */
+/** The published packages, by folder. A folder that is absent is skipped. */
 export const PUBLISHED = { engine: "@live-ish/engine", verify: "@live-ish/verify", bridge: "@live-ish/bridge", create: "create-live-ish" } as const;
 
 export const readJson = <T = Record<string, unknown>,>(file: string) => JSON.parse(readFileSync(file, "utf8")) as T;
