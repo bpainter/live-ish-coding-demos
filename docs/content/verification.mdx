@@ -64,7 +64,7 @@ pnpm live-ish walk --origin=http://localhost:3100
 
 ## Walks
 
-`live-ish walk` drives the deck by key, the way a clicker would. Every step runs forward and back, and the digests must match.
+`live-ish walk` drives the deck by key, the way a clicker would. Every step runs forward and back, and the [digest](/glossary), a record of the page's state after the step, must match both ways.
 
 ```text
 pnpm live-ish walk faq
@@ -72,18 +72,22 @@ pnpm live-ish walk --browser=webkit
 pnpm live-ish walk --mode=keys
 ```
 
-| Mode          | What it proves                                                                                  |
-| ------------- | ----------------------------------------------------------------------------------------------- |
-| `advance`     | Next leaves a framed page in time, by key, by the reader's button and by the speaker's button.  |
-| `drawer`      | The navigation drawer's keyboard contract.                                                      |
-| `links`       | The clicker still works after a link on a slide.                                                |
-| `keys`        | No trap, every control reachable, Space presses the focused control.                            |
-| `focus`       | No press is lost on arrival.                                                                    |
-| `underlay`    | Frame content shows within budget, and posters match the live frame.                            |
-| `a11y`        | Reader semantics, text view sizes and focus ring contrast.                                      |
-| `transitions` | The crossfade between slides.                                                                   |
-| `theme`       | The theme bar in a browser. `--chrome=<id>` runs one theme, and no `--chrome` runs all of them. |
-| `servers`     | A stopped app's pages show their poster and note, and nothing asks the dead origin.             |
+With no `--mode` and no id, a walk runs `fixtures` if the deck has them, then `deck`, `drawer` and `links`, then every step. These modes each run one part, or a check the default walk leaves out.
+
+| Mode          | What it proves                                                                                     |
+| ------------- | -------------------------------------------------------------------------------------------------- |
+| `advance`     | Next leaves a framed page in time, by key, by the reader's button and by the speaker's button.     |
+| `drawer`      | The navigation drawer's keyboard contract.                                                         |
+| `links`       | The clicker still works after a link on a slide.                                                   |
+| `keys`        | No trap, every control reachable, Space presses the focused control, `s` reaches the other window. |
+| `focus`       | No press is lost on arrival.                                                                       |
+| `underlay`    | Frame content shows within budget, and posters match the live frame.                               |
+| `a11y`        | Reader semantics, text view sizes and focus ring contrast.                                         |
+| `transitions` | The crossfade between slides.                                                                      |
+| `fixtures`    | The spotlight, against a deck's `demos/00-fixtures/`. A deck without that folder skips it.         |
+| `deck`        | Every slide in order: its background, the grain, the footers and the closing slide.                |
+| `theme`       | The theme bar in a browser. `--chrome=<id>` runs one theme, and no `--chrome` runs all of them.    |
+| `servers`     | A stopped app's pages show their poster and note, and nothing asks the dead origin.                |
 
 Breaking a selector fails the walk and names the step. On `next dev`, `walk --mode=underlay` prints "dev server: budget not applied" and exits 0, because a dev server says nothing about the stage. On `next start` with no poster to serve, it exits 3 without running: run `live-ish capture`, then rebuild. Add `--local-only` to fail on any request to another host.
 

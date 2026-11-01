@@ -19,7 +19,8 @@ These comparisons come from general knowledge and web research, and have not bee
 
 ## What is not built
 
-- There is no static export. A deck needs a Node server, because frames come from route handlers and their security policy is a response header. GitHub Pages and other static hosts do not work.
+- You cannot present from a static host. The presenter needs a Node server, because frames come from route handlers and their security policy is a response header. [`live-ish export`](/export) writes a reader-only copy for GitHub Pages and other static hosts, and demos that need a server show their posters there.
+- An export needs the root of a site, because there is no base path. A project page on a subpath does not work yet.
 - Password protection on `/speaker` does not exist. Keep private notes off a public host.
 - `chrome.copySlides` is parsed and not applied. Copy slides keep the deck theme.
 - Copy slides have no audience themes.

@@ -23,7 +23,7 @@ Run `live-ish` through the deck's package manager, such as `pnpm live-ish check`
 
 - Vercel works with the normal Next.js project setup. It runs the deck's `build` script, which is `live-ish build`.
 - Any host that runs Next.js with a Node server can work. A proxy must forward `host` and `x-forwarded-proto`.
-- Static hosts are not supported: frames come from server routes.
+- A static host cannot run the presenter, because frames come from server routes. `live-ish export` writes a reader-only copy for one, at the root of a site. Demos that need a server show their posters there.
 - A server-backed demo does not deploy with the deck. Its page shows a poster unless `hosts.external` names a deployed server.
 
 `/present` and `/speaker` answer 404 on a host by default. To present, run `live-ish present` on the laptop.

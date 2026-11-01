@@ -10,34 +10,41 @@ outcome: When you finish this page, you will have the repo running, and you will
 ```text
 corepack enable
 pnpm install
+git config core.hooksPath .githooks
 pnpm test
 ```
 
-The repo pins Node in `.nvmrc`, and pnpm in `packageManager`.
+The repo pins Node in `.nvmrc`, and pnpm in `packageManager`. The hooks run `pnpm scan:private` before each commit and check the commit message.
 
 ## What CI runs
 
 GitHub Actions. Every workflow pins its actions by full commit SHA and sets minimal permissions.
 
-| Job             | When                        | What                                                                                 | Blocks merge     |
-| --------------- | --------------------------- | ------------------------------------------------------------------------------------ | ---------------- |
-| `static`        | Every pull request          | Typecheck, ESLint, Prettier, the private scan                                        | Yes              |
-| `unit`          | Every pull request          | The `node:test` units                                                                | Yes              |
-| `pack`          | Every pull request          | Packs tarballs, checks `exports` and types                                           | Yes              |
-| `starter`       | Every pull request          | Scaffolds from the tarballs with pnpm and npm, builds, starts and walks              | Yes              |
-| `conformance`   | Every pull request          | Chromium walk, `axe`, keys and a11y walks on the conformance deck                    | Yes              |
-| `budgets`       | Every pull request          | Underlay and focus walks, and weight budgets                                         | Warns for now    |
-| `readme`        | Every pull request          | Runs the quick start from a blank folder, then checks line count and links           | Yes              |
-| `themes`        | Every pull request          | Contrast on all themes, then `axe` and a walk per theme                              | Yes              |
-| `generated`     | Every pull request          | Rebuilds theme outputs and skills, and fails on a difference                         | Yes              |
-| `skills`        | Every pull request          | Skill validation, size limits, scripted commands, and a run with agent files removed | Yes              |
-| `matrix`        | Every pull request          | Every parity row has a proving check                                                 | Yes              |
-| `cross-browser` | Nightly, before a release   | WebKit and Firefox on the conformance deck                                           | Blocks a release |
-| `offline`       | Nightly                     | A local-only walk with outbound traffic blocked                                      | Blocks a release |
-| `theme-budgets` | Nightly                     | Underlay walk and load budget per theme                                              | Blocks a release |
-| `agent-evals`   | Nightly, protected branches | Trigger prompts and golden tasks                                                     | Warns            |
-| `parity`        | Nightly, private runner     | `live-ish parity` on the conformance deck                                            | Blocks v1.0      |
-| `codeql`        | Weekly                      | Static security analysis                                                             | Advisory         |
+| Job             | When                              | What                                                                                                                              | Blocks                                     |
+| --------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `static`        | Every pull request                | Typecheck, ESLint, Prettier, the private scan                                                                                     | Merge                                      |
+| `gitleaks`      | Every pull request                | Secret scan over the whole history. A job in the `static` workflow.                                                               | Merge                                      |
+| `unit`          | Every pull request                | The `node:test` units                                                                                                             | Merge                                      |
+| `pack`          | Every pull request                | Packs tarballs, checks `exports`, bins and types                                                                                  | Merge                                      |
+| `starter`       | Every pull request                | Scaffolds from the tarballs with pnpm and npm, builds, starts and walks                                                           | Merge                                      |
+| `conformance`   | Every pull request, nightly       | Capture, `check --strict`, the Chromium walks, `axe` and cache headers on the conformance deck, and proof that each walk can fail | Merge                                      |
+| `server`        | Every pull request, nightly       | Captures, checks and walks `examples/server`. A job in the `conformance` workflow.                                                | Merge                                      |
+| `hosting`       | Every pull request, nightly       | Every hosting mode in Chromium and WebKit, then one host held against two origins                                                 | Merge and a release                        |
+| `readme`        | Every pull request                | Runs the README quick start and the docs Quickstart from a blank folder, then checks line count and links                         | Merge                                      |
+| `themes`        | Every pull request                | Contrast on all themes, then `axe`, a walk and the a11y walk per theme                                                            | Merge                                      |
+| `generated`     | Every pull request                | Rebuilds theme outputs and the README theme line, compares skills to their source, and fails on a difference                      | Merge                                      |
+| `skills`        | Every pull request                | Skill validation, size limits, scripted commands, and a run with agent files removed                                              | Merge                                      |
+| `matrix`        | Every pull request                | Every parity row has a proving check                                                                                              | Merge                                      |
+| `budgets`       | Every pull request                | Underlay and focus walks, and weight budgets                                                                                      | Warns on a pull request. Blocks a release. |
+| `cross-browser` | Nightly, before a release         | WebKit and Firefox on the conformance deck and the starter                                                                        | A release                                  |
+| `offline`       | Nightly, before a release         | A local-only walk with outbound traffic blocked                                                                                   | A release                                  |
+| `theme-budgets` | Nightly, before a release         | Underlay walk and load budget per theme                                                                                           | A release                                  |
+| `agent-evals`   | Nightly, protected branches       | Trigger prompts and golden tasks                                                                                                  | Warns                                      |
+| `parity`        | Nightly, private runner           | `live-ish parity` on the conformance deck                                                                                         | v1.0                                       |
+| `codeql`        | Weekly                            | Static security analysis                                                                                                          | Advisory                                   |
+| `publish`       | A `v*` tag, once publishing is on | Runs the merge and release checks above, attaches raw results to a draft release, then stages the packages for human approval     | Nothing goes live without approval         |
+
+The `publish` workflow is off until the owner turns it on. See the [release runbook](/release).
 
 Pure logic tests use `node:test`, and a contributor must be able to run `pnpm test` in about a minute with no browser. A bug in the engine gets a page in `examples/conformance`.
 
