@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { frameChrome } from "../../lib/chrome-preview";
 import { frameQuery, frameUrl } from "../../lib/frames/origins";
+import type { FrameKind } from "../../schema/demo";
 
 /**
  * Warms the next page's frame while an intro slide shows: one hidden, sandboxed document at the
@@ -15,17 +16,17 @@ import { frameQuery, frameUrl } from "../../lib/frames/origins";
  * the window's focus there whatever `inert` and `tabIndex` say; the audience stage also takes focus
  * back from any non-demo frame (Stage.tsx).
  */
-export function FrameWarm({ route, flags, sandbox, chrome }: { route: string; flags?: Record<string, boolean>; sandbox: string; chrome?: string }) {
+export function FrameWarm({ route, kind, flags, sandbox, chrome }: { route: string; kind: FrameKind; flags?: Record<string, boolean>; sandbox: string; chrome?: string }) {
   const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {
-    if (route.startsWith("/@")) return;
+    if (kind === "server") return;
     const t = window.setTimeout(() => {
       const path = route.endsWith("/") ? `${route}index.html` : route.includes(".") ? route : `${route}/index.html`;
       const query = frameQuery(route, flags, chrome ? frameChrome(chrome) : undefined);
       setSrc(`${frameUrl(path).url}${query}${query ? "&" : "?"}warm=1`);
     }, 300);
     return () => window.clearTimeout(t);
-  }, [route, flags, chrome]);
+  }, [route, kind, flags, chrome]);
   if (!src) return null;
   return <iframe className="frame-warm" src={src} title="" aria-hidden="true" tabIndex={-1} sandbox={sandbox} inert />;
 }
