@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { firstPoster, posterMatchesTheme, posterUrl, type FramePage } from "@live-ish/engine/verify";
+import { EnvironmentError } from "../lib/args";
 import { budgets, DEV_SERVER_LINE } from "../lib/budgets";
 import { around, liveFrames, pick, stepKey } from "../lib/deck";
 import { loadSharp, meanDifference, type Sharp } from "../lib/pixels";
@@ -86,13 +87,44 @@ const UNDERLAY_PROBE = (target: string, reader: boolean) => `(() => {
   requestAnimationFrame(loop);
 })()`;
 
-/** The poster the page shows under the frame at a step, as DemoPageSlide and PageBody decide it. */
-function posterFor(session: Session, page: FramePage, stepIndex: number): string | null {
-  const step = page.steps[stepIndex];
-  if (step.posterUnderlay === false) return null;
+/** Does this step show a poster under its frame, once one is captured? Terminal posters hold a theme. */
+function wantsPoster(session: Session, page: FramePage, stepIndex: number): boolean {
   const shown = session.options.chrome ?? page.chrome;
-  if (!posterMatchesTheme(page.frame.kind, page.chrome, shown)) return null;
+  return page.steps[stepIndex].posterUnderlay !== false && posterMatchesTheme(page.frame.kind, page.chrome, shown);
+}
+
+/** The poster the page shows under the frame at a step, as DemoPageSlide and PageBody decide it. */
+function posterFor(page: FramePage, stepIndex: number): string | null {
+  const step = page.steps[stepIndex];
   return firstPoster(step.poster, posterUrl(page, step.id, page.chrome), page.frame.poster);
+}
+
+const legKey = (leg: Leg) => `${leg.page.id}:${leg.step}`;
+
+/** Posters each arrival can show, keyed by page and step, that the running server really serves. */
+async function servedPosters(session: Session, legs: Leg[]): Promise<{ wanted: Leg[]; served: Map<string, string> }> {
+  const wanted = legs.filter((leg) => wantsPoster(session, leg.page, leg.step));
+  const served = new Map<string, string>();
+  // A build lists public/ when it starts, so a capture needs a rebuild before this server has them.
+  await Promise.all(
+    wanted.map(async (leg) => {
+      const url = posterFor(leg.page, leg.step);
+      if (!url) return;
+      const res = await fetch(new URL(url, session.origin), { method: "HEAD" }).catch(() => null);
+      if (res?.ok) served.set(legKey(leg), url);
+    }),
+  );
+  return { wanted, served };
+}
+
+/**
+ * With no poster, nothing here tests the underlay: every arrival is a live frame, and the poster
+ * checks would pass on zero. Stopping saves the full run, which takes minutes per run and proves
+ * nothing, and exit 3 says the walk did not run. A dev server still prints its numbers.
+ */
+export function assertPosters(wanted: number, served: number, dev: boolean) {
+  if (dev || !wanted || served) return;
+  throw new EnvironmentError(`walk underlay did not run: ${wanted} arrival(s) show a poster, and this server has none of them. Run live-ish capture, then rebuild and start the deck again.`);
 }
 
 /** Mean absolute difference, 0 to 1, between the slot showing the live document and the poster. */
@@ -128,7 +160,7 @@ async function swapDiff(page: Page, poster: string, sharp: Sharp): Promise<numbe
 }
 
 /** One run: every window, every arrival. */
-async function oneRun(session: Session, plan: Leg[], windows: Win[], profile: ProfileName, sharp: Sharp): Promise<Arrival[]> {
+async function oneRun(session: Session, plan: Leg[], windows: Win[], profile: ProfileName, sharp: Sharp, served: Map<string, string>): Promise<Arrival[]> {
   const { report } = session;
   const arrivals: Arrival[] = [];
   for (const win of windows) {
@@ -150,7 +182,7 @@ async function oneRun(session: Session, plan: Leg[], windows: Win[], profile: Pr
       await page.waitForFunction(`window.__ul && window.__ul.done`, null, { timeout: 8000 }).catch(() => null);
       const ul = (await page.evaluate(`window.__ul`)) as { stage: number; visible: number; kind: string | null; loading: number[] };
       const step = p.steps[leg.step];
-      const poster = posterFor(session, p, leg.step);
+      const poster = served.get(legKey(leg));
       const a: Arrival = { page: p.id, step: step.id, window: win, dir: leg.dir, ms: ul.visible, stage: ul.stage, kind: ul.kind, loading: ul.loading, poster: Boolean(poster), diff: null };
       // The swap difference, audience only, where the stage is at scale 1: the poster as the slot
       // shows it against the live document once the step is done, the overlay hidden in both.
@@ -195,20 +227,26 @@ export async function walkUnderlay(session: Session, o: UnderlayOptions) {
     return out;
   });
   if (!legs.length) return report.fail("underlay", "no framed page has a neighbour to arrive from");
+  // A dev server prints its numbers and applies no budget. The slide swap there costs the time, not
+  // the poster, so its p90 says nothing about the stage.
+  const dev = session.onDevServer;
+  const { wanted, served } = await servedPosters(session, legs);
+  assertPosters(wanted.length, served.size, dev);
+  const missing = wanted.filter((leg) => !served.has(legKey(leg)));
   const plan = arrivalPlan(legs, o.min);
-  report.log(`  ${legs.length} distinct arrival(s) from ${targets.length} page(s), ${plan.length} per window, ${o.runs} run(s), profile ${o.profile}, ${session.health.server ?? "unknown"} server`);
+  report.log(`  ${legs.length} distinct arrival(s) from ${targets.length} page(s), ${plan.length} per window, ${o.runs} run(s), profile ${o.profile}, ${session.health.server ?? "unknown"} server, ${served.size} of ${wanted.length} poster(s) served`);
+  if (!wanted.length) report.note("no arrival shows a poster: the deck turned them off, so only the timing applies");
+  if (dev && missing.length) report.note(`${missing.length} arrival(s) have no poster yet`);
+  else if (missing.length) report.fail("underlay", `${missing.length} of ${wanted.length} arrival(s) have no poster on this server, so they show "Loading demo": ${[...new Set(missing.map((leg) => leg.page.id))].slice(0, 5).join(", ")}. Run capture, then rebuild`);
 
   const perRun: Arrival[][] = [];
   for (let i = 0; i < o.runs; i++) {
     if (o.runs > 1) report.log(`\n  run ${i + 1} of ${o.runs}`);
-    perRun.push(await oneRun(session, plan, windows, o.profile, sharp));
+    perRun.push(await oneRun(session, plan, windows, o.profile, sharp, served));
   }
 
   const limits = { audience: budgets.underlay.audienceP90Ms.limit, reader: budgets.underlay.readerP90Ms.limit };
-  // A dev server prints its numbers and applies no budget. The slide swap there costs the time, not
-  // the poster, so its p90 says nothing about the stage.
-  const dev = session.onDevServer;
-  const summary: Record<string, unknown> = { profile: o.profile, runs: o.runs, server: session.health.server ?? null };
+  const summary: Record<string, unknown> = { profile: o.profile, runs: o.runs, server: session.health.server ?? null, postersWanted: wanted.length, postersServed: served.size };
   for (const win of windows) {
     const stats = perRun.map((run) => windowStats(run.filter((a) => a.window === win)));
     const p90 = median(stats.map((s) => s.p90))!;
@@ -221,9 +259,11 @@ export async function walkUnderlay(session: Session, o: UnderlayOptions) {
     const all = perRun.flat().filter((a) => a.window === win);
     const loading = all.filter((a) => a.poster && a.loading.length);
     summary[`${win}Loading`] = loading.length;
-    if (dev) continue;
+    if (dev || !wanted.length) continue;
+    const withPoster = all.filter((a) => a.poster).length;
     if (loading.length > budgets.underlay.loadingWithPoster.limit) report.fail("underlay", `${win}: "Loading demo" showed on ${loading.length} arrival(s) with a poster: ${[...new Set(loading.map((a) => `${a.page} ${a.dir}`))].join(", ")}`);
-    else report.pass(`${win}: 0 "Loading demo" on ${all.filter((a) => a.poster).length} arrival(s) with a poster`);
+    else if (withPoster) report.pass(`${win}: 0 "Loading demo" on ${withPoster} arrival(s) with a poster`);
+    else report.fail("underlay", `${win}: no arrival had a poster, so "Loading demo" was never tested`);
   }
   const diffs = perRun.flat().filter((a) => a.diff !== null);
   const worst = diffs.length ? Math.max(...diffs.map((a) => a.diff!)) : null;
@@ -233,7 +273,8 @@ export async function walkUnderlay(session: Session, o: UnderlayOptions) {
   if (dev) report.log(`    note swap max ${worst === null ? "none" : `${(worst * 100).toFixed(2)}%`}`);
   else if (over.length) report.fail("underlay", `swap above ${budgets.underlay.posterSwap.limit * 100}%: ${[...new Set(over.map((a) => `${a.page} ${a.step} ${(a.diff! * 100).toFixed(2)}%`))].join(", ")}`);
   else if (diffs.length) report.pass(`swap at most ${budgets.underlay.posterSwap.limit * 100}% on all ${diffs.length} posters (max ${(worst! * 100).toFixed(2)}%)`);
-  else report.note("no poster to compare: run capture first");
+  else if (wanted.length) report.fail("underlay", "no poster swap was compared: no arrival reached its step with a poster in place");
+  else report.note("no poster to compare: the deck turned them off");
   report.data.underlay = summary;
   if (dev) report.log(`\n${DEV_SERVER_LINE}`);
 }
