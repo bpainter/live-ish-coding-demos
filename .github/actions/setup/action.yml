@@ -43,3 +43,9 @@ runs:
       env:
         BROWSERS: ${{ inputs.browsers }}
       run: pnpm exec playwright install --with-deps $BROWSERS
+
+    - name: Make a folder for raw results
+      shell: bash
+      run: |
+        mkdir -p "$RUNNER_TEMP/results"
+        echo "RESULTS=$RUNNER_TEMP/results" >> "$GITHUB_ENV"
