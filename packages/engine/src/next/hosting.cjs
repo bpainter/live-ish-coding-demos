@@ -77,6 +77,19 @@ function resolveHosting({ env, hosts, target, provider }) {
   return { mode: frames || deployed ? "one-host" : "local", site, frames: "" };
 }
 
+/**
+ * `hosts.external` as origins. A deployed build leaves out an app on this machine: the frame would
+ * ask a visitor's own laptop, so that page shows its poster instead.
+ */
+function externalOrigins({ hosts, target }) {
+  const out = {};
+  for (const [app, value] of Object.entries(hosts.external ?? {})) {
+    const origin = originOf(value, `hosts.external.${app}`);
+    if (target !== "deployed" || !/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(origin)) out[app] = origin;
+  }
+  return out;
+}
+
 /** Fails a build that would point every canonical URL nowhere, in words and before any bundling. */
 function assertHosting({ target, mode, site }) {
   if (target === "deployed" && !site) throw new Error("live-ish: a deployed build needs hosts.site, for its canonical URLs. Set it in deck.config.ts, or set LIVE_ISH_SITE_ORIGIN.");
@@ -138,4 +151,4 @@ function headerRules({ production, mode, site, frames, addresses }) {
   ];
 }
 
-module.exports = { PROVIDERS, addressSource, assertHosting, detectProvider, headerRules, resolveBuildId, resolveHosting, resolveTarget };
+module.exports = { PROVIDERS, addressSource, assertHosting, detectProvider, externalOrigins, headerRules, resolveBuildId, resolveHosting, resolveTarget };

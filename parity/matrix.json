@@ -1,0 +1,2764 @@
+{
+  "version": 1,
+  "rows": [
+    {
+      "id": "RT-1",
+      "group": "routes",
+      "capability": "`/` renders slide 1, then moves to `/s/<id>`",
+      "source": [
+        "app/page.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-2",
+      "group": "routes",
+      "capability": "`/s/<id>`, prerendered per slide",
+      "source": [
+        "app/s/[id]/page.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-3",
+      "group": "routes",
+      "capability": "`/s/<n>` redirects to slide n",
+      "source": [
+        "app/s/[id]/page.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-4",
+      "group": "routes",
+      "capability": "`/present?s=<id>`, rewritten to a prerendered page",
+      "source": [
+        "next.config.ts",
+        "app/present/[id]/page.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-5",
+      "group": "routes",
+      "capability": "`/speaker?s=<id>`, rewritten to a prerendered page",
+      "source": [
+        "next.config.ts",
+        "app/speaker/[id]/page.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-6",
+      "group": "routes",
+      "capability": "Bare or malformed `s` lands on the first slide",
+      "source": [
+        "next.config.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-7",
+      "group": "routes",
+      "capability": "Unknown id: first slide in the windows, 404 for readers",
+      "source": [
+        "app/present/[id]/page.tsx",
+        "app/s/[id]/page.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-8",
+      "group": "routes",
+      "capability": "`/_health` names the build, slides and pages",
+      "source": [
+        "app/%5Fhealth/route.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-9",
+      "group": "routes",
+      "capability": "Custom 404 page",
+      "source": [
+        "app/not-found.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "RT-10",
+      "group": "routes",
+      "capability": "Frame documents and build files at `/demos/<demo>/<build>`",
+      "source": [
+        "app/demos/[demo]/[build]/[[...path]]/route.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity frames`",
+      "suite": "frames"
+    },
+    {
+      "id": "RT-11",
+      "group": "routes",
+      "capability": "Root-level addresses a demo declares, so shown code uses real paths",
+      "source": [
+        "app/<address>"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`parity frames` on the conformance deck",
+      "suite": "frames"
+    },
+    {
+      "id": "RT-12",
+      "group": "routes",
+      "capability": "Spotlight fixture, development only",
+      "source": [
+        "app/fixtures/spotlight/"
+      ],
+      "target": "examples/conformance",
+      "phase": "v0.1",
+      "check": "`walk fixtures`",
+      "suite": null
+    },
+    {
+      "id": "RT-13",
+      "group": "routes",
+      "capability": "`?step=`, `?step=last`, `?glass=`, `?capture=1`, `?fade=`, `?rehearse=1`, kept across slides",
+      "source": [
+        "lib/presenter/url.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity routes`",
+      "suite": "routes"
+    },
+    {
+      "id": "KY-1",
+      "group": "keys",
+      "capability": "Right arrow, PageDown, Space: Next step, then next page",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-2",
+      "group": "keys",
+      "capability": "Left arrow, PageUp, Backspace: Back one step, then previous page",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-3",
+      "group": "keys",
+      "capability": "Shift with an arrow: Next or previous page, step 0",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-4",
+      "group": "keys",
+      "capability": "Home, End: First or last slide",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-5",
+      "group": "keys",
+      "capability": "`b`, `.`: Blank",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-6",
+      "group": "keys",
+      "capability": "`f`: Fullscreen",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-7",
+      "group": "keys",
+      "capability": "`h`: Hands-on mode",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-8",
+      "group": "keys",
+      "capability": "`l`: Terminal page: hide the recording for a live terminal",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-9",
+      "group": "keys",
+      "capability": "`r`: Reset and replay the step",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-10",
+      "group": "keys",
+      "capability": "`t`: Start or pause the timer",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-11",
+      "group": "keys",
+      "capability": "`d`: Rehearsal overlay and action summaries",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-12",
+      "group": "keys",
+      "capability": "`o`: Open the frame standalone",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-13",
+      "group": "keys",
+      "capability": "`s`: Open or focus the other window",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-14",
+      "group": "keys",
+      "capability": "`g`: Speaker: go to a slide number",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-15",
+      "group": "keys",
+      "capability": "`?`: Keyboard help",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-16",
+      "group": "keys",
+      "capability": "Escape: Closes overlays; forwarded from frames",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-17",
+      "group": "keys",
+      "capability": "F5: Reserved, no deck action",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-18",
+      "group": "keys",
+      "capability": "Reader scoping: Presenter keys off, letters act only from the stage",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-19",
+      "group": "keys",
+      "capability": "Keys forwarded from a focused frame: Clicker keys work with focus in a frame",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "KY-20",
+      "group": "keys",
+      "capability": "Space and Enter on a focused control: Presses it in reader and speaker windows",
+      "source": [
+        "lib/keys.ts",
+        "components/stage/Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "PR-1",
+      "group": "presenter",
+      "capability": "Two-window sync over `BroadcastChannel`, `localStorage` fallback",
+      "source": [
+        "lib/presenter/transport.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` speaker checks",
+      "suite": null
+    },
+    {
+      "id": "PR-2",
+      "group": "presenter",
+      "capability": "A refresh resumes; a typed `?s=` wins on a navigate load",
+      "source": [
+        "lib/presenter/context.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-3",
+      "group": "presenter",
+      "capability": "Build ID in the channel name",
+      "source": [
+        "lib/presenter/types.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-4",
+      "group": "presenter",
+      "capability": "Presence: \"No audience\" pill and coral dot",
+      "source": [
+        "lib/presenter/context.tsx",
+        "SpeakerView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-5",
+      "group": "presenter",
+      "capability": "Speaker layout: previews, next panel, steps block, notes, footer",
+      "source": [
+        "components/presenter/SpeakerView.tsx",
+        "styles/components/speaker.css"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` speaker checks",
+      "suite": null
+    },
+    {
+      "id": "PR-6",
+      "group": "presenter",
+      "capability": "One status pill with six states",
+      "source": [
+        "SpeakerView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-7",
+      "group": "presenter",
+      "capability": "Notes rendering: paragraphs, quotes, lists, code, bold, directions",
+      "source": [
+        "lib/notes.ts",
+        "NotesText.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "Unit test",
+      "suite": null
+    },
+    {
+      "id": "PR-8",
+      "group": "presenter",
+      "capability": "Notes size 28 to 56 px, remembered",
+      "source": [
+        "SpeakerView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-9",
+      "group": "presenter",
+      "capability": "References: support, sources, jump to step, actions",
+      "source": [
+        "SpeakerView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-10",
+      "group": "presenter",
+      "capability": "Cautions on the last step, `ifKeyboard` box in hands-on",
+      "source": [
+        "SpeakerView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk`",
+      "suite": null
+    },
+    {
+      "id": "PR-11",
+      "group": "presenter",
+      "capability": "Timer: elapsed, over or under, pause, reset, synced",
+      "source": [
+        "Timer.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-12",
+      "group": "presenter",
+      "capability": "`?rehearse=1` log and JSON export",
+      "source": [
+        "SpeakerView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-13",
+      "group": "presenter",
+      "capability": "Rehearsal overlay: step, digest, duration, asserts, p95 frame time",
+      "source": [
+        "Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-14",
+      "group": "presenter",
+      "capability": "Section drawer with its keyboard contract",
+      "source": [
+        "components/chrome/NavDrawer.tsx",
+        "lib/nav.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk drawer`",
+      "suite": null
+    },
+    {
+      "id": "PR-15",
+      "group": "presenter",
+      "capability": "Go-to dialog",
+      "source": [
+        "components/chrome/GotoDialog.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-16",
+      "group": "presenter",
+      "capability": "Keyboard help, filtered by mode",
+      "source": [
+        "components/chrome/KeyboardHelp.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "PR-17",
+      "group": "presenter",
+      "capability": "Blank, with flag and outline on the preview",
+      "source": [
+        "Stage.tsx",
+        "SpeakerView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-18",
+      "group": "presenter",
+      "capability": "Hands-on mode and its replay on exit",
+      "source": [
+        "Stage.tsx",
+        "PageFrame.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk`",
+      "suite": null
+    },
+    {
+      "id": "PR-19",
+      "group": "presenter",
+      "capability": "Wake lock, cursor hidden after 2 s",
+      "source": [
+        "AudienceView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-20",
+      "group": "presenter",
+      "capability": "Grain overlay, audience window only",
+      "source": [
+        "Stage.tsx",
+        "lib/grain.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-21",
+      "group": "presenter",
+      "capability": "Neighbor images decoded ahead",
+      "source": [
+        "SlidePage.tsx",
+        "Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`perf nav`",
+      "suite": null
+    },
+    {
+      "id": "PR-22",
+      "group": "presenter",
+      "capability": "RSC prefetch of neighbors",
+      "source": [
+        "Stage.tsx",
+        "lib/presenter/url.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`perf nav`",
+      "suite": null
+    },
+    {
+      "id": "PR-23",
+      "group": "presenter",
+      "capability": "Crossfade between slides",
+      "source": [
+        "styles/components/stage-transition.css"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk transitions`",
+      "suite": null
+    },
+    {
+      "id": "PR-24",
+      "group": "presenter",
+      "capability": "`?glass=off`, solid surfaces everywhere",
+      "source": [
+        "GlassMode.tsx",
+        "lib/frames/origins.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-25",
+      "group": "presenter",
+      "capability": "Open frame, audience window controls",
+      "source": [
+        "SpeakerView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "PR-26",
+      "group": "presenter",
+      "capability": "Posters in speaker previews",
+      "source": [
+        "PageBody.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` speaker checks",
+      "suite": null
+    },
+    {
+      "id": "PR-27",
+      "group": "presenter",
+      "capability": "Stuck-playback watchdog at 1500 ms",
+      "source": [
+        "PageFrame.tsx",
+        "Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk --mode=advance`",
+      "suite": null
+    },
+    {
+      "id": "PR-28",
+      "group": "presenter",
+      "capability": "Audience focus claim on arrival",
+      "source": [
+        "Stage.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk focus`",
+      "suite": null
+    },
+    {
+      "id": "PR-29",
+      "group": "presenter",
+      "capability": "Window titles per slide",
+      "source": [
+        "lib/presenter/titles.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "PR-30",
+      "group": "presenter",
+      "capability": "Dark speaker fallbacks: reduced transparency, forced colors, reduced motion",
+      "source": [
+        "styles/components/speaker.css"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity presenter`",
+      "suite": "presenter"
+    },
+    {
+      "id": "AC-1",
+      "group": "actions",
+      "capability": "`pointer`: Ghost cursor glides to an element",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-2",
+      "group": "actions",
+      "capability": "`click`: Cursor, ripple, real click, link wait in multi-page builds",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-3",
+      "group": "actions",
+      "capability": "`key`: Keycap, then the named DOM effect in `via`",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-4",
+      "group": "actions",
+      "capability": "`focus`: Focus, with optional visible ring",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-5",
+      "group": "actions",
+      "capability": "`type`: Character-by-character input",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-6",
+      "group": "actions",
+      "capability": "`paste`: Value set, input event, \"Paste\" caption",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-7",
+      "group": "actions",
+      "capability": "`resize`: Animates a container, or the frame through `:viewport`",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-8",
+      "group": "actions",
+      "capability": "`toggle`: Flips an enhancement flag, reloading where the flag needs it",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-9",
+      "group": "actions",
+      "capability": "`navigate`: URL, back or forward, inside the frame",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-10",
+      "group": "actions",
+      "capability": "`network`: Slow or fast, through the `setNetwork` hook, with a caption",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-11",
+      "group": "actions",
+      "capability": "`hook`: Calls a named `window.demoHooks` function",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-12",
+      "group": "actions",
+      "capability": "`terminal`: Reveals a range of recorded lines",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-13",
+      "group": "actions",
+      "capability": "`reveal`: Shows a hidden element",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-14",
+      "group": "actions",
+      "capability": "`wait`: Pauses; skipped or settled during replay",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "AC-15",
+      "group": "actions",
+      "capability": "`assert`: The full grammar: `:selector`, `focused`, `visible`, `hidden`, `count=`, `value-length`, `inline-size`, `text~=`, `contains:`, `attr:`, `no-attr:`, `url=`, `style:`, `columns=` and the rest of `evaluate()`",
+      "source": [
+        "public/runtime/demo-runtime.js",
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on a conformance page for that action",
+      "suite": null
+    },
+    {
+      "id": "EN-1",
+      "group": "engine",
+      "capability": "Three beats plus `single` pages",
+      "source": [
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`check`, `walk`",
+      "suite": null
+    },
+    {
+      "id": "EN-2",
+      "group": "engine",
+      "capability": "A section mixing frame kinds across beats",
+      "source": [
+        "content/sections/*"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "EN-3",
+      "group": "engine",
+      "capability": "Code lead of 400 ms, a press during it finishes the step",
+      "source": [
+        "PageFrame.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk --mode=advance`",
+      "suite": null
+    },
+    {
+      "id": "EN-4",
+      "group": "engine",
+      "capability": "Next during playback finishes the step",
+      "source": [
+        "PageFrame.tsx",
+        "lib/engine/frame.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk --mode=advance`",
+      "suite": null
+    },
+    {
+      "id": "EN-5",
+      "group": "engine",
+      "capability": "Deterministic Back: fresh document, instant replay, digest",
+      "source": [
+        "lib/engine/steps.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk`",
+      "suite": null
+    },
+    {
+      "id": "EN-6",
+      "group": "engine",
+      "capability": "Reloading flags split a step",
+      "source": [
+        "lib/engine/steps.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk`",
+      "suite": null
+    },
+    {
+      "id": "EN-7",
+      "group": "engine",
+      "capability": "Frame history guard, Safari focus relay",
+      "source": [
+        "lib/engine/input-relay.ts",
+        "demo-runtime.js"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk --browser=webkit`",
+      "suite": null
+    },
+    {
+      "id": "EN-8",
+      "group": "engine",
+      "capability": "Spotlights: radii, merge, inset mode",
+      "source": [
+        "Overlay.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk fixtures`",
+      "suite": null
+    },
+    {
+      "id": "EN-9",
+      "group": "engine",
+      "capability": "Settle gate and forced show at 2000 ms",
+      "source": [
+        "lib/engine/settle.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:settle`, `walk fixtures`",
+      "suite": null
+    },
+    {
+      "id": "EN-10",
+      "group": "engine",
+      "capability": "Top-layer holes in spotlights",
+      "source": [
+        "Overlay.tsx",
+        "lib/engine/protocol.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk fixtures`",
+      "suite": null
+    },
+    {
+      "id": "EN-11",
+      "group": "engine",
+      "capability": "`spotlightClip` and keycap placement",
+      "source": [
+        "content/demo-schema.ts",
+        "Overlay.tsx"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "EN-12",
+      "group": "engine",
+      "capability": "Callouts",
+      "source": [
+        "Overlay.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk fixtures`",
+      "suite": null
+    },
+    {
+      "id": "EN-13",
+      "group": "engine",
+      "capability": "Ghost cursor, ripple, keycaps, captions",
+      "source": [
+        "Overlay.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk fixtures`",
+      "suite": null
+    },
+    {
+      "id": "EN-14",
+      "group": "engine",
+      "capability": "Code panel: tabs, 21-line scroller, whole-line scroll, dimming",
+      "source": [
+        "PageCodePanel.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk`, `walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "EN-15",
+      "group": "engine",
+      "capability": "Excerpts with elision lines",
+      "source": [
+        "lib/excerpt.ts",
+        "lib/demo-files.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`check`, unit test",
+      "suite": null
+    },
+    {
+      "id": "EN-16",
+      "group": "engine",
+      "capability": "Off chip on enhancement-off steps",
+      "source": [
+        "PageCodePanel.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk`",
+      "suite": null
+    },
+    {
+      "id": "EN-17",
+      "group": "engine",
+      "capability": "Splits 50/50 and 60/40, single slot",
+      "source": [
+        "content/demo-schema.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` geometry checks",
+      "suite": null
+    },
+    {
+      "id": "EN-18",
+      "group": "engine",
+      "capability": "Meters computed from real files",
+      "source": [
+        "scripts/meters.mts",
+        "lib/meters.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`check`",
+      "suite": null
+    },
+    {
+      "id": "EN-19",
+      "group": "engine",
+      "capability": "Intro beat: still, description, support row, also-uses line",
+      "source": [
+        "IntroSlide.tsx",
+        "SupportRow.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` intro checks",
+      "suite": null
+    },
+    {
+      "id": "EN-20",
+      "group": "engine",
+      "capability": "Support from `web-features`, tools from npm",
+      "source": [
+        "lib/support-data.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:support`",
+      "suite": null
+    },
+    {
+      "id": "EN-21",
+      "group": "engine",
+      "capability": "Group chip and drawer grouping",
+      "source": [
+        "IntroSlide.tsx",
+        "lib/nav.ts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk drawer`",
+      "suite": null
+    },
+    {
+      "id": "EN-22",
+      "group": "engine",
+      "capability": "Backgrounds per slide and section, frame alignment",
+      "source": [
+        "content/backgrounds.ts",
+        "lib/frames/compose.ts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk` frame background check",
+      "suite": null
+    },
+    {
+      "id": "FR-1",
+      "group": "frames",
+      "capability": "Composer: shown markup byte for byte, in a shell",
+      "source": [
+        "lib/frames/compose.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "Snapshot test",
+      "suite": null
+    },
+    {
+      "id": "FR-2",
+      "group": "frames",
+      "capability": "Frame on a separate origin, checked in both directions",
+      "source": [
+        "lib/engine/frame.ts",
+        "demo-runtime.js"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` protocol watch",
+      "suite": null
+    },
+    {
+      "id": "FR-3",
+      "group": "frames",
+      "capability": "CSP per document, `frame-ancestors`, per-build override",
+      "source": [
+        "lib/frames/compose.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity frames`",
+      "suite": "frames"
+    },
+    {
+      "id": "FR-4",
+      "group": "frames",
+      "capability": "`csp-enforce` and report-only mode",
+      "source": [
+        "lib/frames/compose.ts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "FR-5",
+      "group": "frames",
+      "capability": "Sandbox per build",
+      "source": [
+        "lib/frames/build-helpers.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity frames`",
+      "suite": "frames"
+    },
+    {
+      "id": "FR-6",
+      "group": "frames",
+      "capability": "`enhance-css` modes: all, files, supports-blocks",
+      "source": [
+        "lib/frames/compose.ts",
+        "demo-runtime.js"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "FR-7",
+      "group": "frames",
+      "capability": "`enhance-js` removes scripts on reload",
+      "source": [
+        "lib/frames/compose.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "FR-8",
+      "group": "frames",
+      "capability": "Multi-page builds, `Step.route`, view transitions",
+      "source": [
+        "lib/frames/types.ts",
+        "lib/engine/steps.ts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk`, `axe` on conformance",
+      "suite": null
+    },
+    {
+      "id": "FR-9",
+      "group": "frames",
+      "capability": "Server templates through `render`",
+      "source": [
+        "lib/frames/types.ts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "FR-10",
+      "group": "frames",
+      "capability": "Demo server routes",
+      "source": [
+        "lib/frames/routes.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "FR-11",
+      "group": "frames",
+      "capability": "Inner documents",
+      "source": [
+        "lib/frames/inner.ts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "FR-12",
+      "group": "frames",
+      "capability": "Frame wrappers: before, after, `outside`, `scrolls`, stylesheets",
+      "source": [
+        "lib/frames/wrappers/*"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk-wrapper` checks",
+      "suite": null
+    },
+    {
+      "id": "FR-13",
+      "group": "frames",
+      "capability": "Per-demo CSS in `manifest.styles`",
+      "source": [
+        "lib/frames/compose.ts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk` on conformance",
+      "suite": null
+    },
+    {
+      "id": "FR-14",
+      "group": "frames",
+      "capability": "Static frames",
+      "source": [
+        "lib/frames/build-helpers.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk`",
+      "suite": null
+    },
+    {
+      "id": "FR-15",
+      "group": "frames",
+      "capability": "Terminal frames, recordings, status chip, example lines",
+      "source": [
+        "build.ts",
+        "terminal/*"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk` on the starter",
+      "suite": null
+    },
+    {
+      "id": "FR-16",
+      "group": "frames",
+      "capability": "`l` live mode hides the recording",
+      "source": [
+        "player.css",
+        "demo-runtime.js"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "FR-17",
+      "group": "frames",
+      "capability": "External frames on their own origin",
+      "source": [
+        "lib/frames/origins.ts"
+      ],
+      "target": "engine, @live-ish/bridge",
+      "phase": "beta",
+      "check": "`walk` on `examples/server`",
+      "suite": null
+    },
+    {
+      "id": "FR-18",
+      "group": "frames",
+      "capability": "External app bridge: runtime, hooks, frame session",
+      "source": [
+        "public/presenter.js",
+        "proxy.ts"
+      ],
+      "target": "@live-ish/bridge",
+      "phase": "beta",
+      "check": "`walk` on `examples/server`",
+      "suite": null
+    },
+    {
+      "id": "FR-19",
+      "group": "frames",
+      "capability": "Poster with a note when an external origin is unset",
+      "source": [
+        "PageBody.tsx",
+        "lib/frames/origins.ts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`walk` with the server down",
+      "suite": null
+    },
+    {
+      "id": "FR-20",
+      "group": "frames",
+      "capability": "Starting companion servers for dev, capture and present",
+      "source": [
+        "package.json",
+        "scripts/capture.mts"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`parity frames`",
+      "suite": "frames"
+    },
+    {
+      "id": "FR-21",
+      "group": "frames",
+      "capability": "FrameWarm, never taking focus",
+      "source": [
+        "FrameWarm.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk focus`",
+      "suite": null
+    },
+    {
+      "id": "FR-22",
+      "group": "frames",
+      "capability": "Poster underlay and swap",
+      "source": [
+        "PageFrame.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk underlay`",
+      "suite": null
+    },
+    {
+      "id": "FR-23",
+      "group": "frames",
+      "capability": "\"Demo frame did not answer\" after 1500 ms",
+      "source": [
+        "PageFrame.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "Conformance test with a blocked frame",
+      "suite": null
+    },
+    {
+      "id": "FR-24",
+      "group": "frames",
+      "capability": "Asset versioning and per-class cache headers",
+      "source": [
+        "next.config.ts",
+        "scripts/asset-versions.mts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`perf headers`",
+      "suite": null
+    },
+    {
+      "id": "RD-1",
+      "group": "reader",
+      "capability": "Control pill, idle fade, wake on input",
+      "source": [
+        "ReaderControls.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "RD-2",
+      "group": "reader",
+      "capability": "Live frames for readers, Tab passes them",
+      "source": [
+        "PageFrame.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk keys`",
+      "suite": null
+    },
+    {
+      "id": "RD-3",
+      "group": "reader",
+      "capability": "\"Try the demo\" toggle",
+      "source": [
+        "ReaderControls.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "RD-4",
+      "group": "reader",
+      "capability": "Text view at small sizes and by toggle",
+      "source": [
+        "ReadingView.tsx",
+        "TextViewBoot.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "RD-5",
+      "group": "reader",
+      "capability": "No frames load in text view",
+      "source": [
+        "PageFrame.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "RD-6",
+      "group": "reader",
+      "capability": "APG tabs on the code panel",
+      "source": [
+        "PageCodePanel.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "RD-7",
+      "group": "reader",
+      "capability": "Step announcements, one live region",
+      "source": [
+        "lib/announce.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "RD-8",
+      "group": "reader",
+      "capability": "Focus survives a slide change",
+      "source": [
+        "lib/focus-restore.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "RD-9",
+      "group": "reader",
+      "capability": "Highlighted lines as text for screen readers",
+      "source": [
+        "lib/code-description.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk a11y`",
+      "suite": null
+    },
+    {
+      "id": "RD-10",
+      "group": "reader",
+      "capability": "Link focus and new-tab wording",
+      "source": [
+        "NewTabLink.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk links`",
+      "suite": null
+    },
+    {
+      "id": "RD-11",
+      "group": "reader",
+      "capability": "Notes in the text view",
+      "source": [
+        "ReadingView.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "Default differs, exception E-4",
+      "suite": null,
+      "exception": "E-4"
+    },
+    {
+      "id": "SE-1",
+      "group": "seo",
+      "capability": "Titles, descriptions, canonical URLs",
+      "source": [
+        "lib/seo.ts",
+        "content/descriptions.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`",
+      "suite": "seo"
+    },
+    {
+      "id": "SE-2",
+      "group": "seo",
+      "capability": "Open Graph and Twitter cards",
+      "source": [
+        "lib/seo.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`",
+      "suite": "seo"
+    },
+    {
+      "id": "SE-3",
+      "group": "seo",
+      "capability": "Hashed share image, versioned URL",
+      "source": [
+        "scripts/og.mts",
+        "lib/validate/seo.ts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "`og`, `check`",
+      "suite": null
+    },
+    {
+      "id": "SE-4",
+      "group": "seo",
+      "capability": "JSON-LD for talk, speaker, session and slide",
+      "source": [
+        "lib/seo.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`",
+      "suite": "seo"
+    },
+    {
+      "id": "SE-5",
+      "group": "seo",
+      "capability": "Sitemap",
+      "source": [
+        "app/sitemap.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`",
+      "suite": "seo"
+    },
+    {
+      "id": "SE-6",
+      "group": "seo",
+      "capability": "Host-aware robots with preview-bot group",
+      "source": [
+        "app/robots.txt/route.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`",
+      "suite": "seo"
+    },
+    {
+      "id": "SE-7",
+      "group": "seo",
+      "capability": "`noindex` on windows, `X-Robots-Tag` on the frames host",
+      "source": [
+        "app/present/[id]/page.tsx",
+        "next.config.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`",
+      "suite": "seo"
+    },
+    {
+      "id": "SE-8",
+      "group": "seo",
+      "capability": "Outbound link tagging",
+      "source": [
+        "content/deck.ts",
+        "siteHref"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`",
+      "suite": "seo"
+    },
+    {
+      "id": "SE-9",
+      "group": "seo",
+      "capability": "Footer site link, wordmark, name link",
+      "source": [
+        "GlassSlide.tsx",
+        "Wordmark.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk links`",
+      "suite": null
+    },
+    {
+      "id": "SE-10",
+      "group": "seo",
+      "capability": "QR code on the closing slide, offline",
+      "source": [
+        "lib/qr.ts",
+        "scripts/qr.mts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`walk deck`",
+      "suite": null
+    },
+    {
+      "id": "VA-1",
+      "group": "validators",
+      "capability": "`page-order`, `step-cap`, `bullets`, `bullet-length`, `step-words`, `budget`, `proof`, `key-step`, `label`, `keyboard`, `frame-change`, `duration`, `intro`, `intro-sentences`, `eyebrow`, `cautions`, `callouts`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:validator` (one broken fixture per rule)",
+      "suite": null
+    },
+    {
+      "id": "VA-2",
+      "group": "validators",
+      "capability": "`code`, `files`, `file-size`, `excerpt`, `selector`, `via`, `flags`, `viewport`, `build`, `meter`, `support`, `todo`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:validator` (one broken fixture per rule)",
+      "suite": null
+    },
+    {
+      "id": "VA-3",
+      "group": "validators",
+      "capability": "`dash`, `exclaim`, `case`, `slide-case`, `banned`, `sentence`, `x-not-y`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:validator` (one broken fixture per rule), E-6 on the default",
+      "suite": null,
+      "exception": "E-6"
+    },
+    {
+      "id": "VA-4",
+      "group": "validators",
+      "capability": "`seo-title`, `seo-description`, `jsonld`, `og-image`, `og-stale`, `event-date`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:validator` (one broken fixture per rule)",
+      "suite": null
+    },
+    {
+      "id": "VA-5",
+      "group": "validators",
+      "capability": "`images`, `public-files`, `poster-fresh`, `fonts`, `deck-links`, `nav`, `theme`, `theme-lint`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:validator` (one broken fixture per rule)",
+      "suite": null
+    },
+    {
+      "id": "VA-6",
+      "group": "validators",
+      "capability": "`wrapper-banned`, `wrapper-lint`, `wrapper-markup`, `wrapper-missing`, `wrapper-shown`, `wrapper-unknown`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`test:validator` (one broken fixture per rule)",
+      "suite": null
+    },
+    {
+      "id": "VA-7",
+      "group": "validators",
+      "capability": "`bg-missing`, `bg-unknown`, `bg-unused`, `bg-shared`, `bg-file`, `bg-size`, `bg-bytes`, `bg-duplicate`, `bg-stats`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`test:validator` (one broken fixture per rule)",
+      "suite": null
+    },
+    {
+      "id": "VA-8",
+      "group": "validators",
+      "capability": "`group`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "beta",
+      "check": "`test:validator` (one broken fixture per rule)",
+      "suite": null
+    },
+    {
+      "id": "VA-9",
+      "group": "validators",
+      "capability": "`timing`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:validator` (one broken fixture per rule)",
+      "suite": null
+    },
+    {
+      "id": "VA-10",
+      "group": "validators",
+      "capability": "`title`, `bg-adjacent`, `bg-frame`, `bg-glass`, `bg-leftover`, `qr`, `grain`, `theme-hash`, `tailwind`, `v3-field`",
+      "source": [
+        "lib/validate/*"
+      ],
+      "target": "engine",
+      "phase": "None",
+      "check": "Removed, exception E-8",
+      "suite": null,
+      "exception": "E-8"
+    },
+    {
+      "id": "WK-1",
+      "group": "walks",
+      "capability": "`walk`: steps, asserts, digests, speaker window",
+      "source": [
+        "scripts/walk-demos.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-2",
+      "group": "walks",
+      "capability": "`walk deck`: backgrounds, footers, closing",
+      "source": [
+        "scripts/walk-deck.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-3",
+      "group": "walks",
+      "capability": "`walk --mode=advance`",
+      "source": [
+        "scripts/walk-r7.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-4",
+      "group": "walks",
+      "capability": "`walk transitions`",
+      "source": [
+        "scripts/walk-r7.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-5",
+      "group": "walks",
+      "capability": "`walk drawer`",
+      "source": [
+        "scripts/walk-r7.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-6",
+      "group": "walks",
+      "capability": "`walk links`",
+      "source": [
+        "scripts/walk-r7.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-7",
+      "group": "walks",
+      "capability": "`walk fixtures`, spotlight checks",
+      "source": [
+        "scripts/walk-spotlight.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-8",
+      "group": "walks",
+      "capability": "`walk focus`",
+      "source": [
+        "scripts/walk-perf.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-9",
+      "group": "walks",
+      "capability": "`walk underlay`",
+      "source": [
+        "scripts/walk-perf.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-10",
+      "group": "walks",
+      "capability": "`walk keys`",
+      "source": [
+        "scripts/walk-perf.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-11",
+      "group": "walks",
+      "capability": "`walk a11y`",
+      "source": [
+        "scripts/walk-a11y.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-12",
+      "group": "walks",
+      "capability": "Wrapper checks",
+      "source": [
+        "scripts/walk-wrapper.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-13",
+      "group": "walks",
+      "capability": "`--browser`, `--channel`, `--headed`, `--no-speaker`, `--capture`",
+      "source": [
+        "scripts/walk-demos.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-14",
+      "group": "walks",
+      "capability": "`--no-lanes`, generalized to run with a flag removed",
+      "source": [
+        "scripts/walk-demos.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "Self-test on a broken fixture",
+      "suite": null
+    },
+    {
+      "id": "WK-15",
+      "group": "walks",
+      "capability": "`axe` for frames at first and last step",
+      "source": [
+        "scripts/axe-frames.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "0 violations on examples",
+      "suite": null
+    },
+    {
+      "id": "WK-16",
+      "group": "walks",
+      "capability": "`axe --presenter`",
+      "source": [
+        "scripts/axe-frames.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "0 violations on examples",
+      "suite": null
+    },
+    {
+      "id": "WK-17",
+      "group": "walks",
+      "capability": "`test:contrast`",
+      "source": [
+        "scripts/contrast-test.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "Runs per theme",
+      "suite": null
+    },
+    {
+      "id": "CP-1",
+      "group": "capture",
+      "capability": "`capture`: production build beside `dev`",
+      "source": [
+        "scripts/capture.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "`capture`, then `check`",
+      "suite": null
+    },
+    {
+      "id": "CP-2",
+      "group": "capture",
+      "capability": "`visuals`: stills and step posters",
+      "source": [
+        "scripts/visuals.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "`capture`, then `check`",
+      "suite": null
+    },
+    {
+      "id": "CP-3",
+      "group": "capture",
+      "capability": "`images`: AVIF, WebP, content hashes, manifest",
+      "source": [
+        "scripts/images.mts",
+        "lib/assets.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`check` (`images`)",
+      "suite": null
+    },
+    {
+      "id": "CP-4",
+      "group": "capture",
+      "capability": "Poster freshness hash",
+      "source": [
+        "lib/validate/assets.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`check` (`poster-fresh`)",
+      "suite": null
+    },
+    {
+      "id": "CP-5",
+      "group": "capture",
+      "capability": "Capture in a named browser channel",
+      "source": [
+        "scripts/visuals.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "`capture` on conformance",
+      "suite": null
+    },
+    {
+      "id": "CP-6",
+      "group": "capture",
+      "capability": "Chromium launch switches",
+      "source": [
+        "scripts/visuals.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "`capture` on conformance",
+      "suite": null
+    },
+    {
+      "id": "CP-7",
+      "group": "capture",
+      "capability": "Capture with companion servers",
+      "source": [
+        "scripts/capture.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "`capture` on `examples/server`",
+      "suite": null
+    },
+    {
+      "id": "CP-8",
+      "group": "capture",
+      "capability": "`fonts`: subsets, write-once folder, coverage",
+      "source": [
+        "scripts/fonts.mts",
+        "lib/validate/fonts.ts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`fonts --check`",
+      "suite": null
+    },
+    {
+      "id": "CP-9",
+      "group": "capture",
+      "capability": "`support` and `support --tools`",
+      "source": [
+        "scripts/support-data.mts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`test:support`",
+      "suite": null
+    },
+    {
+      "id": "CP-10",
+      "group": "capture",
+      "capability": "`meters`",
+      "source": [
+        "scripts/meters.mts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`check` (`meter`)",
+      "suite": null
+    },
+    {
+      "id": "CP-11",
+      "group": "capture",
+      "capability": "`excerpt` helper",
+      "source": [
+        "scripts/excerpt.mts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "Unit test",
+      "suite": null
+    },
+    {
+      "id": "CP-12",
+      "group": "capture",
+      "capability": "`backgrounds`: text zones",
+      "source": [
+        "scripts/background-stats.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "`check` (`bg-stats`)",
+      "suite": null
+    },
+    {
+      "id": "CP-13",
+      "group": "capture",
+      "capability": "`grain`",
+      "source": [
+        "scripts/grain.mts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "Unit test",
+      "suite": null
+    },
+    {
+      "id": "CP-14",
+      "group": "capture",
+      "capability": "`theme:sync` and `theme:lint`",
+      "source": [
+        "scripts/theme.mts"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`check` (`theme`)",
+      "suite": null
+    },
+    {
+      "id": "CP-15",
+      "group": "capture",
+      "capability": "Terminal recording and token scan",
+      "source": [
+        "scripts/record-terminal.mts"
+      ],
+      "target": "verify",
+      "phase": "v0.1",
+      "check": "`record` on the starter",
+      "suite": null
+    },
+    {
+      "id": "WU-1",
+      "group": "warmup",
+      "capability": "`warmup`: pages, frames, files, per-class TTFB",
+      "source": [
+        "scripts/warmup.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "`warmup` against `next start`",
+      "suite": null
+    },
+    {
+      "id": "WU-2",
+      "group": "warmup",
+      "capability": "Build check through `--expect`",
+      "source": [
+        "scripts/warmup.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "Fails on a wrong build ID",
+      "suite": null
+    },
+    {
+      "id": "WU-3",
+      "group": "warmup",
+      "capability": "`--demo`, `--concurrency`",
+      "source": [
+        "scripts/warmup.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "Fails on a wrong build ID",
+      "suite": null
+    },
+    {
+      "id": "WU-4",
+      "group": "warmup",
+      "capability": "Stage-day checklist",
+      "source": [
+        "docs/deploy.md"
+      ],
+      "target": "Docs",
+      "phase": "beta",
+      "check": "Link check, one rehearsal",
+      "suite": null
+    },
+    {
+      "id": "PF-1",
+      "group": "perf",
+      "capability": "`perf load`: TTFB, FCP, LCP, CLS, blocking time, hydration, requests, bytes",
+      "source": [
+        "scripts/perf/*"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "PF-2",
+      "group": "perf",
+      "capability": "`perf nav`: Key to paint, background, still and frame",
+      "source": [
+        "scripts/perf/*"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "PF-3",
+      "group": "perf",
+      "capability": "`perf frame`: Back replays and requests per mount",
+      "source": [
+        "scripts/perf/*"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "PF-4",
+      "group": "perf",
+      "capability": "`perf walk`: Whole deck, cold then warm, `--offline`",
+      "source": [
+        "scripts/perf/*"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "PF-5",
+      "group": "perf",
+      "capability": "`perf headers`: Caching rules, both origins",
+      "source": [
+        "scripts/perf/*"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "PF-6",
+      "group": "perf",
+      "capability": "`perf lighthouse`: Desktop and mobile",
+      "source": [
+        "scripts/perf/*"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "PF-7",
+      "group": "perf",
+      "capability": "`perf functions`: Traced size per route",
+      "source": [
+        "scripts/perf/*"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "PF-8",
+      "group": "perf",
+      "capability": "Profiles `none`, `venue`, `poor`, `--label`, result files",
+      "source": [
+        "scripts/perf/lib.mts"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "PF-9",
+      "group": "perf",
+      "capability": "Budgets file and CI gate: New, built from `scripts/walk-perf.mts` limits",
+      "source": [
+        "scripts/perf/*"
+      ],
+      "target": "verify",
+      "phase": "beta",
+      "check": "The task writes a result file on `next start`",
+      "suite": null
+    },
+    {
+      "id": "OT-1",
+      "group": "tooling",
+      "capability": "Analytics, reader pages only, off under automation",
+      "source": [
+        "SiteAnalytics.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`, default differs (E-7)",
+      "suite": "seo",
+      "exception": "E-7"
+    },
+    {
+      "id": "OT-2",
+      "group": "tooling",
+      "capability": "Speed Insights, reader pages only",
+      "source": [
+        "SiteAnalytics.tsx"
+      ],
+      "target": "engine",
+      "phase": "v0.1",
+      "check": "`parity seo`, default differs (E-7)",
+      "suite": "seo",
+      "exception": "E-7"
+    },
+    {
+      "id": "OT-3",
+      "group": "tooling",
+      "capability": "Local fallback build with production origins",
+      "source": [
+        "docs/deploy.md"
+      ],
+      "target": "engine, present",
+      "phase": "v0.1",
+      "check": "`walk --local-only`",
+      "suite": null
+    },
+    {
+      "id": "OT-4",
+      "group": "tooling",
+      "capability": "`eslint-plugin-local`",
+      "source": [
+        "eslint-plugin-local/"
+      ],
+      "target": "Engine repo only",
+      "phase": "v0.1",
+      "check": "CI lint",
+      "suite": null
+    },
+    {
+      "id": "OT-5",
+      "group": "tooling",
+      "capability": "`pnpm validate` as one command",
+      "source": [
+        "package.json"
+      ],
+      "target": "engine, check --all",
+      "phase": "v0.1",
+      "check": "CI",
+      "suite": null
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "E-1",
+      "exception": "Vendor logos on support tiles become text",
+      "kind": "Differs",
+      "reason": "Trademarks. `public/logos/` has no license record.",
+      "recommendation": "Approve. A deck can add its own logos through `support.logos`.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-2",
+      "exception": "Static hosting",
+      "kind": "Not in the repo",
+      "reason": "See section 13.5. Full static hosting cannot run frames. A reader-only export can.",
+      "recommendation": "Build the reader-only export in v1.0 as `live-ish export`.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-3",
+      "exception": "`/present` and `/speaker` off on deployed hosts by default",
+      "kind": "Default differs",
+      "reason": "Prerendered notes would be public by default.",
+      "recommendation": "Approve. `presenter.onHost: true` restores it.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-4",
+      "exception": "Notes hidden in the reader text view by default",
+      "kind": "Default differs",
+      "reason": "Same.",
+      "recommendation": "Approve. `reader.notes: true` restores it.",
+      "status": "approved-pending-owner",
+      "rows": [
+        "RD-11"
+      ]
+    },
+    {
+      "id": "E-5",
+      "exception": "One origin when deployed, unless `hosts.frames` is set",
+      "kind": "Default differs",
+      "reason": "Most users have one domain. Two hosts stay supported.",
+      "recommendation": "Approve.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-6",
+      "exception": "Writing rules off by default",
+      "kind": "Default differs",
+      "reason": "Owner's request.",
+      "recommendation": "Approve. `preset: \"plain\"` restores them.",
+      "status": "approved-pending-owner",
+      "rows": [
+        "VA-3"
+      ]
+    },
+    {
+      "id": "E-7",
+      "exception": "Analytics and Speed Insights off by default",
+      "kind": "Default differs",
+      "reason": "No tracking without consent.",
+      "recommendation": "Approve.",
+      "status": "approved-pending-owner",
+      "rows": [
+        "OT-1",
+        "OT-2"
+      ]
+    },
+    {
+      "id": "E-8",
+      "exception": "Ten rules removed: `title`, `bg-adjacent`, `bg-frame`, `bg-glass`, `bg-leftover`, `qr`, `grain`, `theme-hash`, `tailwind`, `v3-field`",
+      "kind": "Removed",
+      "reason": "Each guards talk history, a hard-coded choice or a file now generated at build.",
+      "recommendation": "Approve.",
+      "status": "approved-pending-owner",
+      "rows": [
+        "VA-10"
+      ]
+    },
+    {
+      "id": "E-9",
+      "exception": "One-time and talk tools not moved: `extract-prd`, `import-prd`, `measure-vite`",
+      "kind": "Removed",
+      "reason": "They served one PRD or one demo.",
+      "recommendation": "Approve.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-10",
+      "exception": "The custom still composition for one slide",
+      "kind": "Removed",
+      "reason": "One slide's special case. A manual `visual.src` still covers it.",
+      "recommendation": "Approve.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-11",
+      "exception": "Duplicate layouts merge: `title` into `title`, `close` into `closing`, `framework-grid` into `grid`",
+      "kind": "Merged",
+      "reason": "Two versions of one layout, one unstyled for the current look.",
+      "recommendation": "Approve.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-12",
+      "exception": "Dead code deleted: `DemoView`, `Demo`, `CodeStep`, demo-grid types, `deck.targetMinutes`, `mirror`, `Mode \"print\"`",
+      "kind": "Removed",
+      "reason": "Nothing reads them.",
+      "recommendation": "Approve.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-13",
+      "exception": "1/2/3 demo views",
+      "kind": "Not in the repo",
+      "reason": "Removed at v4. Fixed splits replaced them.",
+      "recommendation": "Stay out.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-14",
+      "exception": "PDF export",
+      "kind": "Not in the repo",
+      "reason": "The `print` route was never built.",
+      "recommendation": "v1.1 candidate, built on posters.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-15",
+      "exception": "Video export and recording",
+      "kind": "Not in the repo",
+      "reason": "A different product.",
+      "recommendation": "Stay out.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-16",
+      "exception": "Cross-device remote control",
+      "kind": "Not in the repo",
+      "reason": "Sync is one browser on one machine.",
+      "recommendation": "Post v1.0 candidate.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-17",
+      "exception": "Markdown authoring",
+      "kind": "Not in the repo",
+      "reason": "Validators depend on typed data.",
+      "recommendation": "Stay out. Notes keep light markdown.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-18",
+      "exception": "A visual editor and a plugin marketplace",
+      "kind": "Not in the repo",
+      "reason": "No first user needs them.",
+      "recommendation": "Stay out.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-19",
+      "exception": "Non-16:9 canvases",
+      "kind": "Not in the repo",
+      "reason": "The stage is a fixed 1920 by 1080 canvas.",
+      "recommendation": "Stay out.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-20",
+      "exception": "A `custom` layout for deck-owned React slides",
+      "kind": "Not in the repo",
+      "reason": "The old `designed` layout is gone. This would be its modern form.",
+      "recommendation": "v1.1 candidate.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-21",
+      "exception": "Hosted service, accounts and telemetry",
+      "kind": "Not in the repo",
+      "reason": "Conflicts with the project's values.",
+      "recommendation": "Stay out.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-22",
+      "exception": "PTY capture in `record`",
+      "kind": "Not in the repo",
+      "reason": "`scripts/record-terminal.mts` says `node-pty` was never installed. `record` runs commands without a PTY.",
+      "recommendation": "Approve. Add a PTY later only if demos need it.",
+      "status": "approved-pending-owner",
+      "rows": []
+    },
+    {
+      "id": "E-23",
+      "exception": "The 15 store wrappers and portal CSS",
+      "kind": "Content",
+      "reason": "Talk content. The wrapper API moves.",
+      "recommendation": "Stays behind, per the brief.",
+      "status": "approved-pending-owner",
+      "rows": []
+    }
+  ]
+}
