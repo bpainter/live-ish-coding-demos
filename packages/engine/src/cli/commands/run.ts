@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, statSync, utimesSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import type { ChildProcess } from "node:child_process";
 import path from "node:path";
 import { portOf } from "../args";
@@ -13,6 +13,12 @@ import { runCheck, NOT_ASSEMBLED, printFindings } from "./check";
 import { writeSchemas } from "./schema";
 
 const PRESENT_DIST = ".next-present";
+
+/** `next dev` leaves route types behind, and a production build type-checks them against the routes it builds. */
+function clearDevTypes(root: string): void {
+  rmSync(path.join(root, ".next", "dev", "types"), { recursive: true, force: true });
+}
+
 const STAMP = "live-ish.json";
 
 /** Stops the children, then leaves with their code. Runs on Ctrl-C and on a terminated parent. */
@@ -130,6 +136,7 @@ export async function build(ctx: Ctx): Promise<ExitCode> {
   writeSchemas(root);
   if (hasMasters(root)) await encodeImages(root, { log: ctx.log, optional: true });
   const deployed = await prepareDeck(root, "deployed");
+  clearDevTypes(root);
   const code = await runNext(root, ["build"], { ...process.env, LIVE_ISH_TARGET: "deployed", LIVE_ISH_PREPARED: root });
   if (code !== 0) return EXIT.findings;
   if (keepsNotes(deployed, "deployed")) {
@@ -236,6 +243,7 @@ export async function present(ctx: Ctx): Promise<ExitCode> {
   } else {
     build = `local-${Date.now().toString(36)}`;
     ctx.log(stamp ? "The deck changed since the last build. Building." : "Building for this laptop.");
+    clearDevTypes(root);
     const code = await runNext(root, ["build"], { ...env, LIVE_ISH_BUILD_ID: build });
     if (code !== 0) return EXIT.findings;
     writeFileSync(path.join(root, PRESENT_DIST, STAMP), `${JSON.stringify({ build, engine: engineVersion(), builtAt: Date.now() }, null, 2)}\n`);
