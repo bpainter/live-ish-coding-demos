@@ -79,7 +79,11 @@ function watch(page: Page) {
 }
 
 const asserted = (done: Done) => (done.asserts ?? []).every((a) => a.pass);
-const failedAsserts = (done: Done) => (done.asserts ?? []).filter((a) => !a.pass).map((a) => `${a.target} ${a.expect}: ${a.actual}`).join("; ");
+const failedAsserts = (done: Done) =>
+  (done.asserts ?? [])
+    .filter((a) => !a.pass)
+    .map((a) => `${a.target} ${a.expect}: ${a.actual}`)
+    .join("; ");
 
 async function walkUp(browser: Browser) {
   console.log("\nWith the app running");
@@ -112,7 +116,10 @@ async function walkUp(browser: Browser) {
   }
 
   // Back mounts a fresh document and replays, in a fresh session, so the digest must not move.
-  for (const [id, step] of [["request-log-after", "s1"], ["request-log-after", "s0"]] as const) {
+  for (const [id, step] of [
+    ["request-log-after", "s1"],
+    ["request-log-after", "s0"],
+  ] as const) {
     const count = (await messages(page)).length;
     await page.keyboard.press("ArrowLeft");
     const done = await stepDone(page, step, count);
@@ -168,7 +175,10 @@ async function walkDown(browser: Browser) {
 async function stills(browser: Browser) {
   const context = await browser.newContext({ viewport: { width: 640, height: 628 } });
   const page = await context.newPage();
-  for (const [id, url] of [["request-log-before", "/products/1"], ["request-log-after", "/cached/products/1"]]) {
+  for (const [id, url] of [
+    ["request-log-before", "/products/1"],
+    ["request-log-after", "/cached/products/1"],
+  ]) {
     await page.goto(`${APP}${url}`);
     for (const step of ["s0", "s1", "s2"]) {
       mkdirSync(path.join(POSTERS, id), { recursive: true });
@@ -208,7 +218,10 @@ function stop(child: ChildProcess): Promise<void> {
   });
 }
 
-for (const [label, url] of [["the deck's port", `${BASE}/_health`], ["the app's port", `${APP}/`]] as const) {
+for (const [label, url] of [
+  ["the deck's port", `${BASE}/_health`],
+  ["the app's port", `${APP}/`],
+] as const) {
   if (await answers(url)) {
     console.error(`Something already answers on ${label}. Stop it first: this script only stops what it starts.`);
     process.exit(3);

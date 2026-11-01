@@ -1,0 +1,85 @@
+---
+title: CLI reference
+outcome: When you finish this page, you will be able to look up every live-ish command, its flags and its exit codes.
+---
+
+Run commands from a deck's folder. With pnpm, use `pnpm live-ish <command>`. With npm, use `npm run live-ish -- <command>`.
+
+## Commands
+
+This table is generated from `live-ish --help`.
+
+<Generated name="cli-table" />
+
+## Exit codes
+
+Exit codes are public API.
+
+| Code | Meaning                                             |
+| ---- | --------------------------------------------------- |
+| 0    | Passed                                              |
+| 1    | Findings                                            |
+| 2    | Misuse: a wrong command, flag or id                 |
+| 3    | Environment: a missing tool, a taken port, no build |
+
+## JSON output
+
+`--json` prints to stdout only, in a stable shape with a `version` field. Use it from scripts and agents.
+
+```text
+pnpm live-ish check --json
+pnpm live-ish themes --json
+pnpm live-ish support popover --json
+```
+
+## Tiers
+
+A person with one slide never meets Playwright.
+
+| Tier         | Needs                                            | Commands                                                    |
+| ------------ | ------------------------------------------------ | ----------------------------------------------------------- |
+| 0, author    | Node 22 or later, a package manager              | Everything above the verify group, with no browser binaries |
+| 1, capture   | `live-ish add verify` and one Chromium           | `capture`, `og`                                             |
+| 2, verify    | Tier 1, with WebKit and Firefox if you want them | `walk`, `axe`                                               |
+| 3, stage day | Tier 1                                           | `warmup`, `perf`, `parity`                                  |
+
+Without tier 1, all three slide types work. Arrival shows a loading state, the speaker's previews show a placeholder with the step label, and the intro slide lays out with no still. `check` says what is missing in one line and exits 0.
+
+A verify command in a deck with no `@live-ish/verify` prints the install line and exits 3.
+
+## Common recipes
+
+Check one demo while you write it.
+
+```text
+pnpm live-ish check faq --watch
+```
+
+Search browser support from your installed data, with no network.
+
+```text
+pnpm live-ish support details
+```
+
+Read a rule's page, offline.
+
+```text
+pnpm live-ish explain selector
+```
+
+Treat every warning as an error before a release.
+
+```text
+pnpm live-ish check --strict
+```
+
+## The scaffolder
+
+```text
+pnpm create live-ish my-talk --no-agents
+```
+
+| Flag          | What it does                                                                      |
+| ------------- | --------------------------------------------------------------------------------- |
+| `--no-agents` | Skips `AGENTS.md`, `CLAUDE.md` and skills. `live-ish add agents` adds them later. |
+| `--pm <name>` | Installs with `pnpm` or `npm`. Defaults to the one that launched it.              |

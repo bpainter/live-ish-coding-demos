@@ -1,0 +1,126 @@
+---
+title: Verification
+outcome: When you finish this page, you will know how Live-ish proves a deck works before you go on stage, and which check to run when.
+---
+
+There are two layers. `live-ish check` reads your files, with no browser, and it runs on every save. `@live-ish/verify` adds real browsers, for when you want proof that a demo plays.
+
+## Rule tiers
+
+Each rule belongs to a tier. A broken selector and an em dash are different problems.
+
+| Tier      | Default                                           | Why                                                                        |
+| --------- | ------------------------------------------------- | -------------------------------------------------------------------------- |
+| Integrity | Always on, always an error. Cannot be turned off. | The demo breaks on stage without these.                                    |
+| Fit       | Warnings, and errors under `--strict`.            | The layout overflows, a claim has no source, or a generated file is stale. |
+| Support   | Runs when a demo uses `support` or an intro.      | Not every demo has either.                                                 |
+| Style     | Off until a preset or a setting turns it on.      | Taste, not a defect.                                                       |
+
+A rule you relaxed by name in `checks.rules` stays relaxed under `--strict`. Style warnings stay warnings.
+
+```ts
+checks: {
+  fit: "warn",
+  rules: { "step-cap": "off" },
+},
+```
+
+Fit limits come from the layout, so you can relax their severity and cannot change their numbers.
+
+See [all rules](/errors).
+
+## The plain writing preset
+
+```ts
+writing: { preset: "plain" },
+```
+
+Off by default, so a first deck meets no taste errors. It turns these on:
+
+| Rule         | Setting                                                             |
+| ------------ | ------------------------------------------------------------------- |
+| `dash`       | No em or en dashes.                                                 |
+| `exclaim`    | No exclamation marks.                                               |
+| `case`       | Labels start with a capital, in sentence case.                      |
+| `sentence`   | Warn above 15 words, fail above 20. Spoken notes warn only.         |
+| `banned`     | A list of 20 filler words, plus any you add under `writing.banned`. |
+| `x-not-y`    | Warn on "X, not Y".                                                 |
+| `slide-case` | No uppercase or tracked text in the slide CSS.                      |
+
+## Add verify
+
+```text
+pnpm live-ish add verify
+```
+
+This installs `@live-ish/verify` at your engine's version, and one Chromium. A deck that never adds it still works.
+
+A verify command needs a running deck. Start one, then point the command at it with `--origin`, or set `LIVE_ISH_URL`. The default is `http://localhost:3000`.
+
+```text
+pnpm live-ish present --no-open --port=3100
+pnpm live-ish walk --origin=http://localhost:3100
+```
+
+## Walks
+
+`live-ish walk` drives the deck by key, the way a clicker would. Every step runs forward and back, and the digests must match.
+
+```text
+pnpm live-ish walk faq
+pnpm live-ish walk --browser=webkit
+pnpm live-ish walk --mode=keys
+```
+
+| Mode          | What it proves                                                                                 |
+| ------------- | ---------------------------------------------------------------------------------------------- |
+| `advance`     | Next leaves a framed page in time, by key, by the reader's button and by the speaker's button. |
+| `drawer`      | The navigation drawer's keyboard contract.                                                     |
+| `links`       | The clicker still works after a link on a slide.                                               |
+| `keys`        | No trap, every control reachable, Space presses the focused control.                           |
+| `focus`       | No press is lost on arrival.                                                                   |
+| `underlay`    | Frame content shows within budget, and posters match the live frame.                           |
+| `a11y`        | Reader semantics, text view sizes and focus ring contrast.                                     |
+| `transitions` | The crossfade between slides.                                                                  |
+
+Breaking a selector fails the walk and names the step. On `next dev`, `walk --mode=underlay` prints "dev server: budget not applied" and exits 0, because a dev server says nothing about the stage. Add `--local-only` to fail on any request to another host.
+
+## Accessibility scans
+
+```text
+pnpm live-ish axe
+pnpm live-ish axe --presenter
+```
+
+`axe` scans every frame at its first and last step. `--presenter` scans the presenter pages. A failure in a demo's own markup names the demo, so you can tell an engine bug from yours.
+
+## Capture
+
+```text
+pnpm live-ish capture
+pnpm live-ish og
+```
+
+`capture` writes one poster per step, and intro stills, from a production build. A poster sits under each frame until the live document is ready, so arrival looks instant and a failed frame still shows something. `poster-fresh` warns when a demo changed after its poster.
+
+Set `posterUnderlay: false` on a step whose poster differs from the live document.
+
+## Stage day
+
+```text
+pnpm live-ish warmup --origin=https://talk.example.com
+pnpm live-ish perf load --origin=https://talk.example.com
+pnpm live-ish perf headers --origin=https://talk.example.com
+```
+
+`warmup` fetches every page, frame and file, and fails on an error or on another build. `perf` measures your own deployment. Its seven tasks are `load`, `nav`, `frame`, `walk`, `headers`, `lighthouse` and `functions`. See [performance budgets](/performance).
+
+## Choosing a check
+
+| When                 | Run                                                                   |
+| -------------------- | --------------------------------------------------------------------- |
+| On every save        | `live-ish dev` runs `check` for you                                   |
+| Before a commit      | `live-ish check --strict`                                             |
+| After a demo is done | `live-ish walk <id>`                                                  |
+| Before a rehearsal   | `live-ish capture`, then `live-ish walk` in each browser you will use |
+| Before a talk        | `live-ish axe`, then the [stage-day checklist](/stage-day)            |

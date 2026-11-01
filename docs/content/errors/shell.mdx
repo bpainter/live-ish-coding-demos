@@ -1,0 +1,12 @@
+---
+title: shell
+outcome: When you finish this page, you will know what the shell finding means and how to clear it.
+---
+
+A generated file in your deck's shell is missing, is from an older engine, or was edited. The shell is the set of files under `app/`, plus `next.config.ts`, `tsconfig.json` and `.gitignore`.
+
+`live-ish check` reports this as a warning, and as an error under `--strict`. It is not a rule, so `checks.rules` cannot change it and `live-ish explain` does not list it.
+
+## Fix
+
+Run `live-ish upgrade`. If you edited a shell file, save your change elsewhere first, then run `live-ish upgrade --force`. See [upgrading](/upgrading).

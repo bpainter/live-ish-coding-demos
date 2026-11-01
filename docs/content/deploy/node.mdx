@@ -1,0 +1,41 @@
+---
+title: Deploy to a Node server
+outcome: When you finish this page, you will have a deck served by next start on your own server, behind a proxy.
+---
+
+**Status.** `next start` is what the hosting harness ran, on a laptop. A real server and a real proxy have not been run.
+
+## Build and start
+
+Set the site, build, then start. Use `live-ish build`. A plain `next build` on your own server is a local build, with your notes in it.
+
+```text
+LIVE_ISH_SITE_ORIGIN=https://talk.example.com pnpm live-ish build
+pnpm live-ish start --port=3000
+```
+
+## Behind a proxy
+
+Forward `host` and `x-forwarded-proto`.
+
+```text
+location / {
+  proxy_pass http://127.0.0.1:3000;
+  proxy_set_header Host $host;
+  proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+On one host, frames are relative and the policy uses `'self'`, so a proxy that rewrites `host` cannot blank a frame. On two hosts, the `frame-ancestors` line names origins, so forward both headers.
+
+## Keep it running
+
+Run `live-ish start` under whatever keeps your services up. It forwards `SIGTERM` to Next, so a stop leaves no process holding the port.
+
+## Check it
+
+```text
+curl -s https://talk.example.com/_health
+pnpm live-ish warmup --origin=https://talk.example.com
+pnpm live-ish perf headers --origin=https://talk.example.com
+```

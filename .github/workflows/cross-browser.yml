@@ -1,0 +1,38 @@
+# WebKit and Firefox on the conformance deck. Nightly and before a release, which it blocks.
+name: cross-browser
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cross-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cross-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [webkit, firefox]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          browsers: ${{ matrix.browser }}
+      - uses: ./.github/actions/start-deck
+        with:
+          deck: conformance
+          port: 3400
+      - run: pnpm --filter conformance exec live-ish walk --browser="$BROWSER" --origin=http://localhost:3400
+        env:
+          BROWSER: ${{ matrix.browser }}

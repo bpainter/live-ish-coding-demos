@@ -8,13 +8,13 @@ Each family sits in `packages/engine/assets/fonts/<family>/` with its `OFL.txt`.
 
 All five are under the SIL Open Font License 1.1. No file's name table or `OFL.txt` declares a Reserved Font Name.
 
-| Family | Files | Copyright, as the name table states it | License URL in the name table | Version | Reserved Font Name | Source | What we changed |
-|---|---|---|---|---|---|---|---|
-| Inter | `inter-latin-400.woff2`, `-700` | Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter) | https://openfontlicense.org | 4.001 | None declared | `@fontsource/inter` 5.3.0, license text from `rsms/inter` | Latin subset, then OpenType alternates and hinting dropped |
-| JetBrains Mono | `jetbrains-mono-latin-400.woff2`, `-700` | Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) | https://scripts.sil.org/OFL | 2.211 | None declared | `@fontsource/jetbrains-mono` 5.3.0, license text from `google/fonts` | Latin subset, then code ligatures, alternates and hinting dropped |
-| Nunito | `nunito-latin-400.woff2`, `-700` | Copyright 2014 The Nunito Project Authors (https://github.com/googlefonts/nunito) | https://scripts.sil.org/OFL | 3.602 | None declared | `@fontsource/nunito` 5.3.0, license text from `google/fonts` | Latin subset, as the package ships it |
-| Space Grotesk | `space-grotesk-latin-400.woff2`, `-700` | Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk) | https://scripts.sil.org/OFL | 2.000 | None declared | `@fontsource/space-grotesk` 5.3.0, license text from `google/fonts` | Latin subset, as the package ships it |
-| Atkinson Hyperlegible | `AtkinsonHyperlegible-Regular.woff2`, `-Bold` | Copyright 2020 Braille Institute of America, Inc. | https://scripts.sil.org/OFL | 1.006 | None declared | `googlefonts/atkinson-hyperlegible`, `fonts/webfonts/`, with its `OFL.txt` | Nothing: the full upstream files, byte for byte |
+| Family                | Files                                         | Copyright, as the name table states it                                                             | License URL in the name table | Version | Reserved Font Name | Source                                                                     | What we changed                                                   |
+| --------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------- | ------- | ------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Inter                 | `inter-latin-400.woff2`, `-700`               | Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)                           | https://openfontlicense.org   | 4.001   | None declared      | `@fontsource/inter` 5.3.0, license text from `rsms/inter`                  | Latin subset, then OpenType alternates and hinting dropped        |
+| JetBrains Mono        | `jetbrains-mono-latin-400.woff2`, `-700`      | Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)     | https://scripts.sil.org/OFL   | 2.211   | None declared      | `@fontsource/jetbrains-mono` 5.3.0, license text from `google/fonts`       | Latin subset, then code ligatures, alternates and hinting dropped |
+| Nunito                | `nunito-latin-400.woff2`, `-700`              | Copyright 2014 The Nunito Project Authors (https://github.com/googlefonts/nunito)                  | https://scripts.sil.org/OFL   | 3.602   | None declared      | `@fontsource/nunito` 5.3.0, license text from `google/fonts`               | Latin subset, as the package ships it                             |
+| Space Grotesk         | `space-grotesk-latin-400.woff2`, `-700`       | Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk) | https://scripts.sil.org/OFL   | 2.000   | None declared      | `@fontsource/space-grotesk` 5.3.0, license text from `google/fonts`        | Latin subset, as the package ships it                             |
+| Atkinson Hyperlegible | `AtkinsonHyperlegible-Regular.woff2`, `-Bold` | Copyright 2020 Braille Institute of America, Inc.                                                  | https://scripts.sil.org/OFL   | 1.006   | None declared      | `googlefonts/atkinson-hyperlegible`, `fonts/webfonts/`, with its `OFL.txt` | Nothing: the full upstream files, byte for byte                   |
 
 **Why Atkinson Hyperlegible is not subset.** The release we ship declares no Reserved Font Name. Earlier licensing of this family by its publisher has been described with reserved names, which we could not confirm or rule out from the files. A subset is a Modified Version under the OFL, so if a reserved name did apply, a subset could not keep the name. Shipping the full, unmodified face avoids the question, at a cost of about 12 KB on a page. It still fits the 60 KB budget.
 
@@ -26,7 +26,47 @@ The four subset families declare no Reserved Font Name, so the OFL lets a Modifi
 
 ## Other assets
 
-| Item | Note |
-|---|---|
-| `lucide-react` | ISC. Icons render on the server, so only the icons a slide names reach a page, as markup. |
-| `packages/engine/assets/grain.png` | Generated by `src/lib/grain.ts`, original code, MIT. |
+| Item                               | Note                                                                                      |
+| ---------------------------------- | ----------------------------------------------------------------------------------------- |
+| `lucide-react`                     | ISC. Icons render on the server, so only the icons a slide names reach a page, as markup. |
+| `packages/engine/assets/grain.png` | Generated by `src/lib/grain.ts`, original code, MIT.                                      |
+
+## Dependencies
+
+Read from each installed `package.json`. A deck installs its own copy of these, and each keeps its license.
+
+| Package                               | Version | License    | Where               | Note                                                                               |
+| ------------------------------------- | ------- | ---------- | ------------------- | ---------------------------------------------------------------------------------- |
+| `next`                                | 16.4.3  | MIT        | Peer of the engine  |                                                                                    |
+| `react`, `react-dom`                  | 19.3.1  | MIT        | Peers of the engine |                                                                                    |
+| `shiki`                               | 4.5.0   | MIT        | Engine              |                                                                                    |
+| `tsx`                                 | 4.23.15 | MIT        | Engine              | Runs the CLI.                                                                      |
+| `postcss`                             | 8.5.31  | MIT        | Engine              |                                                                                    |
+| `qrcode`                              | 1.5.4   | MIT        | Engine              | Generates the closing slide's code at build.                                       |
+| `hast-util-to-jsx-runtime`            | 2.3.6   | MIT        | Engine              |                                                                                    |
+| `server-only`                         | 0.0.1   | MIT        | Engine              |                                                                                    |
+| `linkedom`                            | 0.18.12 | ISC        | Engine              |                                                                                    |
+| `lucide-react`                        | 1.61.0  | ISC        | Engine              | See the icons note above.                                                          |
+| `web-features`                        | 3.44.0  | Apache-2.0 | Engine              | A deck's support data derives from it.                                             |
+| `typescript`                          | 5.9.3   | Apache-2.0 | Development only    |                                                                                    |
+| `@playwright/test`                    | 1.58.2  | Apache-2.0 | `@live-ish/verify`  | Downloads browsers, which have their own licenses, only when a deck adds `verify`. |
+| `axe-core`                            | 4.14.0  | MPL-2.0    | `@live-ish/verify`  | Unmodified.                                                                        |
+| `tailwindcss`, `@tailwindcss/postcss` | 4.3.3   | MIT        | Development only    | The engine ships compiled CSS.                                                     |
+| `@mdx-js/mdx`                         | 3.1.1   | MIT        | Docs site only      |                                                                                    |
+| `remark-gfm`                          | 4.0.1   | MIT        | Docs site only      |                                                                                    |
+| `prettier`                            | 3.9.10  | MIT        | Development only    |                                                                                    |
+| `@changesets/cli`                     | 3.0.3   | MIT        | Development only    |                                                                                    |
+
+`subset-font` is not a dependency. `live-ish fonts` names it when a deck has font masters and no shaper. Its license is BSD-3-Clause.
+
+## sharp and libvips
+
+`sharp` reaches a deck as an optional dependency of `next`, and `live-ish images` uses it when it is there. The engine does not depend on it directly, so nothing here ships these binaries inside a Live-ish package.
+
+| Package                                                           | Version read | License           |
+| ----------------------------------------------------------------- | ------------ | ----------------- |
+| `sharp`                                                           | 0.35.5       | Apache-2.0        |
+| `@img/sharp-darwin-arm64` and the other platform packages         | 0.35.5       | Apache-2.0        |
+| `@img/sharp-libvips-darwin-arm64` and the other platform packages | 1.3.4        | LGPL-3.0-or-later |
+
+The libvips packages hold a prebuilt, dynamically linked `libvips` 8.18.7 and the libraries it needs. Each platform package's `README.md` lists those libraries and their licenses, which include MIT, BSD, LGPL and MPL terms and the Alliance for Open Media Patent License 1.0. Only the macOS arm64 package was read for this file. A deck that deploys these binaries takes on their terms. Live-ish does not modify them.

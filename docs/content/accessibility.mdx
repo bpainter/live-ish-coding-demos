@@ -1,0 +1,41 @@
+---
+title: Accessibility statement
+outcome: When you finish this page, you will know what Live-ish tests, with which tools, what it does not honor, and what has not been tested.
+---
+
+Live-ish is tested against WCAG 2.2 AA with the tools below. This is not a claim of conformance. The project makes no conformance claim before a manual pass.
+
+The scope is the engine's own chrome: the presenter, the reader and the text view. A demo's markup belongs to its author, and the engine gives you the tools to check it.
+
+## The tools
+
+| Tool                                              | What it checks                                                                        | Run it with                                |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [axe-core](https://github.com/dequelabs/axe-core) | WCAG 2.0 to 2.2 A and AA, plus best practice, on presenter pages and frames           | `live-ish axe`, `live-ish axe --presenter` |
+| Keyboard walk                                     | No trap, every control reachable, Space presses the focused control                   | `live-ish walk --mode=keys`                |
+| Reader walk                                       | Tabs, announcements, focus, one `h1`, focus ring contrast of 3:1, and text view sizes | `live-ish walk --mode=a11y`                |
+| Contrast tests                                    | Computed contrast of at least 4.5:1 for text and 7:1 for code, on all 10 themes       | `pnpm test:contrast`                       |
+| The `theme-contrast` rule                         | The same floors on a custom theme                                                     | `live-ish check`                           |
+
+CI runs these on the conformance deck. Passing these tools does not prove a page is accessible, because automated tools find only part of the problems.
+
+## The stage canvas does not honor text zoom
+
+The stage is a fixed 1920 by 1080 canvas, scaled to fit the window. Text zoom has no effect on it. This is a known limit of the design.
+
+The text view is the accessible alternative. Every reader page has a "Text view" control that renders the slide as plain HTML, with body text of at least 16 px and no sideways scroll except on code. It honors your browser's text size.
+
+## Motion and color
+
+Every built-in theme has fallbacks for reduced motion, reduced transparency and forced colors. With reduced motion, spotlight fades are instant. No automated check covers these fallbacks on every theme yet, so treat them as a target.
+
+## What has not been tested
+
+- **Screen readers.** No real screen reader has run the engine. VoiceOver and NVDA are planned before v1.0, then as a manual pass per minor release.
+- **Real phones.** iOS Safari and Android Chrome have not been tried. The checks use emulation only.
+- **The projected room.** Contrast is computed, and glass panels wash out on projectors. No check can see your room.
+- **Your demos.** `axe` scans them. Only you can judge them.
+
+## Report a problem
+
+Open a bug with the page, your browser and any assistive tool you use. Barriers in the engine's chrome are bugs.

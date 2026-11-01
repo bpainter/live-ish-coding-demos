@@ -1,0 +1,117 @@
+---
+title: Terminal demos
+outcome: When you finish this page, you will understand the starter's count-words demo line by line, and you will have a recorded terminal session of your own that plays beside its code.
+---
+
+A terminal demo is a real recorded session beside the code that produced it. It uses the same steps and the same code panel as a web demo, so a talk about a command line needs no second tool.
+
+## The folder
+
+```text
+demos/count-words/
+  demo.ts                  The script
+  session.txt              The commands to record, one per line
+  word-count.mjs           The program
+  notes.txt                Its input
+  recordings/session.json  What record wrote
+```
+
+## Record a session
+
+`session.txt` holds one command per line.
+
+```text
+cat notes.txt
+node word-count.mjs notes.txt
+node word-count.mjs --top notes.txt
+```
+
+Run it with `live-ish record`.
+
+```text
+pnpm live-ish record count-words
+```
+
+Each command runs in a temporary copy of the folder. Files persist from one command to the next, but `cd` and `export` do not, because each command gets its own shell. Output goes to `recordings/session.json`, with ANSI codes stripped and the home path replaced.
+
+`record` needs no browser, and it stops in these cases:
+
+- A command fails. To record a failure on purpose, add `# expect-fail` to the line. If that command then passes, `record` stops, because the recording would claim something that did not happen.
+- A line looks like a token. Remove the secret from the session and record again. The `terminal-token` rule fails on one too, so a hand-edited recording cannot slip through.
+
+You can add a line by hand with `example: true`. The window chip then reads "Example session", so nothing illustrative claims to be a recording. `record` keeps those lines in a new recording.
+
+## The demo
+
+```ts
+import { defineDemo, shown } from "@live-ish/engine/config";
+
+export default defineDemo({
+  id: "count-words",
+  kind: "terminal",
+  title: "Counting words",
+  scenario: "A small script counts words in a file, then ranks them.",
+  beats: "single",
+
+  single: {
+    recording: "session",
+    window: { title: "word-count", cwd: "~/demo" },
+    files: [shown("word-count.mjs"), shown("notes.txt")],
+    notes: "Here is a small script and a small file.\n\nNobody has to watch me type.",
+    minutes: 1.5,
+```
+
+- `kind: "terminal"` picks the frame. You can also set `kind` on one beat, so a `before` beat can be static and an `after` beat a terminal.
+- `beats: "single"` makes this one page. A terminal demo can use intro, before and after like any demo.
+- `recording` names the file under `recordings/`.
+- `window` sets the title bar and the working directory.
+- `files` shows code from the demo folder, not from a beat folder.
+
+## The steps
+
+Each step reveals a range of recorded lines, in order, with no gap.
+
+```ts
+      {
+        id: "s0",
+        label: "Read the notes",
+        actions: [{ type: "hook", name: "reset" }, { type: "terminal", lines: [1, 3] }],
+        code: { file: "notes.txt", lines: [] },
+        notes: [],
+      },
+      {
+        id: "s1",
+        label: "Count the words",
+        actions: [{ type: "terminal", lines: [4, 5] }],
+        code: { file: "word-count.mjs", lines: [[7, 12]] },
+        spotlight: ['[data-line="5"]'],
+        notes: ["The script reads the file, splits it into words and prints the count."],
+      },
+```
+
+- `terminal` reveals an inclusive range. `terminal-range` fails on a range past the last line, or on a gap between steps.
+- `reset` always exists on a terminal page.
+- `[data-line="5"]` is how to spotlight one recorded line.
+
+Back restores the exact lines.
+
+## Go live on a terminal page
+
+Press `l` to hide the recording and type in a live terminal, if your talk calls for it. Set `ifKeyboard` on a step to remind yourself what to run.
+
+```ts
+ifKeyboard: "Press l to hide the recording, then run the command yourself.",
+```
+
+## Write your own
+
+```text
+pnpm live-ish new terminal-demo setup
+```
+
+1. Edit `demos/setup/session.txt` and the files it uses.
+2. Run `pnpm live-ish record setup`.
+3. Open `demo.ts`. Map each step to a line range and to code lines.
+4. Run `pnpm live-ish check`.
+
+The `lines` a step reveals come from the numbers in `recordings/session.json`.

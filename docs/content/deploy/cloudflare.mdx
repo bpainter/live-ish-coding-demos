@@ -1,0 +1,21 @@
+---
+title: Deploy to Cloudflare
+outcome: When you finish this page, you will know what a deck needs from Cloudflare, and what has not been proven there.
+---
+
+**Status.** Best effort. The engine detects Cloudflare Pages through `CF_PAGES` and reads its commit, and has not run there. Reports are welcome.
+
+The engine needs Node `fs` at request time, because frames are built from files on each request. That rules out an edge runtime with no file system. A Node-compatible runtime that bundles `demos/**` and `.live-ish/**` should work. This has not been shown.
+
+## Settings
+
+| Setting                | Value                      |
+| ---------------------- | -------------------------- |
+| Root directory         | The deck's folder          |
+| Build command          | `pnpm live-ish build`      |
+| Node version           | 22                         |
+| `LIVE_ISH_SITE_ORIGIN` | `https://talk.example.com` |
+
+There is no preset for the site address, so set it.
+
+If this does not work on your account, deploy to a [Node server](/deploy/node).

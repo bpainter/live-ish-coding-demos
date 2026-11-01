@@ -1,0 +1,85 @@
+---
+title: Server-backed demos
+outcome: When you finish this page, you will have a demo driven step by step against a real server, and you will know what breaks when you deploy one.
+---
+
+Some things only show on a real server: caching, logs, streaming, a session. A server-backed demo points a frame at an app of its own, on its own origin, and drives it with the same steps as any demo. Any stack can be the app.
+
+## Create one
+
+```text
+pnpm live-ish new web-demo shop --server
+```
+
+This writes a `demos/shop/` folder with a small Node server, one route and one hook. It picks a free port, adds an entry to `servers` and to `hosts.external`, and adds the demo to `order`. Try it first, then replace the server with yours.
+
+## The config
+
+```ts
+hosts: {
+  external: { shop: "http://localhost:3106" },
+},
+servers: [{ app: "shop", command: "node demos/shop/single/server.mjs", port: 3106 }],
+```
+
+`live-ish dev` and `live-ish present` start and stop each server in `servers`. `capture` does too.
+
+## The demo
+
+```ts
+export default defineDemo({
+  id: "shop",
+  kind: "server",
+  title: "Shop",
+  scenario: "One sentence for the speaker window.",
+  beats: "single",
+
+  single: {
+    frame: { app: "shop", path: "/" },
+    files: [shown("server.mjs"), shown("page.html")],
+    hooks: ["ask"],
+    minutes: 1,
+    steps: [
+      { id: "s0", label: "The first page", actions: [], code: { file: "page.html", lines: [] }, notes: [] },
+      {
+        id: "s1",
+        label: "Ask the server",
+        key: true,
+        actions: [
+          { type: "hook", name: "ask" },
+          { type: "assert", target: "#answer", expect: "text~=Hello" },
+        ],
+        code: { file: "server.mjs", lines: [[14, 17]] },
+        spotlight: ["#answer"],
+        notes: ["The page changed because a real route ran on a real server."],
+      },
+    ],
+  },
+});
+```
+
+`frame.app` names an entry in `hosts.external`, and `frame.path` is the page to open. The server and its page sit in the beat's folder, `single/`.
+
+## What your app must do
+
+The presenter drives a frame through a small runtime, and that runtime must load inside your app. Your app needs to:
+
+1. Serve the runtime, and load it from each page.
+2. Tell the runtime the presenter's origin through `<meta name="presenter-origin">`.
+3. Send a `Content-Security-Policy` with `frame-ancestors` that names the presenter.
+4. Define `window.demoHooks` for any hook a step calls.
+
+The generated `server.mjs` does all four in about 30 lines. `@live-ish/bridge` is a small package with no dependencies that gives any Node server the same pieces.
+
+## When the server is down
+
+The page shows its poster and a note, and no request goes to a dead address. Run `live-ish capture` while the server is up to have that poster.
+
+## Deploying
+
+Frames with no reachable server show their poster, so a deck can deploy with its server demos left out. To deploy one, put the app on its own host and set `hosts.external` to that address. Check two things before you trust it on stage:
+
+- **State in memory.** A log kept in memory can be read from a different instance than the one that served the request.
+- **Third-party cookies.** A session cookie that is same-site on your laptop is third-party between two deployed domains. Browsers block it unless it is set `SameSite=None; Secure; Partitioned`.
+
+`warmup` skips a server-backed frame, because such an app can log every request. Warm it yourself.

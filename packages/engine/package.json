@@ -1,12 +1,16 @@
 {
   "name": "@live-ish/engine",
-  "version": "0.0.0",
+  "version": "0.1.0-next.0",
   "description": "The Live-ish stage, presenter, reader, frame composer and runtime, consumed by a deck behind a thin Next.js shell.",
   "license": "MIT",
+  "homepage": "https://live-ish.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bpainter/live-ish-coding-demos.git",
     "directory": "packages/engine"
+  },
+  "bugs": {
+    "url": "https://github.com/bpainter/live-ish-coding-demos/issues"
   },
   "type": "module",
   "engines": {
@@ -76,5 +80,9 @@
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "typescript": "5.9.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "next"
   }
 }

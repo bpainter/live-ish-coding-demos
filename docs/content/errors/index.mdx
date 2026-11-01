@@ -1,0 +1,19 @@
+---
+title: Rules
+outcome: When you finish this page, you will be able to find the rule behind any finding from live-ish check, and read how to fix it.
+---
+
+Every finding names a rule, and every rule has a page here. `live-ish check` prints a finding with its rule id, the file, the fix and a link.
+
+```text
+✖ [selector] demos/faq/demo.ts: after, step s2, spotlight
+  "#q9" matches nothing in after/index.html.
+  Found: #q1, #q2, #note.
+  Docs: https://live-ish.dev/errors/selector
+```
+
+Run `live-ish explain <rule>` to read a page offline. These pages are generated from the same files, so the two always match.
+
+[Verification](/verification#rule-tiers) explains the four tiers. One finding is not a rule: [`shell`](/errors/shell) reports a generated file that changed.
+
+<Generated name="rule-index" />
