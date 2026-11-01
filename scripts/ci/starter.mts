@@ -49,9 +49,12 @@ try {
 run(path.join(deck, "node_modules", ".bin", "next"), ["build"], deck);
 run(process.execPath, ["--import", "tsx", path.join(REPO, "scripts", "smoke.mts")], REPO, { ...process.env, SMOKE_DECK: deck, SMOKE_PORT: PORT });
 
-const verify = tarballs["@live-ish/verify"];
-if (verify) {
-  run(pm, pm === "pnpm" ? ["add", "-D", `file:${verify}`] : ["install", "--save-dev", `file:${verify}`], deck);
-  run(cli, ["walk"], deck);
-} else console.log("note @live-ish/verify is not packed yet, so the smoke walk stood in for `live-ish walk`.");
+run(pm, pm === "pnpm" ? ["add", "-D", `file:${tarballs["@live-ish/verify"]}`] : ["install", "--save-dev", `file:${tarballs["@live-ish/verify"]}`], deck);
+const walkServer = serve(path.join(deck, "node_modules", ".bin", "next"), ["start", "--port", PORT], deck);
+try {
+  await waitForUrl(`${site}/s/faq-before`, 60_000);
+  run(cli, ["walk", `--origin=${site}`], deck);
+} finally {
+  stop(walkServer);
+}
 console.log(`\nstarter: passed with ${pm}`);

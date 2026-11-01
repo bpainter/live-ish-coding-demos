@@ -33,6 +33,8 @@ cpSync(starter, out, { recursive: true, filter: keep });
 const { description, license, dependencies, devDependencies, scripts } = readJson(path.join(starter, "package.json"));
 const { version, peerDependencies } = readJson(path.join(engine, "package.json"));
 const { typecheck: _repoOnly, ...deckScripts } = scripts;
+// The starter uses verify to test itself here. A deck adds it when it wants it, never by default.
+const { "@live-ish/verify": _verify, ...deckDevDependencies } = devDependencies;
 const manifest = {
   name: "deck",
   version: "0.1.0",
@@ -41,8 +43,9 @@ const manifest = {
   license,
   scripts: deckScripts,
   dependencies: { ...dependencies, "@live-ish/engine": version, next: peerDependencies.next, react: peerDependencies.react, "react-dom": peerDependencies["react-dom"] },
-  devDependencies,
+  devDependencies: deckDevDependencies,
 };
+if (JSON.stringify(manifest).includes("workspace:")) throw new Error("A workspace range would reach a fresh deck.");
 writeFileSync(path.join(out, "package.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 if (!existsSync(path.join(out, "deck.config.ts"))) throw new Error("The starter has no deck.config.ts.");
 console.log(`bundled examples/starter into template/ for @live-ish/engine ${version}`);
